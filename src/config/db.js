@@ -1,4 +1,12 @@
-import { neon } from "@neondatabase/serverless"
-import { getRequiredEnv } from "./env.js";
+import { neon } from "@neondatabase/serverless";
+import { getEnv } from "./env.js";
 
-export const sql = neon(getRequiredEnv("DATABASE_URL"));
+const databaseUrl = getEnv("DATABASE_URL");
+
+export const sql = databaseUrl
+  ? neon(databaseUrl)
+  : () => {
+      throw new Error(
+        "Missing required environment variable: DATABASE_URL. Set it in Vercel Project Settings → Environment Variables, then redeploy."
+      );
+    };
