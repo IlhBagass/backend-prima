@@ -1,0 +1,266 @@
+============================================================
+USERS MODULE - API NOTES
+Base URL:
+  /auth
+Headers:
+  Content-Type: application/json
+============================================================
+
+DAFTAR ENDPOINT
+  A. AUTH (REGISTER)
+    1) POST /auth/register/admin
+    2) POST /auth/register/doctor
+    3) POST /auth/register/pasien
+
+  B. CRUD USERS
+    4) GET    /auth/users
+    5) GET    /auth/users/:id
+    6) PATCH  /auth/users/:id
+    7) POST   /auth/users/:id/photo
+    8) DELETE /auth/users/:id             (soft delete)
+    9) DELETE /auth/users/:id/permanent   (hard delete)
+
+------------------------------------------------------------
+A) AUTH (REGISTER)
+------------------------------------------------------------
+
+1) REGISTER ADMIN
+Method/Path:
+  POST /auth/register/admin
+Body (JSON) - Required:
+  - name (string)
+  - email (string)
+  - password (string)
+Body (JSON) - Optional:
+  - jenis_kelamin (string)
+  - no_telepon (string)
+  - kota (string)
+  - provinsi (string)
+Contoh Body (Postman):
+  {
+    "name": "Admin Utama",
+    "email": "admin1@medicare.com",
+    "password": "Admin123!",
+    "jenis_kelamin": "laki_laki",
+    "no_telepon": "081300000001",
+    "kota": "Bandung",
+    "provinsi": "Jawa Barat"
+  }
+Response 201 (Sukses):
+  { success: true, message: "...", data: { id, name, email, role, status, created_at } }
+Response 400 (Gagal):
+  { success: false, message: "..." }
+
+2) REGISTER DOCTOR
+Method/Path:
+  POST /auth/register/doctor
+Body (JSON) - Required:
+  - name (string)
+  - email (string)
+  - password (string)
+  - nomor_str (string)
+  - nomor_sip (string)
+  - spesialisasi (string)
+Body (JSON) - Optional:
+  - nama_panggilan (string)
+  - foto_profil_url (string)
+  - jenis_kelamin (string)
+  - tanggal_lahir (string, contoh: "1985-03-20")
+  - no_telepon (string)
+  - alamat (string)
+  - kota (string)
+  - provinsi (string)
+  - kode_pos (string)
+  - sub_spesialisasi (string | null)
+  - pengalaman_tahun (number)
+  - deskripsi_profil (string)
+  - biaya_konsultasi (number)
+  - nama_klinik (string)
+  - alamat_klinik (string)
+Contoh Body (Postman):
+  {
+    "name": "dr. Andi Prasetyo",
+    "email": "andi.dr1@gmail.com",
+    "password": "Dokter123!",
+    "nama_panggilan": "dr. Andi",
+    "foto_profil_url": "https://storage.com/foto/andi.jpg",
+    "jenis_kelamin": "laki_laki",
+    "tanggal_lahir": "1985-03-20",
+    "no_telepon": "081298765432",
+    "alamat": "Jl. Sudirman No. 5",
+    "kota": "Bandung",
+    "provinsi": "Jawa Barat",
+    "kode_pos": "40112",
+    "nomor_str": "STR123456789",
+    "nomor_sip": "SIP987654321",
+    "spesialisasi": "Dokter Umum",
+    "sub_spesialisasi": null,
+    "pengalaman_tahun": 10,
+    "deskripsi_profil": "Dokter umum berpengalaman dengan fokus kesehatan keluarga.",
+    "biaya_konsultasi": 75000,
+    "nama_klinik": "Klinik Sehat Bersama",
+    "alamat_klinik": "Jl. Diponegoro No. 88, Bandung"
+  }
+Response 201 (Sukses):
+  { success: true, message: "...", data: { id, name, email, role, status, spesialisasi, created_at } }
+Response 400 (Gagal):
+  { success: false, message: "..." }
+
+3) REGISTER PASIEN
+Method/Path:
+  POST /auth/register/pasien
+Body (JSON) - Required:
+  - name (string)
+  - email (string)
+  - password (string)
+Body (JSON) - Optional:
+  - nama_panggilan (string)
+  - foto_profil_url (string)
+  - jenis_kelamin (string)
+  - tanggal_lahir (string, contoh: "2000-05-15")
+  - no_telepon (string)
+  - alamat (string)
+  - kota (string)
+  - provinsi (string)
+  - kode_pos (string)
+  - nik (string)
+  - golongan_darah (string)
+  - rhesus (string)
+  - tinggi_badan_cm (number)
+  - berat_badan_kg (number)
+  - riwayat_alergi (string)
+  - riwayat_penyakit (string)
+  - no_bpjs (string)
+Contoh Body (Postman):
+  {
+    "name": "Budi Santoso",
+    "email": "budi1@gmail.com",
+    "password": "Pasien123!",
+    "nama_panggilan": "Budi",
+    "foto_profil_url": "https://storage.com/foto/budi.jpg",
+    "jenis_kelamin": "laki_laki",
+    "tanggal_lahir": "2000-05-15",
+    "no_telepon": "081234567890",
+    "alamat": "Jl. Merdeka No. 10",
+    "kota": "Bandung",
+    "provinsi": "Jawa Barat",
+    "kode_pos": "40111",
+    "nik": "3201234567890001",
+    "golongan_darah": "A",
+    "rhesus": "+",
+    "tinggi_badan_cm": 170,
+    "berat_badan_kg": 65.5,
+    "riwayat_alergi": "Debu, Polen",
+    "riwayat_penyakit": "Asma ringan",
+    "no_bpjs": "0001234567890"
+  }
+Response 201 (Sukses):
+  { success: true, message: "...", data: { id, name, email, role, status, created_at } }
+Response 400 (Gagal):
+  { success: false, message: "..." }
+
+------------------------------------------------------------
+B) CRUD USERS
+Catatan:
+  - Endpoint ini belum diproteksi auth middleware (sementara).
+  - DELETE melakukan soft delete (mengisi kolom deleted_at).
+------------------------------------------------------------
+
+4) LIST USERS
+Method/Path:
+  GET /auth/users
+Query (Optional):
+  - limit (number)  default 50, max 200
+  - offset (number) default 0
+  - role (string)   contoh: admin | doctor | pasien
+  - status (string) contoh: aktif | menunggu_verifikasi
+Contoh URL (Postman):
+  /auth/users?limit=20&offset=0&role=pasien
+Response 200 (Sukses):
+  { success: true, data: [ { id, name, email, role, status, spesialisasi, created_at, updated_at }, ... ] }
+
+5) GET USER BY ID
+Method/Path:
+  GET /auth/users/:id
+Contoh URL (Postman):
+  /auth/users/USR001
+Response 200 (Sukses):
+  { success: true, data: { ...kolom user... } }
+Response 404 (Gagal):
+  { success: false, message: "User tidak ditemukan" }
+
+6) UPDATE USER BY ID
+Method/Path:
+  PATCH /auth/users/:id
+Body (JSON):
+  - Semua field optional (hanya field yang dikirim yang diupdate).
+  - Jika mengirim "password", akan di-hash ulang.
+Contoh Body (Postman) - Basic:
+  {
+    "name": "Budi Santoso Update",
+    "no_telepon": "081200000000",
+    "kota": "Jakarta"
+  }
+Contoh Body (Postman) - Dokter:
+  {
+    "biaya_konsultasi": 90000,
+    "pengalaman_tahun": 12,
+    "spesialisasi": "Dokter Umum"
+  }
+Response 200 (Sukses):
+  { success: true, message: "User berhasil diupdate", data: { id, name, email, role, status, spesialisasi, created_at, updated_at } }
+Response 404 (Gagal):
+  { success: false, message: "User tidak ditemukan" }
+
+7) UPLOAD FOTO PROFIL USER
+Method/Path:
+  POST /auth/users/:id/photo
+Body:
+  multipart/form-data
+  - file (type: File) -> pilih file .jpg/.png di Postman
+Cara test di Postman:
+  - Method: POST
+  - URL: /auth/users/<USER_ID>/photo
+  - Tab: Body -> form-data
+  - Key: file (type: File) -> pilih file gambar
+Response 200 (Sukses):
+  {
+    "success": true,
+    "message": "Foto profil berhasil diupload",
+    "data": {
+      "id": "...",
+      "role": "pasien|doctor|admin",
+      "foto_profil_url": "https://res.cloudinary.com/.../image/upload/....jpg",
+      "public_id": "profiles/<role>/...."
+    }
+  }
+Catatan:
+  - Untuk menampilkan foto profil, gunakan field `foto_profil_url` dari:
+    - GET /auth/users/:id  (detail user)
+
+8) DELETE USER BY ID (SOFT DELETE)
+Method/Path:
+  DELETE /auth/users/:id
+Body:
+  (tidak ada)
+Contoh URL (Postman):
+  /auth/users/USR001
+Response 200 (Sukses):
+  { success: true, message: "User berhasil dihapus", data: { id, name, email, role, status, deleted_at } }
+Response 404 (Gagal):
+  { success: false, message: "User tidak ditemukan" }
+
+9) DELETE USER BY ID (HARD DELETE / PERMANENT)
+Peringatan:
+  - Ini menghapus data user secara permanen dari database (tidak bisa restore).
+  - Sebaiknya hanya untuk admin / kebutuhan maintenance.
+Method/Path:
+  DELETE /auth/users/:id/permanent
+Body:
+  (tidak ada)
+Contoh URL (Postman):
+  /auth/users/311D6EB95B/permanent
+Response 200 (Sukses):
+  { success: true, message: "User berhasil dihapus permanen", data: { id, name, email, role } }
+Response 404 (Gagal):
+  { success: false, message: "User tidak ditemukan" }

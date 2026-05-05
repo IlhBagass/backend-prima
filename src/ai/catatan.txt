@@ -1,0 +1,68 @@
+============================================================
+AI MODULE - API NOTES
+Base URL:
+  /ai
+Headers:
+  Content-Type: application/json
+============================================================
+
+DAFTAR ENDPOINT
+  A. ASK (RAG Q&A)
+    1) POST /ai/ask
+
+  B. UPLOAD (PDF INGEST)
+  Base URL:
+    /upload
+    2) POST /upload/pdf
+
+------------------------------------------------------------
+A) ASK (RAG Q&A)
+------------------------------------------------------------
+
+1) ASK AI
+Method/Path:
+  POST /ai/ask
+Body (JSON) - Required:
+  - question (string)
+Contoh Body (Postman):
+  {
+    "question": "Apa itu hipertensi dan bagaimana cara pencegahannya?"
+  }
+Response 200 (Sukses):
+  - Bentuk response mengikuti hasil `ragPipeline()` (bisa berubah sesuai implementasi).
+  - Umumnya berisi jawaban AI + sumber/metadata (jika disertakan).
+Response 400 (Gagal):
+  { "error": "..." }
+Catatan:
+  - Endpoint ini butuh minimal 1 dokumen sudah diupload.
+  - Jika belum ada dokumen: error "Belum ada dokumen diupload".
+
+------------------------------------------------------------
+B) UPLOAD (PDF INGEST)
+------------------------------------------------------------
+
+2) UPLOAD PDF
+Method/Path:
+  POST /upload/pdf
+Body:
+  multipart/form-data
+  - file (type: File)  -> pilih file PDF di Postman
+Cara test di Postman:
+  - Method: POST
+  - URL: /upload/pdf
+  - Tab: Body -> form-data
+  - Key: file (type: File) -> pilih file .pdf
+Response 200 (Sukses):
+  {
+    "status": "success",
+    "filename": "nama-file.pdf",
+    "url": "https://...",
+    "public_id": "documents/...",
+    "document_id": "...",
+    "total_chunks": 123
+  }
+Response 400 (Gagal):
+  {
+    "status": "error",
+    "message": "File tidak ditemukan"
+  }

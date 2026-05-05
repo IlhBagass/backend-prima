@@ -1,0 +1,667 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>User Management Tester</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #0b1020;
+        --panel: #111a33;
+        --muted: #9aa7c7;
+        --text: #e9eeff;
+        --border: rgba(255, 255, 255, 0.12);
+        --accent: #6ea8fe;
+        --danger: #ff6b6b;
+        --ok: #51cf66;
+        --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+          monospace;
+      }
+
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        background: radial-gradient(1200px 700px at 20% -10%, #1c2b5a, var(--bg));
+        color: var(--text);
+      }
+
+      header {
+        padding: 20px 16px;
+        border-bottom: 1px solid var(--border);
+        position: sticky;
+        top: 0;
+        backdrop-filter: blur(10px);
+        background: rgba(11, 16, 32, 0.75);
+        z-index: 10;
+      }
+
+      header h1 {
+        margin: 0 0 6px 0;
+        font-size: 18px;
+      }
+
+      header .row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      input[type="text"],
+      input[type="number"],
+      input[type="file"],
+      select,
+      textarea {
+        width: 100%;
+        box-sizing: border-box;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--border);
+        color: var(--text);
+        border-radius: 10px;
+        padding: 10px 12px;
+        outline: none;
+      }
+
+      textarea {
+        min-height: 150px;
+        font-family: var(--mono);
+        font-size: 12px;
+      }
+
+      .wrap {
+        padding: 16px;
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 12px;
+        align-items: start;
+      }
+
+      .card {
+        grid-column: span 12;
+        background: rgba(17, 26, 51, 0.72);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 12px;
+      }
+
+      @media (min-width: 900px) {
+        .col-6 {
+          grid-column: span 6;
+        }
+        .col-4 {
+          grid-column: span 4;
+        }
+        .col-8 {
+          grid-column: span 8;
+        }
+      }
+
+      .card h2 {
+        font-size: 14px;
+        margin: 0 0 8px 0;
+      }
+
+      .muted {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      button {
+        cursor: pointer;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--text);
+        padding: 10px 12px;
+        border-radius: 10px;
+        font-weight: 600;
+      }
+
+      button.primary {
+        border-color: rgba(110, 168, 254, 0.35);
+        background: rgba(110, 168, 254, 0.12);
+      }
+
+      button.danger {
+        border-color: rgba(255, 107, 107, 0.35);
+        background: rgba(255, 107, 107, 0.12);
+      }
+
+      .row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .row > * {
+        flex: 1;
+        min-width: 180px;
+      }
+
+      .stack {
+        display: grid;
+        gap: 10px;
+      }
+
+      pre {
+        margin: 0;
+        padding: 12px;
+        border-radius: 12px;
+        background: rgba(0, 0, 0, 0.35);
+        border: 1px solid var(--border);
+        overflow: auto;
+        font-family: var(--mono);
+        font-size: 12px;
+      }
+
+      .preview {
+        display: grid;
+        grid-template-columns: 90px 1fr;
+        gap: 10px;
+        align-items: center;
+        padding: 10px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      .avatar {
+        width: 90px;
+        height: 90px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.25);
+        object-fit: cover;
+      }
+
+      .urlbox {
+        font-family: var(--mono);
+        font-size: 12px;
+        word-break: break-all;
+        color: var(--muted);
+      }
+
+      .pill {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        font-size: 12px;
+        color: var(--muted);
+        margin-left: 8px;
+      }
+
+      .status.ok {
+        color: var(--ok);
+      }
+      .status.bad {
+        color: var(--danger);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="wrap">
+        <h1>Test User Management</h1>
+        <div class="row">
+          <div style="min-width: 260px; flex: 2">
+            <label class="muted">Base URL</label>
+            <input id="baseUrl" type="text" value="http://localhost:3000" />
+          </div>
+          <div style="min-width: 260px; flex: 2">
+            <label class="muted">Prefix Auth</label>
+            <input id="authPrefix" type="text" value="/auth" />
+          </div>
+          <div style="min-width: 260px; flex: 2">
+            <label class="muted">Status</label>
+            <div id="statusLine" class="muted">Ready</div>
+          </div>
+          <div style="min-width: 160px; flex: 1; align-self: end">
+            <button class="primary" id="pingBtn">Ping /</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="wrap">
+      <div class="grid">
+        <section class="card col-6">
+          <h2>Register Admin <span class="pill">POST /auth/register/admin</span></h2>
+          <div class="stack">
+            <textarea id="adminBody"></textarea>
+            <div class="row">
+              <button class="primary" id="registerAdminBtn">Send</button>
+              <button id="adminExampleBtn">Load Example</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="card col-6">
+          <h2>Register Doctor <span class="pill">POST /auth/register/doctor</span></h2>
+          <div class="stack">
+            <textarea id="doctorBody"></textarea>
+            <div class="row">
+              <button class="primary" id="registerDoctorBtn">Send</button>
+              <button id="doctorExampleBtn">Load Example</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="card col-6">
+          <h2>Register Pasien <span class="pill">POST /auth/register/pasien</span></h2>
+          <div class="stack">
+            <textarea id="pasienBody"></textarea>
+            <div class="row">
+              <button class="primary" id="registerPasienBtn">Send</button>
+              <button id="pasienExampleBtn">Load Example</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="card col-6">
+          <h2>List Users <span class="pill">GET /auth/users</span></h2>
+          <div class="row">
+            <div>
+              <label class="muted">limit</label>
+              <input id="listLimit" type="number" value="20" min="1" max="200" />
+            </div>
+            <div>
+              <label class="muted">offset</label>
+              <input id="listOffset" type="number" value="0" min="0" />
+            </div>
+            <div>
+              <label class="muted">role</label>
+              <select id="listRole">
+                <option value="">(all)</option>
+                <option value="admin">admin</option>
+                <option value="doctor">doctor</option>
+                <option value="pasien">pasien</option>
+              </select>
+            </div>
+            <div>
+              <label class="muted">status</label>
+              <input id="listStatus" type="text" placeholder="aktif / menunggu_verifikasi" />
+            </div>
+          </div>
+          <div style="margin-top: 10px" class="row">
+            <button class="primary" id="listUsersBtn">Fetch</button>
+            <button id="useFirstIdBtn" title="Ambil id pertama dari hasil list untuk field User ID di bawah">
+              Use first id
+            </button>
+          </div>
+        </section>
+
+        <section class="card col-6">
+          <h2>User By ID <span class="pill">GET/PATCH/DELETE /auth/users/:id</span></h2>
+          <div class="stack">
+            <div class="row">
+              <div>
+                <label class="muted">User ID</label>
+                <input id="userId" type="text" placeholder="contoh: USR001 atau uuid" />
+              </div>
+              <div style="align-self: end">
+                <button class="primary" id="getUserBtn">GET</button>
+              </div>
+              <div style="align-self: end">
+                <button class="danger" id="deleteUserBtn">DELETE</button>
+              </div>
+              <div style="align-self: end">
+                <button class="danger" id="hardDeleteUserBtn" title="Hapus permanen (hard delete)">
+                  HARD DELETE
+                </button>
+              </div>
+            </div>
+
+            <div class="preview" aria-label="Preview foto profil dari GET user">
+              <img id="profilePreview" class="avatar" alt="preview foto profil" />
+              <div>
+                <div class="muted">foto_profil_url</div>
+                <div id="profileUrl" class="urlbox">-</div>
+              </div>
+            </div>
+
+            <div>
+              <label class="muted">PATCH body (JSON)</label>
+              <textarea id="patchBody"></textarea>
+            </div>
+            <div class="row">
+              <button class="primary" id="patchUserBtn">PATCH</button>
+              <button id="patchExampleBtn">Load Example</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="card col-6">
+          <h2>Upload Foto Profil <span class="pill">POST /auth/users/:id/photo</span></h2>
+          <div class="stack">
+            <div class="row">
+              <div>
+                <label class="muted">User ID</label>
+                <input id="photoUserId" type="text" placeholder="isi sama dengan User ID" />
+              </div>
+              <div>
+                <label class="muted">File</label>
+                <input id="photoFile" type="file" accept="image/*" />
+              </div>
+            </div>
+            <div class="row">
+              <button class="primary" id="uploadPhotoBtn">Upload</button>
+            </div>
+            <div class="muted">
+              Setelah upload, cek URL di response atau panggil GET user by id untuk lihat field <code>foto_profil_url</code>.
+            </div>
+          </div>
+        </section>
+
+        <section class="card col-12">
+          <h2>Response Log</h2>
+          <pre id="log"></pre>
+        </section>
+      </div>
+    </main>
+
+    <script>
+      const $ = (id) => document.getElementById(id);
+
+      const logEl = $("log");
+      const statusLine = $("statusLine");
+
+      let lastListUsers = null;
+
+      const setStatus = (text, ok = true) => {
+        statusLine.textContent = text;
+        statusLine.className = ok ? "muted status ok" : "muted status bad";
+      };
+
+      const setProfilePreview = (url) => {
+        const img = $("profilePreview");
+        const urlEl = $("profileUrl");
+
+        if (!url) {
+          img.removeAttribute("src");
+          img.style.display = "none";
+          urlEl.textContent = "-";
+          return;
+        }
+
+        img.style.display = "block";
+        img.src = url;
+        urlEl.textContent = url;
+      };
+
+      const getBase = () => {
+        const baseUrl = $("baseUrl").value.trim().replace(/\/+$/, "");
+        const authPrefix = $("authPrefix").value.trim();
+        return { baseUrl, authPrefix };
+      };
+
+      const buildUrl = (path) => {
+        const { baseUrl } = getBase();
+        return `${baseUrl}${path.startsWith("/") ? "" : "/"}${path}`;
+      };
+
+      const safeJsonParse = (raw) => {
+        try {
+          return { ok: true, value: JSON.parse(raw) };
+        } catch (e) {
+          return { ok: false, error: e.message };
+        }
+      };
+
+      const writeLog = (payload) => {
+        logEl.textContent = typeof payload === "string" ? payload : JSON.stringify(payload, null, 2);
+      };
+
+      const requestJson = async ({ method, path, body }) => {
+        const url = buildUrl(path);
+        setStatus(`${method} ${url} ...`);
+
+        const headers = {};
+        if (body !== undefined) headers["content-type"] = "application/json";
+
+        const res = await fetch(url, {
+          method,
+          headers,
+          body: body !== undefined ? JSON.stringify(body) : undefined,
+        });
+
+        let data = null;
+        const text = await res.text();
+        try {
+          data = text ? JSON.parse(text) : null;
+        } catch {
+          data = text;
+        }
+
+        writeLog({ status: res.status, ok: res.ok, url, data });
+        setStatus(`${method} ${url} -> ${res.status}`, res.ok);
+        return { res, data };
+      };
+
+      const requestMultipart = async ({ path, file }) => {
+        const url = buildUrl(path);
+        setStatus(`POST ${url} (multipart) ...`);
+
+        const form = new FormData();
+        form.append("file", file);
+
+        const res = await fetch(url, { method: "POST", body: form });
+        const text = await res.text();
+        let data = null;
+        try {
+          data = text ? JSON.parse(text) : null;
+        } catch {
+          data = text;
+        }
+
+        writeLog({ status: res.status, ok: res.ok, url, data });
+        setStatus(`POST ${url} -> ${res.status}`, res.ok);
+        return { res, data };
+      };
+
+      const loadExamples = () => {
+        $("adminBody").value = JSON.stringify(
+          {
+            name: "Admin Utama",
+            email: `admin${Date.now()}@medicare.com`,
+            password: "Admin123!",
+            jenis_kelamin: "laki_laki",
+            no_telepon: "081300000001",
+            kota: "Bandung",
+            provinsi: "Jawa Barat",
+          },
+          null,
+          2
+        );
+
+        $("doctorBody").value = JSON.stringify(
+          {
+            name: "dr. Andi Prasetyo",
+            email: `andi.dr${Date.now()}@gmail.com`,
+            password: "Dokter123!",
+            nama_panggilan: "dr. Andi",
+            foto_profil_url: "https://storage.com/foto/andi.jpg",
+            jenis_kelamin: "laki_laki",
+            tanggal_lahir: "1985-03-20",
+            no_telepon: "081298765432",
+            alamat: "Jl. Sudirman No. 5",
+            kota: "Bandung",
+            provinsi: "Jawa Barat",
+            kode_pos: "40112",
+            nomor_str: "STR123456789",
+            nomor_sip: "SIP987654321",
+            spesialisasi: "Dokter Umum",
+            sub_spesialisasi: null,
+            pengalaman_tahun: 10,
+            deskripsi_profil: "Dokter umum berpengalaman.",
+            biaya_konsultasi: 75000,
+            nama_klinik: "Klinik Sehat Bersama",
+            alamat_klinik: "Jl. Diponegoro No. 88, Bandung",
+          },
+          null,
+          2
+        );
+
+        $("pasienBody").value = JSON.stringify(
+          {
+            name: "Budi Santoso",
+            email: `budi${Date.now()}@gmail.com`,
+            password: "Pasien123!",
+            nama_panggilan: "Budi",
+            foto_profil_url: "https://storage.com/foto/budi.jpg",
+            jenis_kelamin: "laki_laki",
+            tanggal_lahir: "2000-05-15",
+            no_telepon: "081234567890",
+            alamat: "Jl. Merdeka No. 10",
+            kota: "Bandung",
+            provinsi: "Jawa Barat",
+            kode_pos: "40111",
+            nik: "3201234567890001",
+            golongan_darah: "A",
+            rhesus: "+",
+            tinggi_badan_cm: 170,
+            berat_badan_kg: 65.5,
+            riwayat_alergi: "Debu, Polen",
+            riwayat_penyakit: "Asma ringan",
+            no_bpjs: "0001234567890",
+          },
+          null,
+          2
+        );
+
+        $("patchBody").value = JSON.stringify(
+          { name: "Budi Santoso Update", no_telepon: "081200000000", kota: "Jakarta" },
+          null,
+          2
+        );
+      };
+
+      // default examples on load
+      loadExamples();
+      setProfilePreview(null);
+
+      $("adminExampleBtn").addEventListener("click", () => loadExamples());
+      $("doctorExampleBtn").addEventListener("click", () => loadExamples());
+      $("pasienExampleBtn").addEventListener("click", () => loadExamples());
+      $("patchExampleBtn").addEventListener("click", () => loadExamples());
+
+      $("pingBtn").addEventListener("click", async () => {
+        await requestJson({ method: "GET", path: "/" });
+      });
+
+      $("registerAdminBtn").addEventListener("click", async () => {
+        const { authPrefix } = getBase();
+        const parsed = safeJsonParse($("adminBody").value);
+        if (!parsed.ok) return writeLog({ error: parsed.error });
+        await requestJson({ method: "POST", path: `${authPrefix}/register/admin`, body: parsed.value });
+      });
+
+      $("registerDoctorBtn").addEventListener("click", async () => {
+        const { authPrefix } = getBase();
+        const parsed = safeJsonParse($("doctorBody").value);
+        if (!parsed.ok) return writeLog({ error: parsed.error });
+        await requestJson({ method: "POST", path: `${authPrefix}/register/doctor`, body: parsed.value });
+      });
+
+      $("registerPasienBtn").addEventListener("click", async () => {
+        const { authPrefix } = getBase();
+        const parsed = safeJsonParse($("pasienBody").value);
+        if (!parsed.ok) return writeLog({ error: parsed.error });
+        await requestJson({ method: "POST", path: `${authPrefix}/register/pasien`, body: parsed.value });
+      });
+
+      $("listUsersBtn").addEventListener("click", async () => {
+        const { authPrefix } = getBase();
+        const limit = $("listLimit").value;
+        const offset = $("listOffset").value;
+        const role = $("listRole").value;
+        const status = $("listStatus").value.trim();
+        const qs = new URLSearchParams();
+        if (limit) qs.set("limit", limit);
+        if (offset) qs.set("offset", offset);
+        if (role) qs.set("role", role);
+        if (status) qs.set("status", status);
+
+        const { res, data } = await requestJson({
+          method: "GET",
+          path: `${authPrefix}/users?${qs.toString()}`,
+        });
+        if (res.ok) lastListUsers = data;
+      });
+
+      $("useFirstIdBtn").addEventListener("click", () => {
+        const firstId = lastListUsers?.data?.[0]?.id;
+        if (!firstId) return writeLog({ error: "Belum ada hasil listUsers atau data kosong" });
+        $("userId").value = firstId;
+        $("photoUserId").value = firstId;
+        writeLog({ ok: true, message: "User ID terisi dari data[0].id", id: firstId });
+      });
+
+      $("getUserBtn").addEventListener("click", async () => {
+        const { authPrefix } = getBase();
+        const id = $("userId").value.trim();
+        if (!id) return writeLog({ error: "User ID wajib diisi" });
+        const { res, data } = await requestJson({
+          method: "GET",
+          path: `${authPrefix}/users/${encodeURIComponent(id)}`,
+        });
+        if (res.ok) {
+          setProfilePreview(data?.data?.foto_profil_url || null);
+        }
+      });
+
+      $("patchUserBtn").addEventListener("click", async () => {
+        const { authPrefix } = getBase();
+        const id = $("userId").value.trim();
+        if (!id) return writeLog({ error: "User ID wajib diisi" });
+        const parsed = safeJsonParse($("patchBody").value);
+        if (!parsed.ok) return writeLog({ error: parsed.error });
+        await requestJson({
+          method: "PATCH",
+          path: `${authPrefix}/users/${encodeURIComponent(id)}`,
+          body: parsed.value,
+        });
+      });
+
+      $("deleteUserBtn").addEventListener("click", async () => {
+        const { authPrefix } = getBase();
+        const id = $("userId").value.trim();
+        if (!id) return writeLog({ error: "User ID wajib diisi" });
+        if (!confirm(`Hapus user ${id}? (soft delete)`)) return;
+        await requestJson({ method: "DELETE", path: `${authPrefix}/users/${encodeURIComponent(id)}` });
+      });
+
+      $("hardDeleteUserBtn").addEventListener("click", async () => {
+        const { authPrefix } = getBase();
+        const id = $("userId").value.trim();
+        if (!id) return writeLog({ error: "User ID wajib diisi" });
+        if (!confirm(`HAPUS PERMANEN user ${id}? (tidak bisa restore)`)) return;
+        await requestJson({
+          method: "DELETE",
+          path: `${authPrefix}/users/${encodeURIComponent(id)}/permanent`,
+        });
+        setProfilePreview(null);
+      });
+
+      $("uploadPhotoBtn").addEventListener("click", async () => {
+        const { authPrefix } = getBase();
+        const id = $("photoUserId").value.trim();
+        if (!id) return writeLog({ error: "User ID wajib diisi" });
+        const file = $("photoFile").files?.[0];
+        if (!file) return writeLog({ error: "File wajib dipilih" });
+        const { res, data } = await requestMultipart({
+          path: `${authPrefix}/users/${encodeURIComponent(id)}/photo`,
+          file,
+        });
+        if (res.ok) {
+          setProfilePreview(data?.data?.foto_profil_url || null);
+        }
+      });
+    </script>
+  </body>
+</html>
