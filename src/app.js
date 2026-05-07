@@ -1,11 +1,11 @@
 import "./config/env.js";
 import Fastify from "fastify";
 import registerPlugins from "./plugins/index.js";
-import { initPgvector } from "./config/db.js";
+import { initDatabase } from "./config/db.js";
 
 const app = Fastify({logger: true})
 
-await initPgvector();
+await initDatabase();
 await registerPlugins(app)
 
 app.get("/",async () => {
