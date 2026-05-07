@@ -1,18 +1,35 @@
-const ensurePdfJsNodePolyfills = async () => {
-  const { DOMMatrix, ImageData, Path2D } = await import("@napi-rs/canvas");
-
-  if (!globalThis.DOMMatrix) globalThis.DOMMatrix = DOMMatrix;
-  if (!globalThis.ImageData) globalThis.ImageData = ImageData;
-  if (!globalThis.Path2D) globalThis.Path2D = Path2D;
-};
-
 export const extractTextFromBuffer = async (buffer) => {
-  await ensurePdfJsNodePolyfills();
-
-  const { PDFParse } = await import("pdf-parse");
-
-  const parser = new PDFParse({ data: buffer });
-  const result = await parser.getText();
-  await parser.destroy();
-  return result.text;
+  const PDFParser = await import("pdf2json");
+  
+  return new Promise((resolve, reject) => {
+    const pdfParser = new PDFParser.default();
+    
+    pdfParser.on("pdfParser_dataError", (errData) => {
+      reject(new Error(errData.parserError));
+    });
+    
+    pdfParser.on("pdfParser_dataReady", (pdfData) => {
+      let text = "";
+      
+      if (pdfData.Pages) {
+        pdfData.Pages.forEach((page) => {
+          if (page.Texts) {
+            page.Texts.forEach((textItem) => {
+              if (textItem.R && textItem.R.length > 0) {
+                textItem.R.forEach((r) => {
+                  if (r.T) {
+                    text += decodeURIComponent(r.T) + " ";
+                  }
+                });
+              }
+            });
+          }
+        });
+      }
+      
+      resolve(text.trim());
+    });
+    
+    pdfParser.parseBuffer(buffer);
+  });
 };
