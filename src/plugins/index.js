@@ -15,7 +15,7 @@ export default async function registerPlugins(app) {
 
   await app.register(fastifyMultipart, {
     limits: {
-      fileSize: 5 * 1024 * 1024,
+      fileSize: 2 * 1024 * 1024, // 2MB untuk serverless
     },
   });
 
