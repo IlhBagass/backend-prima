@@ -202,7 +202,7 @@ export default async function (fastify) {
       // Hard-ensure table exists even if initDatabase is skipped/older deploy mismatch.
       await runStep("CREATE EXTENSION vector", () => sql`CREATE EXTENSION IF NOT EXISTS vector;`);
       await runStep("CREATE TABLE documents", () => sql`
-        CREATE TABLE IF NOT EXISTS documents (
+        CREATE TABLE IF NOT EXISTS public.documents (
           id UUID PRIMARY KEY,
           title TEXT NOT NULL,
           file_url TEXT NOT NULL,
@@ -210,9 +210,9 @@ export default async function (fastify) {
         );
       `);
       await runStep("CREATE TABLE document_chunks", () => sql.unsafe(`
-        CREATE TABLE IF NOT EXISTS document_chunks (
+        CREATE TABLE IF NOT EXISTS public.document_chunks (
           id UUID PRIMARY KEY,
-          document_id UUID NOT NULL REFERENCES documents(id) ON DELETE CASCADE,
+          document_id UUID NOT NULL REFERENCES public.documents(id) ON DELETE CASCADE,
           content TEXT NOT NULL,
           chunk_index INTEGER NOT NULL,
           embedding VECTOR(${embeddingDim}),
@@ -229,10 +229,17 @@ export default async function (fastify) {
         ) as exists;
       `;
 
+      const schemas = await sql`
+        SELECT table_schema
+        FROM information_schema.tables
+        WHERE table_name = 'document_chunks'
+        ORDER BY table_schema;
+      `;
+
       if (exists) {
         await runStep("CREATE INDEX ivfflat", () => sql`
           CREATE INDEX IF NOT EXISTS idx_document_chunks_embedding
-          ON document_chunks USING ivfflat (embedding vector_cosine_ops)
+          ON public.document_chunks USING ivfflat (embedding vector_cosine_ops)
           WITH (lists = 100);
         `);
       } else {
@@ -251,6 +258,7 @@ export default async function (fastify) {
         status: "ok",
         embedding_dim: embeddingDim,
         document_chunks_exists: Boolean(exists2),
+        document_chunks_schemas: schemas.map((r) => r.table_schema),
         steps,
       });
     } catch (error) {

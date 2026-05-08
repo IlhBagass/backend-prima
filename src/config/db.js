@@ -47,7 +47,7 @@ export async function initDatabase() {
 
     // 2. Create documents table
     await sql`
-      CREATE TABLE IF NOT EXISTS documents (
+      CREATE TABLE IF NOT EXISTS public.documents (
         id UUID PRIMARY KEY,
         title TEXT NOT NULL,
         file_url TEXT NOT NULL,
@@ -102,9 +102,9 @@ export async function initDatabase() {
 
     // 3. Create document_chunks table
     await sql.unsafe(`
-      CREATE TABLE IF NOT EXISTS document_chunks (
+      CREATE TABLE IF NOT EXISTS public.document_chunks (
         id UUID PRIMARY KEY,
-        document_id UUID NOT NULL REFERENCES documents(id) ON DELETE CASCADE,
+        document_id UUID NOT NULL REFERENCES public.documents(id) ON DELETE CASCADE,
         content TEXT NOT NULL,
         chunk_index INTEGER NOT NULL,
         embedding VECTOR(${embeddingDim}),
@@ -118,7 +118,7 @@ export async function initDatabase() {
     try {
       await sql`
         CREATE INDEX IF NOT EXISTS idx_document_chunks_embedding
-        ON document_chunks USING ivfflat (embedding vector_cosine_ops)
+        ON public.document_chunks USING ivfflat (embedding vector_cosine_ops)
         WITH (lists = 100);
       `;
       console.log("[initDatabase] Index 'idx_document_chunks_embedding' OK.");
