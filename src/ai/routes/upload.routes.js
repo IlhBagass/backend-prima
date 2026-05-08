@@ -2,6 +2,7 @@ import cloudinary from "../../config/cloudinary.js";
 import { processPDF } from "../rag/ingest.js";
 
 export default async function (fastify) {
+  // Upload PDF: di Vercel, jangan jalankan RAG ingest sync (rawan timeout).
   fastify.post("/pdf", async (req, reply) => {
     try {
       const data = await req.file();
@@ -31,6 +32,18 @@ export default async function (fastify) {
 
         stream.end(buffer);
       });
+
+      if (process.env.VERCEL) {
+        // Hindari FUNCTION_INVOCATION_TIMEOUT: proses RAG dijalankan terpisah.
+        return reply.code(200).send({
+          status: "uploaded",
+          message:
+            "File berhasil diupload ke Cloudinary. Di Vercel, proses RAG tidak dijalankan otomatis untuk menghindari timeout. Panggil POST /upload/pdf/rag untuk memproses RAG.",
+          filename: data.filename,
+          url: result.secure_url,
+          public_id: result.public_id,
+        });
+      }
 
       // Proses RAG (extract + embedding + db)
       let processResult;
@@ -66,6 +79,57 @@ export default async function (fastify) {
         status: "error",
         message: error.message || "Upload gagal",
         detail: error.toString()
+      });
+    }
+  });
+
+  // Proses RAG terpisah (bisa dipanggil dari local/worker).
+  // Body: { url, title } atau { public_id, title }
+  fastify.post("/pdf/rag", async (req, reply) => {
+    try {
+      const { url, public_id, title } = req.body || {};
+      const fileUrl = url || (public_id ? cloudinary.url(public_id, { resource_type: "raw" }) : null);
+      const docTitle = title || public_id || url;
+
+      if (!fileUrl) {
+        return reply.code(400).send({
+          status: "error",
+          message: "Mohon kirim `url` atau `public_id` di body",
+        });
+      }
+
+      // Download ulang file (jangan bergantung buffer upload request sebelumnya)
+      const res = await fetch(fileUrl);
+      if (!res.ok) {
+        const text = await res.text().catch(() => "");
+        return reply.code(400).send({
+          status: "error",
+          message: `Gagal download file: ${res.status}`,
+          detail: text,
+        });
+      }
+
+      const arrayBuffer = await res.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+
+      const processResult = await processPDF({
+        fileBuffer: buffer,
+        fileUrl,
+        title: docTitle,
+      });
+
+      return reply.send({
+        status: "success",
+        url: fileUrl,
+        public_id,
+        document_id: processResult.document_id,
+        total_chunks: processResult.total_chunks,
+      });
+    } catch (error) {
+      return reply.code(500).send({
+        status: "error",
+        message: error.message || "Proses RAG gagal",
+        detail: error.toString(),
       });
     }
   });

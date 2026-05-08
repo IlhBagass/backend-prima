@@ -192,9 +192,11 @@
           </div>
           <div style="margin-top: 10px" class="row">
             <button class="primary" id="uploadPdfBtn">Upload</button>
+            <button id="processRagBtn" disabled>Process RAG</button>
           </div>
           <div class="muted" style="margin-top: 10px">
-            Setelah upload sukses, endpoint <code>/ai/ask</code> akan memakai dokumen terakhir yang diupload.
+            Di Vercel, upload hanya ke Cloudinary. Klik <code>Process RAG</code> untuk menjalankan ingest (butuh endpoint
+            <code>POST /upload/pdf/rag</code>).
           </div>
         </section>
 
@@ -224,6 +226,7 @@
       const $ = (id) => document.getElementById(id);
       const logEl = $("log");
       const statusLine = $("statusLine");
+      let lastUpload = null;
 
       const setStatus = (text, ok = true) => {
         statusLine.textContent = text;
@@ -289,8 +292,13 @@
           data = text;
         }
 
-        writeLog({ status: res.status, ok: res.ok, url, data });
+        lastUpload = { status: res.status, ok: res.ok, url, data };
+        writeLog(lastUpload);
         setStatus(`POST ${url} -> ${res.status}`, res.ok);
+
+        const canProcess =
+          res.ok && data && (data.status === "uploaded" || data.status === "success" || data.status === "partial");
+        $("processRagBtn").disabled = !canProcess;
         return { res, data };
       };
 
@@ -315,6 +323,15 @@
         const file = $("pdfFile").files?.[0];
         if (!file) return writeLog({ error: "Pilih file PDF dulu" });
         await requestMultipart({ path: `${uploadPrefix}/pdf`, file, fieldName: "file" });
+      });
+
+      $("processRagBtn").addEventListener("click", async () => {
+        const uploadPrefix = $("uploadPrefix").value.trim() || "/upload";
+        const data = lastUpload?.data;
+        const fileUrl = data?.url;
+        const title = data?.filename || "document.pdf";
+        if (!fileUrl) return writeLog({ error: "Belum ada hasil upload (url) untuk diproses" });
+        await requestJson({ method: "POST", path: `${uploadPrefix}/pdf/rag`, body: { url: fileUrl, title } });
       });
 
       $("askBtn").addEventListener("click", async () => {

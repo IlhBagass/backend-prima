@@ -26,3 +26,7 @@ Catatan: jangan commit `.env` (sudah di-include di `.gitignore`).
 2. Import project di Vercel.
 3. Pastikan Framework Preset: “Other”.
 4. Deploy.
+
+## Catatan Upload PDF di Vercel
+- Endpoint `POST /upload/pdf` hanya upload ke Cloudinary (tanpa proses RAG) untuk menghindari `FUNCTION_INVOCATION_TIMEOUT`.
+- Untuk proses RAG, panggil `POST /upload/pdf/rag` dengan body `{ "url": "...", "title": "..." }` (atau `{ "public_id": "...", "title": "..." }`).
