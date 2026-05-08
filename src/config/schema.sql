@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS document_chunks (
   content TEXT NOT NULL,
   chunk_index INTEGER NOT NULL,
   embedding VECTOR(1536), -- OpenAI text-embedding-3-* default 1536 (sesuaikan jika model beda)
+  created_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE(document_id, chunk_index)
 );
 

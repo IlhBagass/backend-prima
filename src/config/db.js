@@ -58,6 +58,19 @@ export async function initDatabase() {
 
     // 2.5 Ensure document_chunks embedding dimension matches configured embeddingDim
     try {
+      // Kalau tabel belum ada, skip cek dimensi (akan dibuat di step 3)
+      const [{ table_exists } = {}] = await sql`
+        SELECT EXISTS (
+          SELECT 1
+          FROM information_schema.tables
+          WHERE table_schema = 'public' AND table_name = 'document_chunks'
+        ) as table_exists;
+      `;
+
+      if (!table_exists) {
+        throw new Error("table_missing");
+      }
+
       const [{ atttypmod } = {}] = await sql`
         SELECT a.atttypmod
         FROM pg_attribute a
@@ -82,7 +95,9 @@ export async function initDatabase() {
         }
       }
     } catch (dimErr) {
-      console.warn("[initDatabase] Skip cek dimensi embedding:", dimErr.message);
+      if (dimErr.message !== "table_missing") {
+        console.warn("[initDatabase] Skip cek dimensi embedding:", dimErr.message);
+      }
     }
 
     // 3. Create document_chunks table
@@ -93,6 +108,7 @@ export async function initDatabase() {
         content TEXT NOT NULL,
         chunk_index INTEGER NOT NULL,
         embedding VECTOR(${embeddingDim}),
+        created_at TIMESTAMPTZ DEFAULT NOW(),
         UNIQUE(document_id, chunk_index)
       );
     `);

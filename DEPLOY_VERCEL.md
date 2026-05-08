@@ -35,3 +35,4 @@ Catatan: jangan commit `.env` (sudah di-include di `.gitignore`).
 ## Debug DB (opsional)
 - Cek apakah tabel `document_chunks` ada: `GET /upload/db/status`
 - Paksa re-init schema: `POST /upload/db/init`
+- `document_chunks` terbaru punya kolom `created_at` + `embedding VECTOR(dim)` (dim auto dari model / `EMBEDDING_DIM`)
