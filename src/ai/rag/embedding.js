@@ -1,4 +1,4 @@
-import { getRemoteEmbedding, hasRemoteEmbeddingsConfig } from "../provider/embeddings.js";
+import { getRemoteEmbedding, getRemoteEmbeddings, hasRemoteEmbeddingsConfig } from "../provider/embeddings.js";
 
 let localExtractor;
 
@@ -26,4 +26,23 @@ export async function getEmbedding(text) {
   }
 
   return getLocalEmbedding(text);
+}
+
+export async function getEmbeddings(texts) {
+  if (!Array.isArray(texts)) throw new Error("getEmbeddings butuh array string");
+
+  if (process.env.VERCEL && !hasRemoteEmbeddingsConfig()) {
+    throw new Error(
+      "Embeddings di Vercel butuh remote provider. Set MAIA_URL + MAIA_API_KEY + MAIA_EMBED_MODEL (atau fallback MAIA_MODEL)."
+    );
+  }
+
+  if (hasRemoteEmbeddingsConfig()) {
+    return getRemoteEmbeddings(texts);
+  }
+
+  // Local fallback: sequential supaya hemat memori
+  const out = [];
+  for (const t of texts) out.push(await getLocalEmbedding(t));
+  return out;
 }
