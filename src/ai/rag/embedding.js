@@ -17,7 +17,7 @@ export async function getEmbedding(text) {
   // Jadi default-kan remote embeddings jika konfigurasi tersedia.
   if (process.env.VERCEL && !hasRemoteEmbeddingsConfig()) {
     throw new Error(
-      "Embeddings di Vercel butuh remote provider. Set MAIA_URL, MAIA_API_KEY, dan MAIA_EMBED_MODEL."
+      "Embeddings di Vercel butuh remote provider. Set MAIA_URL + MAIA_API_KEY + MAIA_EMBED_MODEL (atau fallback MAIA_MODEL)."
     );
   }
 

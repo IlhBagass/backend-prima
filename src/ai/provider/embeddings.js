@@ -7,14 +7,15 @@ function getBaseUrl() {
 }
 
 export function hasRemoteEmbeddingsConfig() {
-  return Boolean(getBaseUrl() && process.env.MAIA_API_KEY && process.env.MAIA_EMBED_MODEL);
+  return Boolean(getBaseUrl() && process.env.MAIA_API_KEY && (process.env.MAIA_EMBED_MODEL || process.env.MAIA_MODEL));
 }
 
 export async function getRemoteEmbedding(input) {
   const baseUrl = getBaseUrl();
   if (!baseUrl) throw new Error("MAIA_URL belum diset");
   if (!process.env.MAIA_API_KEY) throw new Error("MAIA_API_KEY belum diset");
-  if (!process.env.MAIA_EMBED_MODEL) throw new Error("MAIA_EMBED_MODEL belum diset");
+  const model = process.env.MAIA_EMBED_MODEL || process.env.MAIA_MODEL;
+  if (!model) throw new Error("MAIA_EMBED_MODEL belum diset (atau fallback MAIA_MODEL juga belum diset)");
 
   const res = await fetch(`${baseUrl}/embeddings`, {
     method: "POST",
@@ -23,7 +24,7 @@ export async function getRemoteEmbedding(input) {
       Authorization: `Bearer ${process.env.MAIA_API_KEY}`,
     },
     body: JSON.stringify({
-      model: process.env.MAIA_EMBED_MODEL,
+      model,
       input,
     }),
   });
@@ -40,4 +41,3 @@ export async function getRemoteEmbedding(input) {
   }
   return embedding;
 }
-

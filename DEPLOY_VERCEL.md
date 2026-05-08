@@ -13,7 +13,7 @@ Set minimalnya:
 - `MAIA_URL`
 - `MAIA_MODEL`
 - `MAIA_API_KEY`
-- `MAIA_EMBED_MODEL` (model embeddings, endpoint `/embeddings`)
+- `MAIA_EMBED_MODEL` (opsional; kalau kosong akan fallback ke `MAIA_MODEL`, endpoint `/embeddings`)
 
 Catatan: jangan commit `.env` (sudah di-include di `.gitignore`).
 
