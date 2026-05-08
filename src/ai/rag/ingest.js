@@ -23,17 +23,10 @@ export const processPDF = async ({ fileBuffer, fileUrl, title }) => {
   const chunks = splitText(text);
   console.log("[processPDF] Total chunks:", chunks.length);
 
-  console.log("[processPDF] Generating embeddings...");
-  const embeddings = await Promise.all(
-    chunks.map((chunk, idx) => {
-      console.log(`[processPDF] Embedding chunk ${idx + 1}/${chunks.length}`);
-      return getEmbedding(chunk);
-    })
-  );
-  console.log("[processPDF] All embeddings done");
-
+  console.log("[processPDF] Generating embeddings (sequential)...");
   for (let i = 0; i < chunks.length; i++) {
-    const embedding = embeddings[i];
+    console.log(`[processPDF] Embedding chunk ${i + 1}/${chunks.length}`);
+    const embedding = await getEmbedding(chunks[i]);
     console.log(`[processPDF] Inserting chunk ${i + 1}/${chunks.length}`);
 
     try {

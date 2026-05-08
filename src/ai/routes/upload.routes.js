@@ -44,7 +44,8 @@ export default async function (fastify) {
         // Upload berhasil tapi RAG gagal (timeout/model error)
         return reply.code(200).send({
           status: "partial",
-          message: "File berhasil diupload ke Cloudinary, tapi proses RAG gagal. Coba endpoint /upload/pdf lagi dengan file yang lebih kecil, atau cek Vercel timeout.",
+          message:
+            "File berhasil diupload ke Cloudinary, tapi proses RAG gagal. Kalau deploy di Vercel, pastikan MAIA_EMBED_MODEL sudah diset (remote embeddings), atau coba file lebih kecil/cek timeout.",
           filename: data.filename,
           url: result.secure_url,
           public_id: result.public_id,

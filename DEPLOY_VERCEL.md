@@ -13,6 +13,7 @@ Set minimalnya:
 - `MAIA_URL`
 - `MAIA_MODEL`
 - `MAIA_API_KEY`
+- `MAIA_EMBED_MODEL` (model embeddings, endpoint `/embeddings`)
 
 Catatan: jangan commit `.env` (sudah di-include di `.gitignore`).
 
@@ -25,4 +26,3 @@ Catatan: jangan commit `.env` (sudah di-include di `.gitignore`).
 2. Import project di Vercel.
 3. Pastikan Framework Preset: “Other”.
 4. Deploy.
-
