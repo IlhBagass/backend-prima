@@ -48,7 +48,7 @@ export async function initDatabase() {
     // 2. Create documents table
     await sql`
       CREATE TABLE IF NOT EXISTS public.documents (
-        id UUID PRIMARY KEY,
+        id TEXT PRIMARY KEY,
         title TEXT NOT NULL,
         file_url TEXT NOT NULL,
         created_at TIMESTAMPTZ DEFAULT NOW()
@@ -104,7 +104,7 @@ export async function initDatabase() {
     await sql.unsafe(`
       CREATE TABLE IF NOT EXISTS public.document_chunks (
         id UUID PRIMARY KEY,
-        document_id UUID NOT NULL REFERENCES public.documents(id) ON DELETE CASCADE,
+        document_id TEXT NOT NULL REFERENCES public.documents(id) ON DELETE CASCADE,
         content TEXT NOT NULL,
         chunk_index INTEGER NOT NULL,
         embedding VECTOR(${embeddingDim}),
