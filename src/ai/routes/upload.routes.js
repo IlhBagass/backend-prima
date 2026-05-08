@@ -138,7 +138,23 @@ export default async function (fastify) {
   // Debug helper: cek table dan (re)inisialisasi jika diperlukan.
   fastify.get("/db/status", async (req, reply) => {
     try {
+      const databaseUrl = process.env.DATABASE_URL || null;
+      let dbInfo = null;
+      if (databaseUrl) {
+        try {
+          const u = new URL(databaseUrl);
+          dbInfo = {
+            host: u.host,
+            database: (u.pathname || "").replace(/^\//, "") || null,
+            sslmode: u.searchParams.get("sslmode"),
+          };
+        } catch {
+          dbInfo = { host: null, database: null, sslmode: null };
+        }
+      }
+
       const [{ current_database } = {}] = await sql`SELECT current_database() as current_database;`;
+      const [{ current_schema } = {}] = await sql`SELECT current_schema() as current_schema;`;
       const [{ exists } = {}] = await sql`
         SELECT EXISTS (
           SELECT 1
@@ -149,7 +165,9 @@ export default async function (fastify) {
 
       return reply.send({
         status: "ok",
+        db_info: dbInfo,
         database: current_database,
+        schema: current_schema,
         document_chunks_exists: Boolean(exists),
       });
     } catch (error) {
@@ -160,6 +178,43 @@ export default async function (fastify) {
   fastify.post("/db/init", async (req, reply) => {
     try {
       await initDatabase();
+
+      // Hard-ensure table exists even if initDatabase is skipped/older deploy mismatch.
+      // Use explicit SQL here to avoid depending on helper implementation details.
+      const embeddingDim = (() => {
+        const explicit = Number(process.env.EMBEDDING_DIM);
+        if (Number.isFinite(explicit) && explicit > 0) return explicit;
+        const model = (process.env.MAIA_EMBED_MODEL || process.env.MAIA_MODEL || "").trim();
+        if (model.includes("text-embedding-3")) return 1536;
+        return 384;
+      })();
+
+      await sql`CREATE EXTENSION IF NOT EXISTS vector;`;
+      await sql`
+        CREATE TABLE IF NOT EXISTS documents (
+          id UUID PRIMARY KEY,
+          title TEXT NOT NULL,
+          file_url TEXT NOT NULL,
+          created_at TIMESTAMPTZ DEFAULT NOW()
+        );
+      `;
+      await sql.unsafe(`
+        CREATE TABLE IF NOT EXISTS document_chunks (
+          id UUID PRIMARY KEY,
+          document_id UUID NOT NULL REFERENCES documents(id) ON DELETE CASCADE,
+          content TEXT NOT NULL,
+          chunk_index INTEGER NOT NULL,
+          embedding VECTOR(${embeddingDim}),
+          created_at TIMESTAMPTZ DEFAULT NOW(),
+          UNIQUE(document_id, chunk_index)
+        );
+      `);
+      await sql`
+        CREATE INDEX IF NOT EXISTS idx_document_chunks_embedding
+        ON document_chunks USING ivfflat (embedding vector_cosine_ops)
+        WITH (lists = 100);
+      `;
+
       const [{ exists } = {}] = await sql`
         SELECT EXISTS (
           SELECT 1
@@ -167,7 +222,7 @@ export default async function (fastify) {
           WHERE table_schema = 'public' AND table_name = 'document_chunks'
         ) as exists;
       `;
-      return reply.send({ status: "ok", document_chunks_exists: Boolean(exists) });
+      return reply.send({ status: "ok", embedding_dim: embeddingDim, document_chunks_exists: Boolean(exists) });
     } catch (error) {
       return reply.code(500).send({ status: "error", message: error.message });
     }
