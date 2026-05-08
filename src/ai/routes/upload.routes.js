@@ -1,5 +1,6 @@
 import cloudinary from "../../config/cloudinary.js";
 import { processPDF } from "../rag/ingest.js";
+import { initDatabase, sql } from "../../config/db.js";
 
 export default async function (fastify) {
   // Upload PDF: di Vercel, jangan jalankan RAG ingest sync (rawan timeout).
@@ -131,6 +132,44 @@ export default async function (fastify) {
         message: error.message || "Proses RAG gagal",
         detail: error.toString(),
       });
+    }
+  });
+
+  // Debug helper: cek table dan (re)inisialisasi jika diperlukan.
+  fastify.get("/db/status", async (req, reply) => {
+    try {
+      const [{ current_database } = {}] = await sql`SELECT current_database() as current_database;`;
+      const [{ exists } = {}] = await sql`
+        SELECT EXISTS (
+          SELECT 1
+          FROM information_schema.tables
+          WHERE table_schema = 'public' AND table_name = 'document_chunks'
+        ) as exists;
+      `;
+
+      return reply.send({
+        status: "ok",
+        database: current_database,
+        document_chunks_exists: Boolean(exists),
+      });
+    } catch (error) {
+      return reply.code(500).send({ status: "error", message: error.message });
+    }
+  });
+
+  fastify.post("/db/init", async (req, reply) => {
+    try {
+      await initDatabase();
+      const [{ exists } = {}] = await sql`
+        SELECT EXISTS (
+          SELECT 1
+          FROM information_schema.tables
+          WHERE table_schema = 'public' AND table_name = 'document_chunks'
+        ) as exists;
+      `;
+      return reply.send({ status: "ok", document_chunks_exists: Boolean(exists) });
+    } catch (error) {
+      return reply.code(500).send({ status: "error", message: error.message });
     }
   });
 }
