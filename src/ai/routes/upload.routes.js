@@ -155,6 +155,10 @@ export default async function (fastify) {
 
       const [{ current_database } = {}] = await sql`SELECT current_database() as current_database;`;
       const [{ current_schema } = {}] = await sql`SELECT current_schema() as current_schema;`;
+      const [{ search_path } = {}] = await sql`SHOW search_path;`;
+      const [{ regclass } = {}] = await sql`
+        SELECT to_regclass('public.document_chunks') as regclass;
+      `;
       const [{ exists } = {}] = await sql`
         SELECT EXISTS (
           SELECT 1
@@ -168,6 +172,8 @@ export default async function (fastify) {
         db_info: dbInfo,
         database: current_database,
         schema: current_schema,
+        search_path,
+        document_chunks_regclass: regclass,
         document_chunks_exists: Boolean(exists),
       });
     } catch (error) {
@@ -221,6 +227,7 @@ export default async function (fastify) {
         );
       `));
 
+      const [{ regclass } = {}] = await sql`SELECT to_regclass('public.document_chunks') as regclass;`;
       const [{ exists } = {}] = await sql`
         SELECT EXISTS (
           SELECT 1
@@ -235,6 +242,14 @@ export default async function (fastify) {
         WHERE table_name = 'document_chunks'
         ORDER BY table_schema;
       `;
+
+      let selectProbeOk = false;
+      try {
+        await sql`SELECT 1 FROM public.document_chunks LIMIT 1;`;
+        selectProbeOk = true;
+      } catch {
+        selectProbeOk = false;
+      }
 
       if (exists) {
         await runStep("CREATE INDEX ivfflat", () => sql`
@@ -259,6 +274,8 @@ export default async function (fastify) {
         embedding_dim: embeddingDim,
         document_chunks_exists: Boolean(exists2),
         document_chunks_schemas: schemas.map((r) => r.table_schema),
+        document_chunks_regclass: regclass,
+        select_probe_ok: selectProbeOk,
         steps,
       });
     } catch (error) {
