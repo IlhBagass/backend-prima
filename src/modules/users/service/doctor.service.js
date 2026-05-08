@@ -35,12 +35,11 @@ export const registerDoctorService = async ({
     throw new Error("Email sudah terdaftar");
   }
 
-  // Validasi STR & SIP wajib
   if (!nomor_str || !nomor_sip) {
     throw new Error("Nomor STR dan SIP wajib diisi untuk dokter");
   }
 
-  let id = generateHexId(5); // 10 chars hex uppercase, contoh: 4C4623CBEF
+  let id = generateHexId(5); 
   for (let i = 0; i < 5; i++) {
     const exists = await sql`
       SELECT id FROM users
