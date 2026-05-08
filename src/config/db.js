@@ -2,6 +2,15 @@ import { neon } from "@neondatabase/serverless";
 import { getEnv } from "./env.js";
 
 const databaseUrl = getEnv("DATABASE_URL");
+const embeddingDim = (() => {
+  const explicit = Number(getEnv("EMBEDDING_DIM"));
+  if (Number.isFinite(explicit) && explicit > 0) return explicit;
+
+  const model = getEnv("MAIA_EMBED_MODEL") || getEnv("MAIA_MODEL") || "";
+  // Default: Xenova/all-MiniLM-L6-v2 -> 384, OpenAI text-embedding-3-* -> 1536 (default)
+  if (model.includes("text-embedding-3")) return 1536;
+  return 384;
+})();
 
 export const sql = databaseUrl
   ? neon(databaseUrl)
@@ -47,17 +56,46 @@ export async function initDatabase() {
     `;
     console.log("[initDatabase] Tabel 'documents' OK.");
 
+    // 2.5 Ensure document_chunks embedding dimension matches configured embeddingDim
+    try {
+      const [{ atttypmod } = {}] = await sql`
+        SELECT a.atttypmod
+        FROM pg_attribute a
+        JOIN pg_class c ON a.attrelid = c.oid
+        JOIN pg_namespace n ON c.relnamespace = n.oid
+        WHERE n.nspname = 'public'
+          AND c.relname = 'document_chunks'
+          AND a.attname = 'embedding'
+          AND a.attnum > 0
+          AND NOT a.attisdropped
+        LIMIT 1;
+      `;
+
+      if (typeof atttypmod === "number" && atttypmod > 4) {
+        const currentDim = atttypmod - 4; // pgvector stores typmod as (dim + 4)
+        if (currentDim !== embeddingDim) {
+          console.warn(
+            `[initDatabase] Dimensi embedding berubah (${currentDim} -> ${embeddingDim}). Recreate table 'document_chunks' (data chunks akan terhapus).`
+          );
+          await sql`DROP INDEX IF EXISTS idx_document_chunks_embedding;`;
+          await sql`DROP TABLE IF EXISTS document_chunks;`;
+        }
+      }
+    } catch (dimErr) {
+      console.warn("[initDatabase] Skip cek dimensi embedding:", dimErr.message);
+    }
+
     // 3. Create document_chunks table
-    await sql`
+    await sql.unsafe(`
       CREATE TABLE IF NOT EXISTS document_chunks (
         id UUID PRIMARY KEY,
         document_id UUID NOT NULL REFERENCES documents(id) ON DELETE CASCADE,
         content TEXT NOT NULL,
         chunk_index INTEGER NOT NULL,
-        embedding VECTOR(384),
+        embedding VECTOR(${embeddingDim}),
         UNIQUE(document_id, chunk_index)
       );
-    `;
+    `);
     console.log("[initDatabase] Tabel 'document_chunks' OK.");
 
     // 4. Create index for similarity search (ignore if already exists)

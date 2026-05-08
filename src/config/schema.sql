@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS document_chunks (
   document_id UUID NOT NULL REFERENCES documents(id) ON DELETE CASCADE,
   content TEXT NOT NULL,
   chunk_index INTEGER NOT NULL,
-  embedding VECTOR(384), -- all-MiniLM-L6-v2 produces 384 dimensions
+  embedding VECTOR(1536), -- OpenAI text-embedding-3-* default 1536 (sesuaikan jika model beda)
   UNIQUE(document_id, chunk_index)
 );
 

@@ -14,6 +14,7 @@ Set minimalnya:
 - `MAIA_MODEL`
 - `MAIA_API_KEY`
 - `MAIA_EMBED_MODEL` (opsional; kalau kosong akan fallback ke `MAIA_MODEL`, endpoint `/embeddings`)
+- `EMBEDDING_DIM` (opsional; default auto: `text-embedding-3-*` -> 1536, selain itu 384)
 
 Catatan: jangan commit `.env` (sudah di-include di `.gitignore`).
 
