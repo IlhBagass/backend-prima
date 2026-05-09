@@ -10,7 +10,7 @@ Set minimalnya:
 - `CLOUD_NAME`
 - `CLOUD_API_KEY`
 - `CLOUD_API_SECRET`
-- `MAIA_URL`
+- `MAIA_URL` (catatan: untuk embeddings, beberapa router butuh base `.../openai/v1`)
 - `MAIA_MODEL`
 - `MAIA_API_KEY`
 - `MAIA_EMBED_MODEL` (opsional; kalau kosong akan fallback ke `MAIA_MODEL`, endpoint `/embeddings`)

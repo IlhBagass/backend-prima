@@ -1,29 +1,27 @@
 import cloudinary from "../../config/cloudinary.js";
-import { processPDF } from "../rag/ingest.js";
 import { initDatabase, sql } from "../../config/db.js";
+import { processPDF } from "../rag/ingest.js";
 
-export default async function (fastify) {
+export default async function uploadRoutes(fastify) {
   // Upload PDF: di Vercel, jangan jalankan RAG ingest sync (rawan timeout).
   fastify.post("/pdf", async (req, reply) => {
     try {
       const data = await req.file();
-
       if (!data) {
         return reply.code(400).send({
           status: "error",
-          message: "File tidak ditemukan"
+          message: "File tidak ditemukan",
         });
       }
 
       const buffer = await data.toBuffer();
 
-      // Upload ke Cloudinary
-      const result = await new Promise((resolve, reject) => {
+      const uploadResult = await new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
           {
             resource_type: "raw",
             folder: "documents",
-            public_id: data.filename
+            public_id: data.filename,
           },
           (error, result) => {
             if (error) reject(error);
@@ -35,71 +33,72 @@ export default async function (fastify) {
       });
 
       if (process.env.VERCEL) {
-        // Hindari FUNCTION_INVOCATION_TIMEOUT: proses RAG dijalankan terpisah.
         return reply.code(200).send({
           status: "uploaded",
-          message:
-            "File berhasil diupload ke Cloudinary. Di Vercel, proses RAG tidak dijalankan otomatis untuk menghindari timeout. Panggil POST /upload/pdf/rag untuk memproses RAG.",
+          message: "File berhasil diupload. Jalankan endpoint /upload/pdf/rag untuk proses RAG.",
           filename: data.filename,
-          url: result.secure_url,
-          public_id: result.public_id,
+          url: uploadResult.secure_url,
+          public_id: uploadResult.public_id,
         });
       }
 
-      // Proses RAG (extract + embedding + db)
       let processResult;
       try {
         processResult = await processPDF({
           fileBuffer: buffer,
-          fileUrl: result.secure_url,
-          title: data.filename
+          fileUrl: uploadResult.secure_url,
+          title: data.filename,
         });
       } catch (ragError) {
-        // Upload berhasil tapi RAG gagal (timeout/model error)
         return reply.code(200).send({
           status: "partial",
-          message:
-            "File berhasil diupload ke Cloudinary, tapi proses RAG gagal. Kalau deploy di Vercel, pastikan MAIA_EMBED_MODEL sudah diset (remote embeddings), atau coba file lebih kecil/cek timeout.",
+          message: "Upload berhasil tapi proses RAG gagal.",
           filename: data.filename,
-          url: result.secure_url,
-          public_id: result.public_id,
-          rag_error: ragError.message
+          url: uploadResult.secure_url,
+          public_id: uploadResult.public_id,
+          rag_error: ragError?.message || String(ragError),
         });
       }
 
-      return {
+      return reply.send({
         status: "success",
         filename: data.filename,
-        url: result.secure_url,
-        public_id: result.public_id,
+        url: uploadResult.secure_url,
+        public_id: uploadResult.public_id,
         document_id: processResult.document_id,
-        total_chunks: processResult.total_chunks
-      };
+        total_chunks: processResult.total_chunks,
+      });
     } catch (error) {
       return reply.code(500).send({
         status: "error",
-        message: error.message || "Upload gagal",
-        detail: error.toString()
+        message: error?.message || "Upload gagal",
+        detail: String(error),
       });
     }
   });
 
-  // Proses RAG terpisah (bisa dipanggil dari local/worker).
-  // Body: { url, title } atau { public_id, title }
+  // Process RAG terpisah (biasanya dipanggil setelah upload sukses di Vercel).
   fastify.post("/pdf/rag", async (req, reply) => {
     try {
       const { url, public_id, title } = req.body || {};
-      const fileUrl = url || (public_id ? cloudinary.url(public_id, { resource_type: "raw" }) : null);
+
+      const fileUrl =
+        url ||
+        (public_id
+          ? cloudinary.url(public_id, {
+              resource_type: "raw",
+            })
+          : null);
+
       const docTitle = title || public_id || url;
 
       if (!fileUrl) {
         return reply.code(400).send({
           status: "error",
-          message: "Mohon kirim `url` atau `public_id` di body",
+          message: "Mohon kirim url atau public_id",
         });
       }
 
-      // Download ulang file (jangan bergantung buffer upload request sebelumnya)
       const res = await fetch(fileUrl);
       if (!res.ok) {
         const text = await res.text().catch(() => "");
@@ -129,8 +128,8 @@ export default async function (fastify) {
     } catch (error) {
       return reply.code(500).send({
         status: "error",
-        message: error.message || "Proses RAG gagal",
-        detail: error.toString(),
+        message: error?.message || "Proses RAG gagal",
+        detail: String(error),
       });
     }
   });
@@ -177,7 +176,7 @@ export default async function (fastify) {
         document_chunks_exists: Boolean(exists),
       });
     } catch (error) {
-      return reply.code(500).send({ status: "error", message: error.message });
+      return reply.code(500).send({ status: "error", message: error?.message || String(error) });
     }
   });
 
@@ -202,40 +201,36 @@ export default async function (fastify) {
     };
 
     try {
-      // Best effort: run app-level init first
       await runStep("initDatabase()", () => initDatabase());
-
-      // Hard-ensure table exists even if initDatabase is skipped/older deploy mismatch.
       await runStep("CREATE EXTENSION vector", () => sql`CREATE EXTENSION IF NOT EXISTS vector;`);
-      await runStep("CREATE TABLE documents", () => sql`
-        CREATE TABLE IF NOT EXISTS public.documents (
-          id TEXT PRIMARY KEY,
-          title TEXT NOT NULL,
-          file_url TEXT NOT NULL,
-          created_at TIMESTAMPTZ DEFAULT NOW()
-        );
-      `);
-      await runStep("CREATE TABLE document_chunks", () => sql.unsafe(`
-        CREATE TABLE IF NOT EXISTS public.document_chunks (
-          id UUID PRIMARY KEY,
-          document_id TEXT NOT NULL REFERENCES public.documents(id) ON DELETE CASCADE,
-          content TEXT NOT NULL,
-          chunk_index INTEGER NOT NULL,
-          embedding VECTOR(${embeddingDim}),
-          created_at TIMESTAMPTZ DEFAULT NOW(),
-          UNIQUE(document_id, chunk_index)
-        );
-      `));
+      await runStep(
+        "CREATE TABLE documents",
+        () => sql`
+          CREATE TABLE IF NOT EXISTS public.documents (
+            id TEXT PRIMARY KEY,
+            title TEXT NOT NULL,
+            file_url TEXT NOT NULL,
+            created_at TIMESTAMPTZ DEFAULT NOW()
+          );
+        `
+      );
+      await runStep(
+        "CREATE TABLE document_chunks",
+        () =>
+          sql.unsafe(`
+            CREATE TABLE IF NOT EXISTS public.document_chunks (
+              id UUID PRIMARY KEY,
+              document_id TEXT NOT NULL REFERENCES public.documents(id) ON DELETE CASCADE,
+              content TEXT NOT NULL,
+              chunk_index INTEGER NOT NULL,
+              embedding VECTOR(${embeddingDim}),
+              created_at TIMESTAMPTZ DEFAULT NOW(),
+              UNIQUE(document_id, chunk_index)
+            );
+          `)
+      );
 
       const [{ regclass } = {}] = await sql`SELECT to_regclass('public.document_chunks') as regclass;`;
-      const [{ exists } = {}] = await sql`
-        SELECT EXISTS (
-          SELECT 1
-          FROM information_schema.tables
-          WHERE table_schema = 'public' AND table_name = 'document_chunks'
-        ) as exists;
-      `;
-
       const schemas = await sql`
         SELECT table_schema
         FROM information_schema.tables
@@ -251,12 +246,23 @@ export default async function (fastify) {
         selectProbeOk = false;
       }
 
+      const [{ exists } = {}] = await sql`
+        SELECT EXISTS (
+          SELECT 1
+          FROM information_schema.tables
+          WHERE table_schema = 'public' AND table_name = 'document_chunks'
+        ) as exists;
+      `;
+
       if (exists) {
-        await runStep("CREATE INDEX ivfflat", () => sql`
-          CREATE INDEX IF NOT EXISTS idx_document_chunks_embedding
-          ON public.document_chunks USING ivfflat (embedding vector_cosine_ops)
-          WITH (lists = 100);
-        `);
+        await runStep(
+          "CREATE INDEX ivfflat",
+          () => sql`
+            CREATE INDEX IF NOT EXISTS idx_document_chunks_embedding
+            ON public.document_chunks USING ivfflat (embedding vector_cosine_ops)
+            WITH (lists = 100);
+          `
+        );
       } else {
         steps.push({ name: "CREATE INDEX ivfflat", ok: false, error: "document_chunks tidak ada (skip)" });
       }
@@ -281,10 +287,11 @@ export default async function (fastify) {
     } catch (error) {
       return reply.code(500).send({
         status: "error",
-        message: error.message,
+        message: error?.message || String(error),
         embedding_dim: embeddingDim,
         steps,
       });
     }
   });
 }
+
