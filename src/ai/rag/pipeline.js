@@ -59,6 +59,7 @@ export async function ragPipeline({ question, documentId, llm }) {
   - JANGAN ulang pertanyaan
   - JANGAN mengarang di luar context
   - WAJIB JSON VALID
+  - Jika ada question yang masuk ke dalam when_to_see_doctor masukkan ke dalam user message
   `;
 
   const raw = await llm(prompt);
