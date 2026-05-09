@@ -12,6 +12,7 @@ export async function ragPipeline({ question, documentId, llm }) {
 
   const prompt = `
   Kamu adalah AI kesehatan berbasis dokumen.
+  Dan IbaratKan Kamu adalah dokter virtual untuk membantu pasien.
 
   Gunakan hanya informasi dari context.
 
