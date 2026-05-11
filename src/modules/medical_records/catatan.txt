@@ -1,0 +1,114 @@
+============================================================
+MEDICAL RECORDS MODULE - API NOTES
+Base URL:
+  /medical
+Headers:
+  Content-Type: application/json
+============================================================
+
+DAFTAR ENDPOINT
+  1) POST   /medical
+  2) GET    /medical/pasien/:pasien_id
+  3) GET    /medical/:id
+  4) PATCH  /medical/:id
+  5) DELETE /medical/:id
+
+------------------------------------------------------------
+1) BUAT REKAM MEDIS
+------------------------------------------------------------
+Method/Path:
+  POST /medical
+Body (JSON) - Required:
+  - pasien_id (string) -> id dari table users (role pasien)
+  - doctor_id (string) -> id dari table users (role doctor)
+  - type (string) -> contoh: "konsultasi", "pemeriksaan", "resep", "rujukan"
+  - judul (string) -> judul ringkasan rekam medis
+Body (JSON) - Optional:
+  - booking_id (string) -> id booking terkait (jika ada)
+  - deskripsi (string) -> deskripsi/detail kondisi pasien
+  - catatan_dokter (string) -> catatan/saran dari dokter
+  - attachment_url (string) -> URL file attachment (lab result, foto, dll)
+Contoh Body (Postman):
+  {
+    "pasien_id": "4C4623CBEF",
+    "doctor_id": "E77E0417A2",
+    "booking_id": "BOOK001",
+    "type": "konsultasi",
+    "judul": "Konsultasi Hipertensi",
+    "deskripsi": "Pasien mengeluh pusing dan tekanan darah tinggi.",
+    "catatan_dokter": "Dianjurkan mengurangi garam, olahraga rutin.",
+    "attachment_url": "https://storage.com/hasil-lab.pdf"
+  }
+Response 201 (Sukses):
+  { success: true, message: "Rekam medis berhasil dibuat", data: { id, pasien_id, doctor_id, type, judul, deskripsi, catatan_dokter, attachment_url, created_at } }
+Response 500 (Gagal):
+  { success: false, message: "..." }
+
+------------------------------------------------------------
+2) LIST REKAM MEDIS (BY PASIEN)
+------------------------------------------------------------
+Method/Path:
+  GET /medical/pasien/:pasien_id
+Query (Optional):
+  - type (string) -> filter: konsultasi | pemeriksaan | resep | rujukan
+  - date_from (string) -> format YYYY-MM-DD
+  - date_to (string) -> format YYYY-MM-DD
+  - limit (number) -> default 10
+  - offset (number) -> default 0
+Contoh URL:
+  /medical/pasien/4C4623CBEF
+  /medical/pasien/4C4623CBEF?type=konsultasi&limit=5
+Response 200 (Sukses):
+  { success: true, data: [ { id, pasien_id, doctor_id, type, judul, deskripsi, catatan_dokter, attachment_url, created_at, updated_at }, ... ] }
+Catatan:
+  - Hanya menampilkan rekam medis yang belum dihapus (deleted_at IS NULL).
+  - Diurutkan berdasarkan created_at DESC (terbaru dulu).
+
+------------------------------------------------------------
+3) GET REKAM MEDIS BY ID
+------------------------------------------------------------
+Method/Path:
+  GET /medical/:id
+Contoh URL:
+  /medical/550E8400-E29B-41D4-A716-446655440000
+Response 200 (Sukses):
+  { success: true, data: { id, pasien_id, doctor_id, booking_id, type, judul, deskripsi, catatan_dokter, attachment_url, created_at, updated_at } }
+Response 404 (Gagal):
+  { success: false, message: "Rekam medis tidak ditemukan" }
+
+------------------------------------------------------------
+4) UPDATE REKAM MEDIS
+------------------------------------------------------------
+Method/Path:
+  PATCH /medical/:id
+Body (JSON) - Optional:
+  - type (string)
+  - judul (string)
+  - deskripsi (string)
+  - catatan_dokter (string)
+  - attachment_url (string)
+Contoh Body (Postman):
+  {
+    "judul": "Konsultasi Hipertensi (Update)",
+    "catatan_dokter": "Obat ditambah dosis. Kontrol ulang 1 minggu lagi."
+  }
+Response 200 (Sukses):
+  { success: true, message: "Rekam medis berhasil diupdate", data: { ... } }
+Response 404 (Gagal):
+  { success: false, message: "Rekam medis tidak ditemukan" }
+
+------------------------------------------------------------
+5) HAPUS REKAM MEDIS (SOFT DELETE)
+------------------------------------------------------------
+Method/Path:
+  DELETE /medical/:id
+Body:
+  (tidak ada)
+Contoh URL:
+  /medical/550E8400-E29B-41D4-A716-446655440000
+Response 200 (Sukses):
+  { success: true, message: "Rekam medis berhasil dihapus" }
+Response 404 (Gagal):
+  { success: false, message: "Rekam medis tidak ditemukan" }
+Catatan:
+  - Ini soft delete (mengisi kolom deleted_at), data tetap ada di database.

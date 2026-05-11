@@ -2,9 +2,12 @@ import cors from "@fastify/cors";
 import fastifyMultipart from "@fastify/multipart";
 
 import userModule from "../modules/users/index.js";
+import scheduleModule from "../modules/schedule/index.js";
+import doctorModule from "../modules/doctor/index.js";
 import uploadModule from "../ai/routes/upload.routes.js";
 import askModule from "../ai/routes/ai.routes.js"
 import aiRoutes from "../ai/routes/ai.routes.js";
+import medicalModule from "../modules/medical_records/index.js"
 
 export default async function registerPlugins(app) {
   await app.register(cors, {
@@ -15,11 +18,14 @@ export default async function registerPlugins(app) {
 
   await app.register(fastifyMultipart, {
     limits: {
-      fileSize: 2 * 1024 * 1024, // 2MB untuk serverless
+      fileSize: 2 * 1024 * 1024, 
     },
   });
 
   await app.register(userModule, { prefix: "/auth" });
-  await app.register(aiRoutes,{prefix:"/ai"})
-  await app.register(uploadModule,{prefix: "/upload"})
+  await app.register(scheduleModule, { prefix: "/schedules" });
+  await app.register(doctorModule, { prefix: "/doctors" });
+  await app.register(aiRoutes,{prefix:"/ai"});
+  await app.register(uploadModule,{prefix: "/upload"});
+  await app.register(medicalModule,{prefix:"/medical"});
 }

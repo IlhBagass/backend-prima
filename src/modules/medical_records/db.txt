@@ -1,0 +1,68 @@
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
+CREATE TABLE public.medical_records (
+    id VARCHAR(50) PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    pasien_id VARCHAR(50) NOT NULL,
+    doctor_id VARCHAR(50) NOT NULL,
+
+      booking_id UUID NULL,
+
+    type VARCHAR(20) NOT NULL CHECK (
+        type IN (
+            'diagnosis',
+            'resep',
+            'vaksin',
+            'lab',
+            'lainnya'
+        )
+    ),
+
+    judul VARCHAR(255) NOT NULL,
+
+    deskripsi TEXT,
+
+    catatan_dokter TEXT,
+
+    attachment_url TEXT,
+
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+
+    deleted_at TIMESTAMPTZ NULL,
+
+    CONSTRAINT fk_medical_records_pasien
+        FOREIGN KEY (pasien_id)
+        REFERENCES public.users(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_medical_records_doctor
+        FOREIGN KEY (doctor_id)
+        REFERENCES public.users(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_medical_records_booking
+        FOREIGN KEY (booking_id)
+        REFERENCES public.appointments(id)
+        ON DELETE SET NULL
+);
+
+-- =========================================================
+-- INDEX
+-- =========================================================
+
+CREATE INDEX idx_medical_records_pasien
+ON public.medical_records(pasien_id);
+
+CREATE INDEX idx_medical_records_doctor
+ON public.medical_records(doctor_id);
+
+CREATE INDEX idx_medical_records_type
+ON public.medical_records(type);
+
+CREATE INDEX idx_medical_records_created_at
+ON public.medical_records(created_at);
+
+CREATE INDEX idx_medical_records_deleted_at
+ON public.medical_records(deleted_at);

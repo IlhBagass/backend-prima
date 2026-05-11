@@ -1,0 +1,46 @@
+============================================================
+DAFTAR FITUR - MEDICAL RECORDS MODULE
+============================================================
+
+1. CRUD REKAM MEDIS
+   - Create rekam medis baru (POST /medical)
+   - Read list rekam medis by pasien (GET /medical/pasien/:pasien_id)
+   - Read detail rekam medis (GET /medical/:id)
+   - Update rekam medis (PATCH /medical/:id)
+   - Soft delete rekam medis (DELETE /medical/:id)
+
+2. FILTER & PAGINATION
+   - Filter berdasarkan type (konsultasi, pemeriksaan, resep, rujukan)
+   - Filter berdasarkan range tanggal (date_from, date_to)
+   - Pagination dengan limit dan offset
+   - Sorting otomatis by created_at DESC (terbaru dulu)
+
+3. RELASI DATA
+   - Relasi ke tabel users (pasien_id)
+   - Relasi ke tabel users (doctor_id)
+   - Relasi opsional ke booking (booking_id)
+
+4. FIELD REKAM MEDIS
+   - id (UUID)
+   - pasien_id (string, FK ke users)
+   - doctor_id (string, FK ke users)
+   - booking_id (string, optional, FK ke bookings)
+   - type (string: konsultasi/pemeriksaan/resep/rujukan)
+   - judul (string)
+   - deskripsi (string, optional)
+   - catatan_dokter (string, optional)
+   - attachment_url (string, optional)
+   - created_at (timestamp)
+   - updated_at (timestamp)
+   - deleted_at (timestamp, soft delete)
+
+5. VALIDASI & KEAMANAN
+   - Soft delete (data tidak benar-benar dihapus)
+   - Field yang diupdate hanya yang dikirim (whitelist dynamic)
+   - Error handling untuk record not found (404)
+
+6. RESPON FORMAT
+   - Standar respons: { success: true/false, message: "...", data: {...} }
+   - Status code: 201 (create), 200 (read/update/delete), 404 (not found), 500 (server error)
+
+============================================================

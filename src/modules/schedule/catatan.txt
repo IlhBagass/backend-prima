@@ -1,0 +1,167 @@
+============================================================
+SCHEDULES MODULE - API NOTES
+Base URL:
+  /schedules
+Headers:
+  Content-Type: application/json
+============================================================
+
+DAFTAR ENDPOINT
+  1) POST   /schedules
+  2) GET    /schedules/doctor/:doctor_id
+  3) GET    /schedules/doctor/:doctor_id/available?date=YYYY-MM-DD
+  4) PATCH  /schedules/:id
+  5) DELETE /schedules/:id
+  6) POST   /schedules/bookings
+  7) GET    /schedules/bookings/:id
+  8) PATCH  /schedules/bookings/:id
+  9) DELETE /schedules/bookings/:id
+  10) GET   /schedules/doctor/:doctor_id/bookings
+  11) GET   /schedules/user/:user_id/bookings
+
+------------------------------------------------------------
+1) BUAT JADWAL PRAKTIK
+Method/Path:
+  POST /schedules
+Body (JSON) - Required:
+  - doctor_id (string) -> id dari table users (role doctor)
+  - day_of_week (number) -> integer 0-6 (0=Minggu, 1=Senin, ..., 6=Sabtu)
+  - start_time (string) -> "HH:MM" atau "HH:MM:SS"
+  - end_time (string) -> "HH:MM" atau "HH:MM:SS"
+Contoh Body:
+  {
+    "doctor_id": "4C4623CBEF",
+    "day_of_week": 1,
+    "start_time": "09:00",
+    "end_time": "12:00"
+  }
+Response 201 (Sukses):
+  { success: true, message: "Jadwal berhasil dibuat", data: { id, doctor_id, day_of_week, start_time, end_time } }
+
+------------------------------------------------------------
+2) GET SEMUA JADWAL (BY DOKTER)
+Method/Path:
+  GET /schedules/doctor/:doctor_id
+Contoh URL:
+  /schedules/doctor/4C4623CBEF
+Response 200 (Sukses):
+  { success: true, data: [ { id, doctor_id, day_of_week, start_time, end_time }, ... ] }
+
+------------------------------------------------------------
+3) GET JADWAL TERSEDIA (BY DOKTER + TANGGAL)
+Method/Path:
+  GET /schedules/doctor/:doctor_id/available
+Query (Required):
+  - date (string) format YYYY-MM-DD
+Contoh URL:
+  /schedules/doctor/4C4623CBEF/available?date=2026-05-09
+Response 200 (Sukses):
+  {
+    success: true,
+    data: {
+      doctor_id: "...",
+      date: "YYYY-MM-DD",
+      day_of_week: 0-6,
+      schedules: [ { id, doctor_id, day_of_week, start_time, end_time }, ... ],
+      bookings: [ { id, doctor_id, pasien_id, appointment_date, start_time, end_time, status }, ... ]
+    }
+  }
+Catatan:
+  - Endpoint ini saat ini hanya memfilter jadwal berdasarkan hari (day_of_week) dari tanggal.
+  - Booking bisa dibuat lewat endpoint /schedules/bookings dan akan divalidasi harus berada di dalam jam praktik + tidak bentrok.
+
+------------------------------------------------------------
+4) UPDATE JADWAL
+Method/Path:
+  PATCH /schedules/:id
+Body (JSON) - Optional:
+  - day_of_week (number) 0-6
+  - start_time (string) "HH:MM" atau "HH:MM:SS"
+  - end_time (string) "HH:MM" atau "HH:MM:SS"
+Contoh Body:
+  { "start_time": "10:00", "end_time": "13:00" }
+Response 200 (Sukses):
+  { success: true, message: "Jadwal berhasil diupdate", data: { ... } }
+Response 404 (Gagal):
+  { success: false, message: "Jadwal tidak ditemukan" }
+
+------------------------------------------------------------
+5) HAPUS JADWAL
+Method/Path:
+  DELETE /schedules/:id
+Response 200 (Sukses):
+  { success: true, message: "Jadwal berhasil dihapus", data: { ... } }
+Response 404 (Gagal):
+  { success: false, message: "Jadwal tidak ditemukan" }
+
+------------------------------------------------------------
+6) BUAT BOOKING (USER/PASIEN)
+Method/Path:
+  POST /schedules/bookings
+Body (JSON) - Required:
+  - doctor_id (string)
+  - pasien_id (string)
+  - appointment_date (string) format YYYY-MM-DD
+  - start_time (string) "HH:MM" atau "HH:MM:SS"
+  - end_time (string) "HH:MM" atau "HH:MM:SS"
+Body (JSON) - Optional:
+  - notes (string)
+Aturan:
+  - Booking hanya boleh jika waktunya berada di dalam jam praktik dokter pada tanggal tsb.
+  - Tidak boleh bentrok/overlap dengan booking lain dokter pada tanggal yang sama.
+Contoh Body:
+  {
+    "doctor_id": "E77E0417A2",
+    "pasien_id": "4C4623CBEF",
+    "appointment_date": "2026-05-09",
+    "start_time": "09:00",
+    "end_time": "09:30",
+    "notes": "Konsultasi"
+  }
+Response 201 (Sukses):
+  { success: true, message: "Booking berhasil dibuat", data: { ... } }
+Response 400 (Gagal):
+  { success: false, message: "..." }
+
+------------------------------------------------------------
+7) GET BOOKING BY ID
+Method/Path:
+  GET /schedules/bookings/:id
+Response 200 (Sukses):
+  { success: true, data: { ... } }
+Response 404 (Gagal):
+  { success: false, message: "Booking tidak ditemukan" }
+
+------------------------------------------------------------
+8) UPDATE BOOKING (RESCHEDULE / CANCEL)
+Method/Path:
+  PATCH /schedules/bookings/:id
+Body (JSON) - Optional:
+  - appointment_date (string) YYYY-MM-DD
+  - start_time (string)
+  - end_time (string)
+  - status (string) booked | cancelled | completed
+  - notes (string)
+Catatan:
+  - Jika status bukan cancelled, perubahan waktu/tanggal akan divalidasi harus sesuai jadwal praktik + tidak bentrok.
+
+------------------------------------------------------------
+9) DELETE BOOKING (HARD DELETE)
+Method/Path:
+  DELETE /schedules/bookings/:id
+
+------------------------------------------------------------
+10) LIST BOOKING (SISI DOKTER)
+Method/Path:
+  GET /schedules/doctor/:doctor_id/bookings
+Query (Optional):
+  - date (YYYY-MM-DD)
+  - status (booked|cancelled|completed)
+
+------------------------------------------------------------
+11) LIST BOOKING (SISI USER/PASIEN)
+Method/Path:
+  GET /schedules/user/:user_id/bookings
+Query (Optional):
+  - date (YYYY-MM-DD)
+  - status (booked|cancelled|completed)

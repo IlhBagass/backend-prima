@@ -1,6 +1,43 @@
 import { sql } from "../../../config/db.js";
 import bcrypt from "bcrypt";
 
+const PUBLIC_USER_COLUMNS = [
+  "id",
+  "name",
+  "email",
+  "role",
+  "status",
+  "email_verified_at",
+  "nama_panggilan",
+  "foto_profil_url",
+  "jenis_kelamin",
+  "tanggal_lahir",
+  "no_telepon",
+  "alamat",
+  "kota",
+  "provinsi",
+  "kode_pos",
+  "nik",
+  "golongan_darah",
+  "rhesus",
+  "tinggi_badan_cm",
+  "berat_badan_kg",
+  "riwayat_alergi",
+  "riwayat_penyakit",
+  "no_bpjs",
+  "nomor_str",
+  "nomor_sip",
+  "spesialisasi",
+  "sub_spesialisasi",
+  "pengalaman_tahun",
+  "deskripsi_profil",
+  "biaya_konsultasi",
+  "nama_klinik",
+  "alamat_klinik",
+  "created_at",
+  "updated_at",
+];
+
 const USER_COLUMNS = [
   "name",
   "email",
@@ -73,9 +110,10 @@ export const listUsersService = async ({ limit = 50, offset = 0, role, status } 
 };
 
 export const getUserByIdService = async (id) => {
+  const columns = PUBLIC_USER_COLUMNS.join(", ");
   const rows = await sql.query(
     `
-      SELECT *
+      SELECT ${columns}
       FROM users
       WHERE id = $1
         AND deleted_at IS NULL

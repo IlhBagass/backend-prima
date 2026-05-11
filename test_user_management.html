@@ -337,6 +337,36 @@
         </section>
 
         <section class="card col-6">
+          <h2>Update Profil Pasien <span class="pill">PATCH /auth/users/:id/pasien</span></h2>
+          <div class="stack">
+            <div class="muted">Gunakan <b>User ID</b> di kartu "User By ID" (role harus <code>pasien</code>).</div>
+            <div>
+              <label class="muted">PATCH body (JSON)</label>
+              <textarea id="patchPasienBody"></textarea>
+            </div>
+            <div class="row">
+              <button class="primary" id="patchPasienBtn">PATCH PASIEN</button>
+              <button id="patchPasienExampleBtn">Load Example</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="card col-6">
+          <h2>Update Profil Dokter <span class="pill">PATCH /auth/users/:id/doctor</span></h2>
+          <div class="stack">
+            <div class="muted">Gunakan <b>User ID</b> di kartu "User By ID" (role harus <code>doctor</code>).</div>
+            <div>
+              <label class="muted">PATCH body (JSON)</label>
+              <textarea id="patchDoctorBody"></textarea>
+            </div>
+            <div class="row">
+              <button class="primary" id="patchDoctorBtn">PATCH DOCTOR</button>
+              <button id="patchDoctorExampleBtn">Load Example</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="card col-6">
           <h2>Upload Foto Profil <span class="pill">POST /auth/users/:id/photo</span></h2>
           <div class="stack">
             <div class="row">
@@ -539,6 +569,28 @@
           null,
           2
         );
+
+        $("patchPasienBody").value = JSON.stringify(
+          {
+            nama_panggilan: "Budi (Update Profil Pasien)",
+            no_telepon: "081211111111",
+            riwayat_alergi: "Debu",
+            berat_badan_kg: 66.2,
+          },
+          null,
+          2
+        );
+
+        $("patchDoctorBody").value = JSON.stringify(
+          {
+            deskripsi_profil: "Update deskripsi profil dokter",
+            pengalaman_tahun: 11,
+            biaya_konsultasi: 85000,
+            nama_klinik: "Klinik Sehat Bersama (Update)",
+          },
+          null,
+          2
+        );
       };
 
       // default examples on load
@@ -549,6 +601,8 @@
       $("doctorExampleBtn").addEventListener("click", () => loadExamples());
       $("pasienExampleBtn").addEventListener("click", () => loadExamples());
       $("patchExampleBtn").addEventListener("click", () => loadExamples());
+      $("patchPasienExampleBtn").addEventListener("click", () => loadExamples());
+      $("patchDoctorExampleBtn").addEventListener("click", () => loadExamples());
 
       $("pingBtn").addEventListener("click", async () => {
         await requestJson({ method: "GET", path: "/" });
@@ -624,6 +678,32 @@
         await requestJson({
           method: "PATCH",
           path: `${authPrefix}/users/${encodeURIComponent(id)}`,
+          body: parsed.value,
+        });
+      });
+
+      $("patchPasienBtn").addEventListener("click", async () => {
+        const { authPrefix } = getBase();
+        const id = $("userId").value.trim();
+        if (!id) return writeLog({ error: "User ID wajib diisi" });
+        const parsed = safeJsonParse($("patchPasienBody").value);
+        if (!parsed.ok) return writeLog({ error: parsed.error });
+        await requestJson({
+          method: "PATCH",
+          path: `${authPrefix}/users/${encodeURIComponent(id)}/pasien`,
+          body: parsed.value,
+        });
+      });
+
+      $("patchDoctorBtn").addEventListener("click", async () => {
+        const { authPrefix } = getBase();
+        const id = $("userId").value.trim();
+        if (!id) return writeLog({ error: "User ID wajib diisi" });
+        const parsed = safeJsonParse($("patchDoctorBody").value);
+        if (!parsed.ok) return writeLog({ error: parsed.error });
+        await requestJson({
+          method: "PATCH",
+          path: `${authPrefix}/users/${encodeURIComponent(id)}/doctor`,
           body: parsed.value,
         });
       });

@@ -1,6 +1,6 @@
 import { registerAdmin } from "../controller/admin.controller.js";
-import { registerDoctor } from "../controller/doctor.controller.js";
-import { registerPasien } from "../controller/pasien.controller.js";
+import { registerDoctor, updateDoctorProfileById } from "../controller/doctor.controller.js";
+import { registerPasien, updatePasienProfileById } from "../controller/pasien.controller.js";
 import {
   deleteUserById,
   hardDeleteUserById,
@@ -19,6 +19,8 @@ export default async function userRoutes(app) {
   app.get("/users", listUsers);
   app.get("/users/:id", getUserById);
   app.patch("/users/:id", updateUserById);
+  app.patch("/users/:id/pasien", updatePasienProfileById);
+  app.patch("/users/:id/doctor", updateDoctorProfileById);
   app.post("/users/:id/photo", uploadUserProfilePhoto);
   app.delete("/users/:id", deleteUserById);
   app.delete("/users/:id/permanent", hardDeleteUserById);

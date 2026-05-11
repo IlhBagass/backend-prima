@@ -1,0 +1,25 @@
+============================================================
+DAFTAR FITUR - DOCTORS MODULE
+Base URL:
+  /doctors
+============================================================
+
+1) List Semua Dokter
+   - Akses: GET /doctors
+   - Query:
+     - nama (string)
+     - spesialisasi (string)
+     - kota (string)
+     - rating_min (belum didukung)
+     - tersedia (true/false) -> true = punya schedules, false = belum punya schedules
+     - limit, offset
+   - Tujuan: pasien cari & filter dokter
+
+2) Get Detail Dokter
+   - Akses: GET /doctors/:id
+   - Tujuan: lihat profil lengkap dokter + jadwal praktik + ringkasan booking
+
+Catatan:
+  - Data dokter diambil dari table `users` (role = doctor).
+  - Jadwal praktik diambil dari table `schedules`.
+  - Booking diambil dari table `appointments` (ringkasan statistik).

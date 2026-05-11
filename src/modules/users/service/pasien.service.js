@@ -2,6 +2,27 @@ import { sql } from "../../../config/db.js";
 import bcrypt from "bcrypt";
 import { generateHexId } from "../../../utils/id.js";
 
+const PASIEN_PROFILE_COLUMNS = [
+  "name",
+  "nama_panggilan",
+  "foto_profil_url",
+  "jenis_kelamin",
+  "tanggal_lahir",
+  "no_telepon",
+  "alamat",
+  "kota",
+  "provinsi",
+  "kode_pos",
+  "nik",
+  "golongan_darah",
+  "rhesus",
+  "tinggi_badan_cm",
+  "berat_badan_kg",
+  "riwayat_alergi",
+  "riwayat_penyakit",
+  "no_bpjs",
+];
+
 export const registerPasienService = async ({
   name,
   email,
@@ -66,4 +87,39 @@ export const registerPasienService = async ({
   `;
 
   return result[0];
+};
+
+export const updatePasienProfileByIdService = async (id, payload = {}) => {
+  const setClauses = [];
+  const params = [id];
+
+  for (const column of PASIEN_PROFILE_COLUMNS) {
+    if (!(column in payload)) continue;
+    if (payload[column] === undefined) continue;
+    params.push(payload[column]);
+    setClauses.push(`${column} = $${params.length}`);
+  }
+
+  if (setClauses.length === 0) {
+    throw new Error("Tidak ada field profil pasien untuk diupdate");
+  }
+
+  const query = `
+    UPDATE users
+    SET ${setClauses.join(", ")},
+        updated_at = CURRENT_TIMESTAMP
+    WHERE id = $1
+      AND role = 'pasien'
+      AND deleted_at IS NULL
+    RETURNING
+      id, name, email, role, status,
+      nama_panggilan, foto_profil_url, jenis_kelamin, tanggal_lahir, no_telepon,
+      alamat, kota, provinsi, kode_pos,
+      nik, golongan_darah, rhesus, tinggi_badan_cm, berat_badan_kg,
+      riwayat_alergi, riwayat_penyakit, no_bpjs,
+      created_at, updated_at
+  `;
+
+  const rows = await sql.query(query, params);
+  return rows[0] || null;
 };

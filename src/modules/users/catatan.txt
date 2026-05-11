@@ -16,9 +16,11 @@ DAFTAR ENDPOINT
     4) GET    /auth/users
     5) GET    /auth/users/:id
     6) PATCH  /auth/users/:id
-    7) POST   /auth/users/:id/photo
-    8) DELETE /auth/users/:id             (soft delete)
-    9) DELETE /auth/users/:id/permanent   (hard delete)
+    7) PATCH  /auth/users/:id/pasien      (update profil pasien)
+    8) PATCH  /auth/users/:id/doctor      (update profil dokter)
+    9) POST   /auth/users/:id/photo
+    10) DELETE /auth/users/:id             (soft delete)
+    11) DELETE /auth/users/:id/permanent   (hard delete)
 
 ------------------------------------------------------------
 A) AUTH (REGISTER)
@@ -186,6 +188,8 @@ Contoh URL (Postman):
   /auth/users/USR001
 Response 200 (Sukses):
   { success: true, data: { ...kolom user... } }
+Catatan:
+  - Response tidak mengembalikan kolom `password`.
 Response 404 (Gagal):
   { success: false, message: "User tidak ditemukan" }
 
@@ -238,7 +242,49 @@ Catatan:
   - Untuk menampilkan foto profil, gunakan field `foto_profil_url` dari:
     - GET /auth/users/:id  (detail user)
 
-8) DELETE USER BY ID (SOFT DELETE)
+8) UPDATE PROFIL PASIEN (WHITELIST)
+Method/Path:
+  PATCH /auth/users/:id/pasien
+Catatan:
+  - Hanya bisa untuk role `pasien`.
+  - Field yang boleh diupdate (whitelist):
+    name, nama_panggilan, foto_profil_url, jenis_kelamin, tanggal_lahir, no_telepon,
+    alamat, kota, provinsi, kode_pos, nik, golongan_darah, rhesus, tinggi_badan_cm,
+    berat_badan_kg, riwayat_alergi, riwayat_penyakit, no_bpjs
+Contoh Body (Postman):
+  {
+    "nama_panggilan": "Budi (Update Profil Pasien)",
+    "no_telepon": "081211111111",
+    "riwayat_alergi": "Debu",
+    "berat_badan_kg": 66.2
+  }
+Response 200 (Sukses):
+  { success: true, message: "Profil pasien berhasil diupdate", data: { ... } }
+Response 404 (Gagal):
+  { success: false, message: "Profil pasien tidak ditemukan / role bukan pasien" }
+
+9) UPDATE PROFIL DOKTER (WHITELIST)
+Method/Path:
+  PATCH /auth/users/:id/doctor
+Catatan:
+  - Hanya bisa untuk role `doctor`.
+  - Field yang boleh diupdate (whitelist):
+    name, nama_panggilan, foto_profil_url, jenis_kelamin, tanggal_lahir, no_telepon,
+    alamat, kota, provinsi, kode_pos, nomor_str, nomor_sip, spesialisasi, sub_spesialisasi,
+    pengalaman_tahun, deskripsi_profil, biaya_konsultasi, nama_klinik, alamat_klinik
+Contoh Body (Postman):
+  {
+    "deskripsi_profil": "Update deskripsi profil dokter",
+    "pengalaman_tahun": 11,
+    "biaya_konsultasi": 85000,
+    "nama_klinik": "Klinik Sehat Bersama (Update)"
+  }
+Response 200 (Sukses):
+  { success: true, message: "Profil dokter berhasil diupdate", data: { ... } }
+Response 404 (Gagal):
+  { success: false, message: "Profil dokter tidak ditemukan / role bukan dokter" }
+
+10) DELETE USER BY ID (SOFT DELETE)
 Method/Path:
   DELETE /auth/users/:id
 Body:
@@ -250,7 +296,7 @@ Response 200 (Sukses):
 Response 404 (Gagal):
   { success: false, message: "User tidak ditemukan" }
 
-9) DELETE USER BY ID (HARD DELETE / PERMANENT)
+11) DELETE USER BY ID (HARD DELETE / PERMANENT)
 Peringatan:
   - Ini menghapus data user secara permanen dari database (tidak bisa restore).
   - Sebaiknya hanya untuk admin / kebutuhan maintenance.

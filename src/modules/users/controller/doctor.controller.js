@@ -1,4 +1,4 @@
-import { registerDoctorService } from "../service/doctor.service.js";
+import { registerDoctorService, updateDoctorProfileByIdService } from "../service/doctor.service.js";
 
 export const registerDoctor = async (req, res) => {
   try {
@@ -69,5 +69,20 @@ export const registerDoctor = async (req, res) => {
       success: false,
       message: error.message,
     });
+  }
+};
+
+export const updateDoctorProfileById = async (req, reply) => {
+  try {
+    const { id } = req.params;
+    const data = await updateDoctorProfileByIdService(id, req.body || {});
+    if (!data) {
+      return reply
+        .code(404)
+        .send({ success: false, message: "Profil dokter tidak ditemukan / role bukan dokter" });
+    }
+    return reply.send({ success: true, message: "Profil dokter berhasil diupdate", data });
+  } catch (error) {
+    return reply.code(400).send({ success: false, message: error.message });
   }
 };

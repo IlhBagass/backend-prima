@@ -1,0 +1,52 @@
+============================================================
+DAFTAR FITUR - USERS MODULE
+Base URL:
+  /auth
+============================================================
+
+Catatan umum:
+  - Semua endpoint di bawah saat ini belum memakai auth middleware (sementara).
+  - "Soft delete" = mengisi kolom `deleted_at` (data tidak hilang permanen).
+
+1) Registrasi User (Admin)
+  - Akses: POST /auth/register/admin
+  - Tujuan: membuat akun admin
+
+2) Registrasi User (Dokter)
+  - Akses: POST /auth/register/doctor
+  - Tujuan: membuat akun dokter
+
+3) Registrasi User (Pasien)
+  - Akses: POST /auth/register/pasien
+  - Tujuan: membuat akun pasien
+
+4) List Users (filter & pagination)
+  - Akses: GET /auth/users
+  - Query: limit, offset, role, status
+
+5) Get Profil User (by ID)
+  - Akses: GET /auth/users/:id
+  - Catatan: response tidak mengembalikan kolom `password`
+
+6) Update User (umum)
+  - Akses: PATCH /auth/users/:id
+  - Tujuan: update field user (jika kirim `password` akan di-hash ulang)
+
+7) Update Profil Pasien (whitelist, role=pasien)
+  - Akses: PATCH /auth/users/:id/pasien
+  - Tujuan: update profil pasien (field profil pasien saja)
+
+8) Update Profil Dokter (whitelist, role=doctor)
+  - Akses: PATCH /auth/users/:id/doctor
+  - Tujuan: update profil dokter (field profil dokter saja)
+
+9) Upload Foto Profil
+  - Akses: POST /auth/users/:id/photo
+  - Body: multipart/form-data (key: file)
+  - Hasil: update `foto_profil_url` user
+
+10) Hapus Akun (Soft Delete)
+  - Akses: DELETE /auth/users/:id
+
+11) Hapus Akun (Hard Delete / Permanent)
+  - Akses: DELETE /auth/users/:id/permanent

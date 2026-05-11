@@ -1,0 +1,55 @@
+============================================================
+DAFTAR FITUR - SCHEDULES MODULE
+Base URL:
+  /schedules
+============================================================
+
+1) Buat Jadwal Praktik
+   - Akses: POST /schedules
+   - Tujuan: dokter input hari & jam praktik
+
+2) Get Semua Jadwal (by Dokter)
+   - Akses: GET /schedules/doctor/:doctor_id
+   - Tujuan: lihat jadwal praktik 1 dokter
+
+3) Get Jadwal Tersedia (by Dokter + Tanggal)
+   - Akses: GET /schedules/doctor/:doctor_id/available
+   - Query: date (YYYY-MM-DD)
+   - Tujuan: pasien lihat jadwal pada tanggal tsb (filter berdasarkan hari)
+
+4) Update Jadwal
+   - Akses: PATCH /schedules/:id
+   - Tujuan: dokter ubah jam atau hari praktik
+
+5) Hapus Jadwal
+   - Akses: DELETE /schedules/:id
+   - Tujuan: dokter hapus slot jadwal
+
+6) Buat Booking Jadwal (User/Pasien)
+   - Akses: POST /schedules/bookings
+   - Tujuan: user/pasien booking hanya jika jam masih available (sesuai jadwal praktik dokter)
+
+7) Get Booking By ID
+   - Akses: GET /schedules/bookings/:id
+   - Tujuan: lihat detail booking
+
+8) Update Booking (Reschedule / Cancel)
+   - Akses: PATCH /schedules/bookings/:id
+   - Tujuan: update jadwal booking; validasi tetap harus sesuai jam praktik & tidak bentrok
+
+9) Hapus Booking
+   - Akses: DELETE /schedules/bookings/:id
+   - Tujuan: hapus booking (hard delete)
+
+10) List Booking (Sisi Dokter)
+   - Akses: GET /schedules/doctor/:doctor_id/bookings
+   - Query: date (YYYY-MM-DD), status
+   - Tujuan: dokter lihat daftar booking pasien
+
+11) List Booking (Sisi User/Pasien)
+   - Akses: GET /schedules/user/:user_id/bookings
+   - Query: date (YYYY-MM-DD), status
+   - Tujuan: user lihat booking miliknya
+
+Catatan:
+  - Endpoint available sekarang mengembalikan `schedules` dan `bookings` untuk tanggal tsb.

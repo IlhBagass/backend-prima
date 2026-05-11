@@ -1,0 +1,60 @@
+============================================================
+DOCTORS MODULE - API NOTES
+Base URL:
+  /doctors
+Headers:
+  Content-Type: application/json
+============================================================
+
+DAFTAR ENDPOINT
+  1) GET /doctors
+  2) GET /doctors/:id
+
+------------------------------------------------------------
+1) LIST SEMUA DOKTER
+Method/Path:
+  GET /doctors
+Query (Optional):
+  - nama (string) -> filter by users.name (ILIKE)
+  - spesialisasi (string) -> filter by users.spesialisasi (ILIKE)
+  - kota (string) -> filter by users.kota (ILIKE)
+  - tersedia (true|false)
+      true  = hanya dokter yang punya jadwal praktik (ada row di schedules)
+      false = hanya dokter yang belum punya jadwal praktik
+  - limit (number) default 50, max 200
+  - offset (number) default 0
+  - rating_min (belum didukung karena belum ada tabel rating/ulasan)
+Response 200 (Sukses):
+  {
+    success: true,
+    data: [
+      {
+        id, name, email, role, status,
+        foto_profil_url, kota, provinsi,
+        spesialisasi, sub_spesialisasi,
+        pengalaman_tahun, deskripsi_profil,
+        biaya_konsultasi, nama_klinik, alamat_klinik,
+        schedules_count, bookings_count,
+        created_at, updated_at
+      },
+      ...
+    ]
+  }
+
+------------------------------------------------------------
+2) GET DETAIL DOKTER
+Method/Path:
+  GET /doctors/:id
+Response 200 (Sukses):
+  {
+    success: true,
+    data: {
+      id, name, ...profil dokter...,
+      schedules: [ { id, doctor_id, day_of_week, start_time, end_time }, ... ],
+      booking_stats: { total_bookings, booked_count, completed_count, cancelled_count },
+      rating: null,
+      ulasan: []
+    }
+  }
+Response 404 (Gagal):
+  { success: false, message: "Dokter tidak ditemukan" }
