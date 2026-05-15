@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Surat Rujukan</title>
+
+  <style>
+    body{
+      font-family:'Segoe UI',sans-serif;
+      background:#f4f8fb;
+      padding:40px;
+    }
+
+    .container{
+      max-width:850px;
+      margin:auto;
+      background:white;
+      border-radius:20px;
+      overflow:hidden;
+      box-shadow:0 10px 35px rgba(0,0,0,0.08);
+    }
+
+    .header{
+      background:linear-gradient(135deg,#3b82f6,#2563eb);
+      color:white;
+      text-align:center;
+      padding:35px;
+    }
+
+    .header h1{
+      margin:0;
+      font-size:28px;
+    }
+
+    .content{
+      padding:40px;
+      line-height:1.8;
+      color:#333;
+    }
+
+    .table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:20px;
+    }
+
+    .table td{
+      padding:12px;
+      border-bottom:1px solid #eee;
+    }
+
+    .label{
+      width:180px;
+      font-weight:bold;
+      color:#2563eb;
+    }
+
+    .box{
+      margin-top:30px;
+      background:#eff6ff;
+      border-left:5px solid #3b82f6;
+      padding:20px;
+      border-radius:10px;
+    }
+
+    .footer{
+      padding:40px;
+      text-align:right;
+    }
+
+    .signature{
+      margin-top:60px;
+      font-weight:bold;
+      color:#2563eb;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <h1>SURAT RUJUKAN</h1>
+    <p>Klinik / Rumah Sakit</p>
+  </div>
+
+  <div class="content">
+
+    <p>Dengan ini menerangkan bahwa:</p>
+
+    <table class="table">
+
+      <tr>
+        <td class="label">Nama Pasien</td>
+        <td>{{pasien_name}}</td>
+      </tr>
+
+      <tr>
+        <td class="label">ID Pasien</td>
+        <td>{{pasien_id}}</td>
+      </tr>
+
+      <tr>
+        <td class="label">Keperluan</td>
+        <td>{{keperluan}}</td>
+      </tr>
+
+      <tr>
+        <td class="label">Keterangan Dokter</td>
+        <td>{{catatan_dokter}}</td>
+      </tr>
+
+    </table>
+
+    <div class="box">
+      Pasien dirujuk ke fasilitas kesehatan lanjutan
+      guna mendapatkan pemeriksaan dan penanganan medis lebih lanjut.
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <p>{{verified_at}}</p>
+
+    <div class="signature">
+      {{doctor.nama}}
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

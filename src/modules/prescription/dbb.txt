@@ -1,0 +1,53 @@
+CREATE TABLE prescriptions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    patient_id VARCHAR NOT NULL,
+    doctor_id VARCHAR NOT NULL,
+    booking_id UUID,
+
+    notes TEXT,
+
+    prescription_date DATE NOT NULL DEFAULT CURRENT_DATE,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL,
+
+    CONSTRAINT fk_prescription_patient
+        FOREIGN KEY (patient_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_prescription_doctor
+        FOREIGN KEY (doctor_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_prescription_booking
+        FOREIGN KEY (booking_id)
+        REFERENCES appointments(id)
+        ON DELETE SET NULL
+);
+
+CREATE TABLE prescription_items (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    prescription_id UUID NOT NULL,
+
+    medicine_name VARCHAR(255) NOT NULL,
+
+    dosage VARCHAR(100) NOT NULL,
+    frequency VARCHAR(100) NOT NULL,
+    duration VARCHAR(100),
+
+    quantity INTEGER NOT NULL CHECK (quantity > 0),
+
+    instructions TEXT,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_prescription_items
+        FOREIGN KEY (prescription_id)
+        REFERENCES prescriptions(id)
+        ON DELETE CASCADE
+);

@@ -1,0 +1,48 @@
+DAFTAR FITUR - MODULE DOCUMENT (health_documents)
+
+1) CRUD Dokumen Kesehatan
+   - Create: POST /create
+   - Read by id: GET /show/:id
+   - Read all: GET /show
+   - Update: PUT /update/:id
+   - Delete: DELETE /delete/:id
+
+2) Download Dokumen PDF (Generate via Handlebars + Puppeteer)
+   - Surat Keterangan (SK): GET /download/sk/:id
+   - Surat Rujukan (SR): GET /download/sr/:id
+   - Surat Sehat (SS): GET /download/ss/:id
+   Output:
+   - Content-Type: application/pdf
+   - Content-Disposition: attachment; filename=document-<id>.pdf
+
+3) Template PDF
+   - src/modules/document/pdf/template_SK.hbs
+   - src/modules/document/pdf/template_SR.hbs
+   - src/modules/document/pdf/template_SS.hbs
+   Helper Handlebars:
+   - inc (untuk numbering)
+   - formatDate (locale id-ID)
+
+4) Struktur Data (berdasarkan service)
+   Field yang dipakai saat create/update:
+   - pasien_id
+   - doctor_id
+   - type
+   - keperluan
+   - catatan
+   - catatan_dokter
+   - status
+   - berlaku_dari
+   - berlaku_sampai
+   - verified_at (khusus update)
+
+5) Join data user pada GET /show/:id
+   - pasien_name, pasien_email dari users (alias patient)
+   - doctor_name, doctor_email dari users (alias doctor)
+
+6) Status Dokumen (contoh flow)
+   - menunggu -> diproses -> disetujui / ditolak
+
+Catatan: daftar endpoint di atas adalah path yang didefinisikan pada
+src/modules/document/routes/document.routes.js. Prefix (misal /document)
+tergantung cara module ini diregister di app utama.

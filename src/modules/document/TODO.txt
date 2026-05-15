@@ -1,0 +1,60 @@
+============================================================
+DAFTAR FITUR - HEALTH DOCUMENTS MODULE
+Base URL:
+  /documents
+============================================================
+
+Catatan umum:
+  - Pasien = bisa REQUEST & READ dokumen miliknya
+  - Dokter = bisa VERIFY, UPDATE status & READ
+  - Admin = bisa READ semua dokumen
+  - Soft delete = mengisi kolom deleted_at
+
+1) Ajukan Dokumen Kesehatan
+   - Akses: POST /documents
+   - Akses Role: Pasien
+   - Body: pasien_id, doctor_id, type, 
+           keperluan, catatan (opsional)
+   - Type: surat_sehat, surat_sakit, 
+           surat_rujukan, hasil_lab
+   - Tujuan: pasien ajukan permintaan dokumen
+
+2) Get List Dokumen (by Pasien)
+   - Akses: GET /documents/pasien/:pasien_id
+   - Akses Role: Pasien
+   - Query: type, status, limit, offset
+   - Tujuan: pasien lihat semua dokumen miliknya
+
+3) Get List Dokumen (by Dokter)
+   - Akses: GET /documents/doctor/:doctor_id
+   - Akses Role: Dokter
+   - Query: type, status, date_from, 
+            date_to, limit, offset
+   - Tujuan: dokter lihat semua pengajuan masuk
+
+4) Get Detail Dokumen
+   - Akses: GET /documents/:id
+   - Akses Role: Pasien & Dokter
+   - Tujuan: lihat detail dokumen lengkap
+
+5) Verifikasi / Update Status Dokumen
+   - Akses: PATCH /documents/:id/status
+   - Akses Role: Dokter only
+   - Body: status, catatan_dokter
+   - Status: menunggu, diproses, 
+             disetujui, ditolak
+   - Tujuan: dokter verifikasi pengajuan pasien
+
+6) Download Dokumen (PDF)
+   - Akses: GET /documents/:id/download
+   - Akses Role: Pasien & Dokter
+   - Tujuan: download dokumen yang sudah 
+             disetujui dalam format PDF
+   - Catatan: hanya bisa download jika 
+              status = disetujui
+
+7) Hapus Dokumen (Soft Delete)
+   - Akses: DELETE /documents/:id
+   - Akses Role: Pasien (hanya miliknya) 
+                 & Admin
+   - Tujuan: hapus pengajuan dokumen

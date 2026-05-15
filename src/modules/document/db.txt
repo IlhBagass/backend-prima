@@ -1,0 +1,26 @@
+CREATE TABLE health_documents (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  pasien_id       VARCHAR(50) REFERENCES users(id),
+  doctor_id       VARCHAR(50) REFERENCES users(id),
+  type            VARCHAR(50) NOT NULL
+                  CHECK (type IN (
+                    'surat_sehat',
+                    'surat_sakit', 
+                    'surat_rujukan',
+                    'hasil_lab'
+                  )),
+  keperluan       TEXT NOT NULL,
+  catatan         TEXT NULL,
+  catatan_dokter  TEXT NULL,
+  status          VARCHAR(20) DEFAULT 'menunggu'
+                  CHECK (status IN (
+                    'menunggu',
+                    'diproses',
+                    'disetujui',
+                    'ditolak'
+                  )),
+  verified_at     TIMESTAMP NULL,
+  created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  deleted_at      TIMESTAMP NULL
+);

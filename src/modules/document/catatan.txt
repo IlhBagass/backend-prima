@@ -1,0 +1,49 @@
+CATATAN - MODULE DOCUMENT
+
+Ringkasan
+- Module ini menangani penyimpanan dokumen kesehatan di tabel health_documents
+  dan menyediakan endpoint download PDF untuk 3 jenis dokumen (SK/SR/SS).
+
+Lokasi file penting
+- Routes: src/modules/document/routes/document.routes.js
+- Controller: src/modules/document/controller/document.controller.js
+- Service (DB): src/modules/document/service/document.service.js
+- PDF generator: src/modules/document/pdf/pdfGenerator.js
+- Template PDF: src/modules/document/pdf/template_SK.hbs, template_SR.hbs, template_SS.hbs
+- SQL schema referensi: src/modules/document/db.txt
+
+Catatan implementasi (PDF)
+- generatePDF* membaca template .hbs, compile dengan handlebars, lalu render
+  menjadi PDF menggunakan puppeteer (A4, printBackground: true).
+- Di environment server, puppeteer biasanya butuh dependency OS (Chromium libs).
+  Pastikan deployment sudah compatible (atau pakai puppeteer-core + chromium).
+
+Catatan data/schema
+- File src/modules/document/db.txt belum mencantumkan kolom:
+  berlaku_dari, berlaku_sampai
+  sedangkan src/modules/document/service/document.service.js melakukan INSERT/UPDATE
+  untuk kolom tersebut.
+  => Pastikan schema di DB sudah mengikuti field yang dipakai service (migrasi).
+- db.txt juga membatasi type pada beberapa nilai (surat_sehat, surat_sakit, surat_rujukan, hasil_lab).
+  Sementara route download yang tersedia spesifik SK/SR/SS.
+  => Samakan definisi type dan template yang didukung, supaya konsisten.
+
+Contoh payload minimal (create)
+{
+  "pasien_id": "USER_ID_PASIEN",
+  "doctor_id": "USER_ID_DOKTER",
+  "type": "surat_sehat",
+  "keperluan": "Keperluan administrasi",
+  "catatan": null,
+  "catatan_dokter": null,
+  "status": "menunggu",
+  "berlaku_dari": "2026-05-15",
+  "berlaku_sampai": "2026-06-15"
+}
+
+Catatan keamanan & kualitas
+- Saat ini endpoint create/update menerima payload mentah (tanpa validasi schema).
+  Rekomendasi: tambah validasi (mis. zod/joi) + whitelist field.
+- Download endpoint mengambil data dari DB lalu render template.
+  Pastikan template tidak memuat HTML yang berasal dari user tanpa sanitasi jika
+  ada field yang berpotensi mengandung HTML.

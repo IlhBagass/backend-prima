@@ -1,0 +1,206 @@
+============================================================
+PRESCRIPTION MODULE - API NOTES
+Base URL:
+  /prescription
+Headers:
+  Content-Type: application/json
+============================================================
+
+DAFTAR ENDPOINT
+  1) POST   /prescription
+  2) GET    /prescription/patient/:patient_id
+  3) GET    /prescription/:id
+  4) PATCH  /prescription/:id
+  5) DELETE /prescription/:id
+  6) POST   /prescription/create/items
+  7) PUT    /prescription/update/items/:id
+  8) DELETE /prescription/delete/items/:id
+  9) GET    /prescription/download/:id
+
+------------------------------------------------------------
+1) BUAT RESEP OBAT
+------------------------------------------------------------
+Method/Path:
+  POST /prescription
+Body (JSON) - Required:
+  - patient_id (string) -> id dari table users (role pasien)
+  - doctor_id (string) -> id dari table users (role doctor)
+  - notes (string) -> catatan resep obat
+Body (JSON) - Optional:
+  - booking_id (string) -> id appointment terkait (jika ada)
+  - prescription_date (string) -> format YYYY-MM-DD, default CURRENT_DATE
+Contoh Body (Postman):
+  {
+    "patient_id": "4C4623CBEF",
+    "doctor_id": "E77E0417A2",
+    "booking_id": "BOOK001",
+    "notes": "Paracetamol 500mg, 3x sehari setelah makan. Vitamin C 1000mg, 1x sehari.",
+    "prescription_date": "2026-05-12"
+  }
+Response 201 (Sukses):
+  { success: true, message: "Resep berhasil dibuat", data: { id, patient_id, doctor_id, booking_id, notes, prescription_date, created_at } }
+Response 500 (Gagal):
+  { success: false, message: "..." }
+
+------------------------------------------------------------
+2) LIST RESEP (BY PASIEN)
+------------------------------------------------------------
+Method/Path:
+  GET /prescription/patient/:patient_id
+Query (Optional):
+  - date_from (string) -> format YYYY-MM-DD
+  - date_to (string) -> format YYYY-MM-DD
+  - limit (number) -> default 10
+  - offset (number) -> default 0
+Contoh URL:
+  /prescription/patient/4C4623CBEF
+  /prescription/patient/4C4623CBEF?date_from=2026-01-01&date_to=2026-12-31&limit=5
+Response 200 (Sukses):
+  { success: true, data: [ { id, patient_id, doctor_id, booking_id, notes, prescription_date, created_at, updated_at, items: [...] }, ... ] }
+Catatan:
+  - Hanya menampilkan resep yang belum dihapus (deleted_at IS NULL).
+  - Diurutkan berdasarkan created_at DESC (terbaru dulu).
+  - Setiap resep mencakup array items (detail obat-obatan).
+
+------------------------------------------------------------
+3) GET RESEP BY ID
+------------------------------------------------------------
+Method/Path:
+  GET /prescription/:id
+Contoh URL:
+  /prescription/550E8400-E29B-41D4-A716-446655440000
+Response 200 (Sukses):
+  { success: true, data: { id, patient_id, doctor_id, booking_id, notes, prescription_date, created_at, updated_at, patient_name, doctor_name, patient_email, doctor_email, items: [...] } }
+Response 404 (Gagal):
+  { success: false, message: "Resep tidak ditemukan" }
+Catatan:
+  - Response mencakup array items (detail obat-obatan dalam resep).
+  - Response mencakup patient_name dan doctor_name dari JOIN dengan tabel users.
+
+------------------------------------------------------------
+4) UPDATE RESEP
+------------------------------------------------------------
+Method/Path:
+  PATCH /prescription/:id
+Body (JSON) - Optional:
+  - notes (string)
+  - prescription_date (string) -> format YYYY-MM-DD
+Contoh Body (Postman):
+  {
+    "notes": "Paracetamol 500mg, 3x sehari setelah makan. Vitamin C 1000mg, 1x sehari. Tambahan: Obat batuk sirup 3x sehari.",
+    "prescription_date": "2026-05-13"
+  }
+Response 200 (Sukses):
+  { success: true, message: "Resep berhasil diupdate", data: { ... } }
+Response 404 (Gagal):
+  { success: false, message: "Resep tidak ditemukan" }
+
+------------------------------------------------------------
+5) HAPUS RESEP (SOFT DELETE)
+------------------------------------------------------------
+Method/Path:
+  DELETE /prescription/:id
+Body:
+  (tidak ada)
+Contoh URL:
+  /prescription/550E8400-E29B-41D4-A716-446655440000
+Response 200 (Sukses):
+  { success: true, message: "Resep berhasil dihapus" }
+Response 404 (Gagal):
+  { success: false, message: "Resep tidak ditemukan" }
+Catatan:
+  - Ini soft delete (mengisi kolom deleted_at), data tetap ada di database.
+
+------------------------------------------------------------
+6) BUAT ITEM RESEP (DETAIL OBAT)
+------------------------------------------------------------
+Method/Path:
+  POST /prescription/create/items
+Body (JSON) - Required:
+  - prescription_id (string) -> id dari table prescriptions
+  - medicine_name (string) -> nama obat
+  - dosage (string) -> dosis obat (contoh: "500mg")
+  - frequency (string) -> frekuensi konsumsi (contoh: "3x sehari")
+  - quantity (number) -> jumlah obat (harus > 0)
+Body (JSON) - Optional:
+  - duration (string) -> durasi konsumsi (contoh: "7 hari")
+  - instructions (string) -> instruksi tambahan (contoh: "setelah makan")
+Contoh Body (Postman):
+  {
+    "prescription_id": "550E8400-E29B-41D4-A716-446655440000",
+    "medicine_name": "Paracetamol",
+    "dosage": "500mg",
+    "frequency": "3x sehari",
+    "duration": "7 hari",
+    "quantity": 21,
+    "instructions": "Konsumsi setelah makan"
+  }
+Response 201 (Sukses):
+  { success: true, message: "Item resep berhasil dibuat", data: { id, prescription_id, medicine_name, dosage, frequency, duration, quantity, instructions, created_at } }
+Response 500 (Gagal):
+  { success: false, message: "..." }
+
+------------------------------------------------------------
+7) UPDATE ITEM RESEP
+------------------------------------------------------------
+Method/Path:
+  PUT /prescription/update/items/:id
+Body (JSON) - Required:
+  - medicine_name (string)
+  - dosage (string)
+  - frequency (string)
+  - quantity (number)
+Body (JSON) - Optional:
+  - duration (string)
+  - instructions (string)
+Contoh Body (Postman):
+  {
+    "medicine_name": "Paracetamol",
+    "dosage": "500mg",
+    "frequency": "2x sehari",
+    "duration": "5 hari",
+    "quantity": 10,
+    "instructions": "Konsumsi setelah makan"
+  }
+Response 200 (Sukses):
+  { success: true, message: "Item resep berhasil diupdate", data: { ... } }
+Response 500 (Gagal):
+  { success: false, message: "..." }
+
+------------------------------------------------------------
+8) HAPUS ITEM RESEP
+------------------------------------------------------------
+Method/Path:
+  DELETE /prescription/delete/items/:id
+Body:
+  (tidak ada)
+Contoh URL:
+  /prescription/delete/items/550E8400-E29B-41D4-A716-446655440000
+Response 200 (Sukses):
+  { success: true, message: "Item resep berhasil dihapus", data: { ... } }
+Response 500 (Gagal):
+  { success: false, message: "..." }
+Catatan:
+  - Ini hard delete, data benar-benar dihapus dari database.
+  - Menghapus item resep tidak menghapus resep utama.
+
+------------------------------------------------------------
+9) DOWNLOAD RESEP SEBAGAI PDF
+------------------------------------------------------------
+Method/Path:
+  GET /prescription/download/:id
+Contoh URL:
+  /prescription/download/550E8400-E29B-41D4-A716-446655440000
+Response 200 (Sukses):
+  - Content-Type: application/pdf
+  - Content-Disposition: attachment; filename=prescription-{id}.pdf
+  - Body: PDF buffer
+Response 404 (Gagal):
+  { success: false, message: "Resep tidak ditemukan" }
+Response 500 (Gagal):
+  { success: false, message: "..." }
+Catatan:
+  - PDF digenerate menggunakan Puppeteer dan Handlebars template.
+  - Template mencakup informasi klinik, data resep, daftar obat, dan catatan dokter.
+  - PDF format A4 dengan background printing enabled.
+

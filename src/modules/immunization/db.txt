@@ -1,0 +1,15 @@
+CREATE TABLE immunizations (
+  id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  pasien_id           VARCHAR(50) REFERENCES users(id),
+  doctor_id           VARCHAR(50) REFERENCES users(id),
+  nama_vaksin         VARCHAR(255) NOT NULL,
+  jenis_vaksin        VARCHAR(100) NOT NULL,
+  dosis_ke            SMALLINT NOT NULL DEFAULT 1,
+  tanggal_vaksin      DATE NOT NULL,
+  lokasi              VARCHAR(255) NULL,
+  catatan             TEXT NULL,
+  tanggal_berikutnya  DATE NULL,
+  created_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  deleted_at          TIMESTAMP NULL
+);

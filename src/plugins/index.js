@@ -8,6 +8,9 @@ import uploadModule from "../ai/routes/upload.routes.js";
 import askModule from "../ai/routes/ai.routes.js"
 import aiRoutes from "../ai/routes/ai.routes.js";
 import medicalModule from "../modules/medical_records/index.js"
+import prescriptionModule from "../modules/prescription/index.js"
+import documentModule from "../modules/document/index.js"
+import immunizationModule from "../modules/immunization/index.js"
 
 export default async function registerPlugins(app) {
   await app.register(cors, {
@@ -28,4 +31,7 @@ export default async function registerPlugins(app) {
   await app.register(aiRoutes,{prefix:"/ai"});
   await app.register(uploadModule,{prefix: "/upload"});
   await app.register(medicalModule,{prefix:"/medical"});
+  await app.register(prescriptionModule,{prefix:"/prescription"}); 
+  await app.register(documentModule,{prefix:"/document"}) 
+  await app.register(immunizationModule,{prefix:"/immunization"})
 }

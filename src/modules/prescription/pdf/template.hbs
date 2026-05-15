@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Prescription Receipt</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      padding: 40px;
+      color: #222;
+      background: #fff;
+    }
+
+    .container {
+      width: 100%;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #000;
+      padding-bottom: 16px;
+      margin-bottom: 24px;
+    }
+
+    .clinic-info h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .clinic-info p {
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .receipt-title {
+      text-align: right;
+    }
+
+    .receipt-title h2 {
+      font-size: 26px;
+      margin-bottom: 8px;
+    }
+
+    .section {
+      margin-bottom: 24px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 12px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 6px;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px 24px;
+    }
+
+    .info-item {
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .label {
+      font-weight: bold;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+
+    th {
+      background: #f2f2f2;
+      border: 1px solid #ccc;
+      padding: 12px;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    td {
+      border: 1px solid #ccc;
+      padding: 12px;
+      font-size: 14px;
+      vertical-align: top;
+    }
+
+    .notes {
+      background: #fafafa;
+      border: 1px solid #ddd;
+      padding: 16px;
+      border-radius: 8px;
+      line-height: 1.8;
+      font-size: 14px;
+    }
+
+    .footer {
+      margin-top: 60px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .signature {
+      text-align: center;
+      width: 220px;
+    }
+
+    .signature-box {
+      height: 80px;
+    }
+
+    .signature-line {
+      border-top: 1px solid #000;
+      padding-top: 8px;
+      font-size: 14px;
+    }
+
+    .small-text {
+      font-size: 12px;
+      color: #666;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <div class="header">
+      <div class="clinic-info">
+        <h1>Prima Medical Clinic</h1>
+        <p>Jl. Kesehatan No. 123</p>
+        <p>Jakarta, Indonesia</p>
+        <p>Telp: +62 812-3456-7890</p>
+      </div>
+
+      <div class="receipt-title">
+        <h2>RESEP OBAT</h2>
+        <p>ID: {{id}}</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">
+        Informasi Resep
+      </div>
+
+      <div class="info-grid">
+
+        <div class="info-item">
+          <span class="label">Prescription ID:</span>
+          {{id}}
+        </div>
+
+        <div class="info-item">
+          <span class="label">Booking ID:</span>
+          {{booking_id}}
+        </div>
+
+        <div class="info-item">
+          <span class="label">Patient:</span>
+          {{patient_name}}
+        </div>
+
+        <div class="info-item">
+          <span class="label">Doctor:</span>
+          {{doctor_name}}
+        </div>
+
+        <div class="info-item">
+          <span class="label">Prescription Date:</span>
+          {{created_at}}
+        </div>
+
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">
+        Daftar Obat
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Medicine</th>
+            <th>Dosage</th>
+            <th>Frequency</th>
+            <th>Duration</th>
+            <th>Qty</th>
+            <th>Instructions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {{#each items}}
+          <tr>
+            <td>{{inc @index}}</td>
+            <td>{{medicine_name}}</td>
+            <td>{{dosage}}</td>
+            <td>{{frequency}}</td>
+            <td>{{duration}}</td>
+            <td>{{quantity}}</td>
+            <td>{{instructions}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <div class="section-title">
+        Catatan Dokter
+      </div>
+
+      <div class="notes">
+        {{notes}}
+      </div>
+    </div>
+
+    <div class="footer">
+
+      <div>
+        <p class="small-text">
+          Dokumen ini dibuat otomatis oleh sistem.
+        </p>
+      </div>
+
+      <div class="signature">
+        <div class="signature-box"></div>
+
+        <div class="signature-line">
+          Dokter Pemeriksa
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</body>
+</html>

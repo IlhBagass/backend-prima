@@ -1,0 +1,68 @@
+============================================================
+DAFTAR FITUR - PRESCRIPTION MODULE
+============================================================
+
+1. CRUD RESEP OBAT
+   - Create resep baru (POST /prescription)
+   - Read list resep by pasien (GET /prescription/patient/:patient_id)
+   - Read detail resep (GET /prescription/:id)
+   - Update resep (PATCH /prescription/:id)
+   - Soft delete resep (DELETE /prescription/:id)
+
+2. CRUD ITEM RESEP (DETAIL OBAT)
+   - Create item resep baru (POST /prescription/create/items)
+   - Update item resep (PUT /prescription/update/items/:id)
+   - Delete item resep (DELETE /prescription/delete/items/:id)
+
+3. GENERATE PDF RESEP
+   - Download resep sebagai PDF (GET /prescription/download/:id)
+   - PDF digenerate menggunakan Puppeteer dan Handlebars template
+   - Format PDF A4 dengan background printing enabled
+
+4. FILTER & PAGINATION
+   - Filter berdasarkan range tanggal (date_from, date_to)
+   - Pagination dengan limit dan offset
+   - Sorting otomatis by created_at DESC (terbaru dulu)
+
+5. RELASI DATA
+   - Relasi ke tabel users (patient_id)
+   - Relasi ke tabel users (doctor_id)
+   - Relasi opsional ke appointments (booking_id)
+   - Relasi ke tabel prescription_items (satu resep memiliki banyak item)
+
+6. FIELD RESEP
+   - id (UUID)
+   - patient_id (string, FK ke users)
+   - doctor_id (string, FK ke users)
+   - booking_id (string, optional, FK ke appointments)
+   - notes (text)
+   - prescription_date (date)
+   - created_at (timestamp)
+   - updated_at (timestamp)
+   - deleted_at (timestamp, soft delete)
+
+7. FIELD PRESCRIPTION_ITEMS
+   - id (UUID)
+   - prescription_id (UUID, FK ke prescriptions)
+   - medicine_name (string)
+   - dosage (string)
+   - frequency (string)
+   - duration (string, optional)
+   - quantity (integer, harus > 0)
+   - instructions (text, optional)
+   - created_at (timestamp)
+
+8. VALIDASI & KEAMANAN
+   - Soft delete untuk resep (data tidak benar-benar dihapus)
+   - Hard delete untuk item resep (data benar-benar dihapus)
+   - Field yang diupdate hanya yang dikirim (whitelist dynamic)
+   - Error handling untuk record not found (404)
+   - Validasi quantity > 0 untuk prescription_items
+
+9. RESPON FORMAT
+   - Standar respons: { success: true/false, message: "...", data: {...} }
+   - Status code: 201 (create), 200 (read/update/delete), 404 (not found), 500 (server error)
+   - Response resep mencakup array items (detail obat-obatan)
+   - Response resep mencakup patient_name dan doctor_name (JOIN dengan tabel users)
+
+============================================================

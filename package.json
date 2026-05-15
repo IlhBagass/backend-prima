@@ -21,11 +21,13 @@
     "cloudinary": "^2.9.0",
     "dotenv": "^16.6.1",
     "fastify": "^5.8.5",
+    "handlebars": "^4.7.9",
     "jsonwebtoken": "^9.0.3",
     "node-fetch": "^3.3.2",
     "pdf2json": "^3.2.2",
     "pg": "^8.20.0",
-    "postgres": "^3.4.9"
+    "postgres": "^3.4.9",
+    "puppeteer": "^24.43.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.0"

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Surat Keterangan Sehat</title>
+
+  <style>
+    body{
+      font-family: 'Segoe UI', sans-serif;
+      background:#f4f7fb;
+      padding:40px;
+      color:#333;
+    }
+
+    .container{
+      background:#fff;
+      max-width:800px;
+      margin:auto;
+      border-radius:18px;
+      overflow:hidden;
+      box-shadow:0 8px 30px rgba(0,0,0,0.08);
+    }
+
+    .header{
+      background:linear-gradient(135deg,#22c55e,#16a34a);
+      color:white;
+      padding:35px;
+      text-align:center;
+    }
+
+    .header h1{
+      margin:0;
+      font-size:28px;
+      letter-spacing:1px;
+    }
+
+    .content{
+      padding:40px;
+      line-height:1.8;
+    }
+
+    .info{
+      width:100%;
+      margin-top:20px;
+      border-collapse:collapse;
+    }
+
+    .info td{
+      padding:10px;
+      border-bottom:1px solid #eee;
+    }
+
+    .label{
+      width:180px;
+      font-weight:600;
+      color:#16a34a;
+    }
+
+    .note{
+      margin-top:30px;
+      background:#f0fdf4;
+      padding:20px;
+      border-left:5px solid #22c55e;
+      border-radius:10px;
+    }
+
+    .footer{
+      padding:40px;
+      text-align:right;
+    }
+
+    .signature{
+      margin-top:60px;
+      font-weight:bold;
+      color:#16a34a;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <h1>SURAT KETERANGAN SEHAT</h1>
+    <p>Klinik / Rumah Sakit</p>
+  </div>
+
+  <div class="content">
+
+    <p>Yang bertanda tangan di bawah ini menerangkan bahwa:</p>
+
+    <table class="info">
+      <tr>
+        <td class="label">Nama Pasien</td>
+        <td>{{pasien_name}}</td>
+      </tr>
+
+      <tr>
+        <td class="label">ID Pasien</td>
+        <td>{{pasien_id}}</td>
+      </tr>
+
+      <tr>
+        <td class="label">Keperluan</td>
+        <td>{{keperluan}}</td>
+      </tr>
+
+      <tr>
+        <td class="label">Catatan</td>
+        <td>{{catatan}}</td>
+      </tr>
+
+      <tr>
+        <td class="label">Status</td>
+        <td>{{status}}</td>
+      </tr>
+    </table>
+
+    <div class="note">
+      Berdasarkan hasil pemeriksaan medis, pasien dinyatakan dalam kondisi
+      sehat dan layak menjalankan aktivitas sebagaimana mestinya.
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <p>{{formatDate created_at}}</p>
+
+    <div class="signature">
+      {{doctor_name}}
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

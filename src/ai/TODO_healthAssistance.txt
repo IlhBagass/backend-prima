@@ -1,0 +1,58 @@
+contoh input: 
+{
+  "user_id": "USR001",
+  "gejala": ["demam", "batuk", "pilek", "sakit kepala"],
+  "durasi": "3 hari",
+  "suhu_tubuh": 38.5,
+  "keluhan_tambahan": "badan terasa lemas dan tidak nafsu makan"
+}
+
+contoh output: 
+{
+  "success": true,
+  "data": {
+    "patient_context": {
+      "nama": "Budi Santoso",
+      "umur": 25,
+      "riwayat_penyakit": "Asma ringan",
+      "riwayat_alergi": "Debu, Polen"
+    },
+    "analysis": {
+      "possible_conditions": [
+        {
+          "name": "Infeksi Saluran Napas Atas (ISPA)",
+          "likelihood": "Tinggi"
+        },
+        {
+          "name": "Influenza",
+          "likelihood": "Sedang"
+        },
+        {
+          "name": "COVID-19",
+          "likelihood": "Rendah"
+        }
+      ],
+      "what_you_can_do_now": [
+        "Istirahat yang cukup minimal 8 jam",
+        "Minum air putih minimal 8 gelas sehari",
+        "Konsumsi paracetamol untuk turunkan demam",
+        "Hindari paparan debu karena riwayat alergimu"
+      ],
+      "when_to_see_doctor": [
+        "Demam tidak turun setelah 3 hari",
+        "Suhu tubuh mencapai 39°C atau lebih",
+        "Sesak napas (berbahaya karena riwayat asma)",
+        "Batuk semakin parah disertai dahak berwarna"
+      ],
+      "recommended_specialist": {
+        "spesialisasi": "Dokter Umum",
+        "alasan": "Gejala ISPA ringan-sedang, cukup ditangani dokter umum dulu"
+      },
+      "health_insight": {
+        "title": "ISPA dan Riwayat Asmamu",
+        "description": "Karena kamu memiliki riwayat asma ringan, infeksi saluran napas perlu lebih diperhatikan. Pastikan obat asma kamu tersedia dan hindari pemicu seperti debu dan polen yang kamu catat sebagai alergi."
+      }
+    },
+    "disclaimer": "Informasi ini hanya sebagai panduan awal dan bukan pengganti diagnosis medis resmi. Segera konsultasikan dengan dokter untuk kepastian."
+  }
+}
