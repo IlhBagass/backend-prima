@@ -1,4 +1,4 @@
-import { sql } from "../../database/database.js"
+import { sql } from "../../../config/db.js"
 import crypto from "crypto"
 
 export async function createImmunization(payload) {
@@ -14,19 +14,22 @@ export async function createImmunization(payload) {
             dosis_ke,
             tanggal_vaksin,
             lokasi,
-            catatan
+            catatan,
+            tanggal_berikutnya
         )
         VALUES (
             ${id},
-            ${payload.patient_id},
+            ${payload.pasien_id},
             ${payload.doctor_id},
             ${payload.nama_vaksin},
             ${payload.jenis_vaksin},
             ${payload.dosis_ke},
             ${payload.tanggal_vaksin},
             ${payload.lokasi},
-            ${payload.catatan}
+            ${payload.catatan},
+            ${payload.tanggal_berikutnya}
         )
+        RETURNING *
     `
     
     return create[0]
@@ -50,15 +53,17 @@ export async function updateImmunization(id, payload) {
     const update = await sql`
         UPDATE immunizations
         SET
-            pasien_id = ${payload.patient_id},
+            pasien_id = ${payload.pasien_id},
             doctor_id = ${payload.doctor_id},
             nama_vaksin = ${payload.nama_vaksin},
             jenis_vaksin = ${payload.jenis_vaksin},
             dosis_ke = ${payload.dosis_ke},
             tanggal_vaksin = ${payload.tanggal_vaksin},
             lokasi = ${payload.lokasi},
-            catatan = ${payload.catatan}
+            catatan = ${payload.catatan},
+            tanggal_berikutnya = ${payload.tanggal_berikutnya}
         WHERE id = ${id}
+        RETURNING *
     `
     
     return update[0]

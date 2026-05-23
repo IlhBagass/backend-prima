@@ -1,0 +1,46 @@
+DAFTAR FITUR - MODULE IMMUNIZATION
+
+1. CRUD data imunisasi
+   - Create: `POST /create`
+   - Read all: `GET /show`
+   - Read by id: `GET /show/:id`
+   - Update: `PUT /update/:id`
+   - Delete: `DELETE /delete/:id`
+
+2. Penyimpanan data imunisasi ke tabel `immunizations`
+   Field utama:
+   - `pasien_id`
+   - `doctor_id`
+   - `nama_vaksin`
+   - `jenis_vaksin`
+   - `dosis_ke`
+   - `tanggal_vaksin`
+   - `lokasi`
+   - `catatan`
+   - `tanggal_berikutnya`
+
+3. Generate ID otomatis
+   - Menggunakan `crypto.randomUUID()` saat create data imunisasi.
+
+4. Operasi database yang tersedia
+   - Insert data imunisasi baru
+   - Ambil semua data imunisasi
+   - Ambil data imunisasi berdasarkan `id`
+   - Update seluruh field utama imunisasi
+   - Hapus data imunisasi berdasarkan `id`
+
+5. Struktur response API
+   Setiap controller mengembalikan format:
+   - `success`
+   - `message`
+   - `data`
+
+6. Struktur module
+   - Route: `src/modules/immunization/routes/immunization.routes.js`
+   - Controller: `src/modules/immunization/controller/immunization.controller.js`
+   - Service: `src/modules/immunization/services/immunization.service.js`
+   - Schema referensi: `src/modules/immunization/db.txt`
+
+Catatan:
+- Path di atas adalah route lokal module. Prefix akhir endpoint tergantung cara module
+  diregister di app utama.
