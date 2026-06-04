@@ -1,63 +1,33 @@
 CATATAN - MODULE IMMUNIZATION
 
-Ringkasan
-- Module ini dipakai untuk mengelola data imunisasi pasien.
-- Arsitekturnya sederhana: route -> controller -> service -> tabel `immunizations`.
+Tujuan (untuk Front End)
+- Module ini dipakai untuk fitur data imunisasi pasien (CRUD imunisasi).
 
-Lokasi file penting
-- Routes: `src/modules/immunization/routes/immunization.routes.js`
-- Controller: `src/modules/immunization/controller/immunization.controller.js`
-- Service: `src/modules/immunization/services/immunization.service.js`
-- SQL schema referensi: `src/modules/immunization/db.txt`
+Base URL:
+  /immunization
 
-Struktur tabel
-- Tabel: `immunizations`
-- Primary key: `id` (UUID)
-- Relasi:
-  `pasien_id` mengacu ke `users(id)`
-  `doctor_id` mengacu ke `users(id)`
+Daftar endpoint & fungsi
+1) POST /immunization/create
+   - Fitur: tambah data imunisasi pasien
 
-Field yang dipakai service
-- `pasien_id`
-- `doctor_id`
-- `nama_vaksin`
-- `jenis_vaksin`
-- `dosis_ke`
-- `tanggal_vaksin`
-- `lokasi`
-- `catatan`
-- `tanggal_berikutnya`
+2) GET /immunization/show
+   - Fitur: list semua data imunisasi
 
-Contoh payload create/update
-{
-  "pasien_id": "USER_PASIEN_ID",
-  "doctor_id": "USER_DOKTER_ID",
-  "nama_vaksin": "Hepatitis B",
-  "jenis_vaksin": "Booster",
-  "dosis_ke": 2,
-  "tanggal_vaksin": "2026-05-15",
-  "lokasi": "Klinik Utama",
-  "catatan": "Tidak ada efek samping",
-  "tanggal_berikutnya": "2026-11-15"
-}
+3) GET /immunization/show/:id
+   - Fitur: detail data imunisasi by id
 
-Catatan implementasi
-- `createImmunization()` membuat UUID secara otomatis sebelum insert.
-- `getImmunizations()` masih mengambil semua kolom langsung dari tabel tanpa join data user.
-- `getImmunizationById()` juga masih mengambil data mentah dari tabel `immunizations`.
+4) PUT /immunization/update/:id
+   - Fitur: update data imunisasi
 
-Hal yang perlu diperhatikan
-- Di `deleteImmunization()`, query `DELETE FROM immunizations WHERE id = ${id}` belum memakai
-  `RETURNING *`, tetapi function tetap mengembalikan `deleteImmunization[0]`.
-  Akibatnya data hasil delete kemungkinan `undefined`.
-- Di `getImmunizationByIdController()`, blok error memakai `reply.code(500).json(...)`,
-  sedangkan controller lain memakai `.send(...)`. Jika framework yang dipakai adalah Fastify,
-  pola yang lebih konsisten biasanya `.send(...)`.
-- Belum ada validasi request body pada create/update.
-  Rekomendasi: tambahkan validasi schema agar field wajib, tipe data tanggal, dan `dosis_ke`
-  lebih aman sebelum masuk ke database.
+5) DELETE /immunization/delete/:id
+   - Fitur: hapus data imunisasi (hard delete)
 
-Potensi pengembangan
-- Tambah join ke tabel `users` untuk menampilkan nama pasien dan dokter.
-- Tambah filter seperti tanggal vaksin, nama vaksin, atau pasien.
-- Tambah soft delete bila ingin memanfaatkan kolom `deleted_at`.
+Field utama (dipakai create/update)
+- pasien_id, doctor_id
+- nama_vaksin, jenis_vaksin, dosis_ke
+- tanggal_vaksin, lokasi, catatan, tanggal_berikutnya
+
+Catatan penting
+- Module ini saat ini belum pakai soft delete (DELETE menghapus row).
+- Belum ada auth middleware yang enforce role; aturan role masih business rule.
+

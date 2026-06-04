@@ -1,0 +1,84 @@
+DAFTAR FITUR - CONSULTATION CHAT MODULE
+
+Base URL:
+  /consultations
+
+Catatan umum:
+  - Pasien = bisa buat room & kirim pesan
+  - Dokter = bisa balas pesan & tutup sesi
+  - Real-time menggunakan Socket.IO
+  - Support teks & file (foto, dokumen)
+  - Soft delete = mengisi kolom deleted_at
+
+1) Buat Room Konsultasi
+   - Akses: POST /consultations
+   - Akses Role: Pasien
+   - Body: pasien_id, doctor_id,
+           booking_id (opsional), topik
+   - Tujuan: buat sesi konsultasi baru
+
+2) Get List Konsultasi (by Pasien)
+   - Akses: GET /consultations/pasien/:pasien_id
+   - Akses Role: Pasien
+   - Query: status, limit, offset
+   - Tujuan: pasien lihat semua riwayat konsultasi
+
+3) Get List Konsultasi (by Dokter)
+   - Akses: GET /consultations/doctor/:doctor_id
+   - Akses Role: Dokter
+   - Query: status, limit, offset
+   - Tujuan: dokter lihat semua room konsultasi
+
+4) Get Detail Konsultasi
+   - Akses: GET /consultations/:id
+   - Akses Role: Pasien & Dokter
+   - Tujuan: lihat detail room konsultasi
+
+5) Update Status Konsultasi
+   - Akses: PATCH /consultations/:id/status
+   - Akses Role: Dokter
+   - Body: status
+   - Status: aktif, selesai, dibatalkan
+   - Tujuan: dokter buka/tutup sesi konsultasi
+
+6) Hapus Konsultasi (Soft Delete)
+   - Akses: DELETE /consultations/:id
+   - Akses Role: Dokter & Admin
+   - Tujuan: hapus room konsultasi
+
+7) Kirim Pesan
+   - Akses: POST /consultations/:id/messages
+   - Akses Role: Pasien & Dokter
+   - Body: sender_id, message,
+           file_url (opsional), type
+   - Type: text, file, image
+   - Tujuan: kirim pesan dalam room
+
+8) Get List Pesan
+   - Akses: GET /consultations/:id/messages
+   - Akses Role: Pasien & Dokter
+   - Query: limit, offset
+   - Tujuan: load riwayat pesan + pagination
+
+9) Tandai Pesan Dibaca
+   - Akses: PATCH /consultations/:id/messages/read
+   - Akses Role: Pasien & Dokter
+   - Body: user_id
+   - Tujuan: tandai semua pesan sebagai dibaca
+
+10) Upload File di Chat
+    - Akses: POST /consultations/:id/upload
+    - Akses Role: Pasien & Dokter
+    - Body: multipart/form-data (key: file)
+    - Tujuan: upload foto atau dokumen dalam chat
+
+Struktur module
+  - Route: `src/modules/consultations/routes/consultation.route.js`
+  - Controller: `src/modules/consultations/controllers/consultation.controller.js`
+  - Service: `src/modules/consultations/service/consultation.service.js`
+  - Schema referensi: `src/modules/consultations/db.txt`
+
+Catatan:
+  - Path di atas adalah route lokal module. Prefix akhir endpoint tergantung cara module
+    diregister di app utama.
+

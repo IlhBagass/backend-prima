@@ -1,49 +1,48 @@
 CATATAN - MODULE DOCUMENT
 
-Ringkasan
-- Module ini menangani penyimpanan dokumen kesehatan di tabel health_documents
-  dan menyediakan endpoint download PDF untuk 3 jenis dokumen (SK/SR/SS).
+Tujuan (untuk Front End)
+- Module ini dipakai untuk fitur dokumen kesehatan:
+  - CRUD data dokumen (health_documents),
+  - download PDF untuk dokumen SK (Surat Keterangan Sehat), SR (Surat Rujukan), SS (Surat Sakit).
 
-Lokasi file penting
-- Routes: src/modules/document/routes/document.routes.js
-- Controller: src/modules/document/controller/document.controller.js
-- Service (DB): src/modules/document/service/document.service.js
-- PDF generator: src/modules/document/pdf/pdfGenerator.js
-- Template PDF: src/modules/document/pdf/template_SK.hbs, template_SR.hbs, template_SS.hbs
-- SQL schema referensi: src/modules/document/db.txt
+Base URL:
+  /document
 
-Catatan implementasi (PDF)
-- generatePDF* membaca template .hbs, compile dengan handlebars, lalu render
-  menjadi PDF menggunakan puppeteer (A4, printBackground: true).
-- Di environment server, puppeteer biasanya butuh dependency OS (Chromium libs).
-  Pastikan deployment sudah compatible (atau pakai puppeteer-core + chromium).
+Daftar endpoint & fungsi
+1) POST /document/create
+   - Fitur: buat dokumen kesehatan (record di database)
 
-Catatan data/schema
-- File src/modules/document/db.txt belum mencantumkan kolom:
-  berlaku_dari, berlaku_sampai
-  sedangkan src/modules/document/service/document.service.js melakukan INSERT/UPDATE
-  untuk kolom tersebut.
-  => Pastikan schema di DB sudah mengikuti field yang dipakai service (migrasi).
-- db.txt juga membatasi type pada beberapa nilai (surat_sehat, surat_sakit, surat_rujukan, hasil_lab).
-  Sementara route download yang tersedia spesifik SK/SR/SS.
-  => Samakan definisi type dan template yang didukung, supaya konsisten.
+2) GET /document/show
+   - Fitur: list semua dokumen kesehatan
 
-Contoh payload minimal (create)
-{
-  "pasien_id": "USER_ID_PASIEN",
-  "doctor_id": "USER_ID_DOKTER",
-  "type": "surat_sehat",
-  "keperluan": "Keperluan administrasi",
-  "catatan": null,
-  "catatan_dokter": null,
-  "status": "menunggu",
-  "berlaku_dari": "2026-05-15",
-  "berlaku_sampai": "2026-06-15"
-}
+3) GET /document/show/:id
+   - Fitur: detail dokumen kesehatan
 
-Catatan keamanan & kualitas
-- Saat ini endpoint create/update menerima payload mentah (tanpa validasi schema).
-  Rekomendasi: tambah validasi (mis. zod/joi) + whitelist field.
-- Download endpoint mengambil data dari DB lalu render template.
-  Pastikan template tidak memuat HTML yang berasal dari user tanpa sanitasi jika
-  ada field yang berpotensi mengandung HTML.
+4) PUT /document/update/:id
+   - Fitur: update data dokumen
+
+5) DELETE /document/delete/:id
+   - Fitur: hapus dokumen
+
+6) GET /document/download/sk/:id
+   - Fitur: download PDF template SK
+
+7) GET /document/download/sr/:id
+   - Fitur: download PDF template SR
+
+8) GET /document/download/ss/:id
+   - Fitur: download PDF template SS
+
+Catatan response download
+- Endpoint download mengembalikan file PDF (Content-Type: application/pdf).
+
+Catatan implementasi (untuk FE)
+- Buat alur upload/preview di FE berdasarkan data yang disimpan di tabel (bukan upload file).
+- Untuk tampilan PDF, FE bisa:
+  - membuka URL download di tab baru, atau
+  - download sebagai file (bergantung kebutuhan UX).
+
+Catatan teknis (opsional)
+- PDF digenerate dari template Handlebars dan dirender memakai Puppeteer.
+- Pastikan schema DB mengikuti field yang dipakai service (lihat `src/modules/document/db.txt`).
+

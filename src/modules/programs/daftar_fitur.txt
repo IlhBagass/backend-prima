@@ -1,0 +1,75 @@
+DAFTAR FITUR - HEALTH PROGRAM MODULE
+
+Base URL:
+  /programs
+
+Catatan umum:
+  - Admin = bisa CREATE, UPDATE, DELETE program
+  - Pasien = bisa READ & DAFTAR sebagai peserta
+  - Soft delete = mengisi kolom `deleted_at`
+
+1) Buat Program Kesehatan
+   - Akses: POST /programs
+   - Akses Role: Admin
+   - Body: nama, deskripsi, type,
+           tanggal_mulai, tanggal_selesai,
+           lokasi, kuota, status
+   - Type: vaksinasi, penyuluhan,
+           pemeriksaan, olahraga
+   - Tujuan: admin buat program baru
+
+2) Get List Program
+   - Akses: GET /programs
+   - Akses Role: Semua
+   - Query: type, status, date_from,
+            date_to, limit, offset
+   - Tujuan: lihat semua program tersedia
+
+3) Get Detail Program
+   - Akses: GET /programs/:id
+   - Akses Role: Semua
+   - Tujuan: lihat detail program +
+             jumlah peserta terdaftar
+
+4) Update Program
+   - Akses: PATCH /programs/:id
+   - Akses Role: Admin
+   - Tujuan: admin edit program
+
+5) Hapus Program (Soft Delete)
+   - Akses: DELETE /programs/:id
+   - Akses Role: Admin
+   - Tujuan: hapus program
+
+6) Daftar sebagai Peserta
+   - Akses: POST /programs/:id/register
+   - Akses Role: Pasien
+   - Body: pasien_id
+   - Tujuan: pasien daftar ke program
+
+7) Batalkan Pendaftaran
+   - Akses: DELETE /programs/:id/register/:pasien_id
+   - Akses Role: Pasien
+   - Tujuan: pasien batalkan pendaftaran
+
+8) Get List Peserta (by Program)
+   - Akses: GET /programs/:id/participants
+   - Akses Role: Admin
+   - Query: status, limit, offset
+   - Tujuan: admin lihat daftar peserta
+
+9) Update Status Peserta
+   - Akses: PATCH /programs/:id/participants/:pasien_id
+   - Akses Role: Admin
+   - Body: status (menunggu, diterima, ditolak)
+   - Tujuan: admin terima/tolak peserta
+
+Struktur module
+  - Route: `src/modules/programs/routes/program.route.js`
+  - Controller: `src/modules/programs/controllers/program.controller.js`
+  - Service: `src/modules/programs/service/program.service.js`
+  - Schema referensi: `src/modules/programs/db.txt`
+
+Catatan:
+  - Path di atas adalah route lokal module. Prefix akhir endpoint tergantung cara module
+    diregister di app utama.

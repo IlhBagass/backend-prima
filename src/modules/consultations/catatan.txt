@@ -1,0 +1,68 @@
+CATATAN - CONSULTATION CHAT MODULE
+
+Tujuan (untuk Front End)
+- Module ini dipakai untuk fitur konsultasi chat (room + pesan).
+- FE bisa buat room, lihat list room (pasien/dokter), buka detail room, kirim & load pesan,
+  tandai pesan dibaca, dan upload file untuk chat.
+
+Base URL:
+  /consultations
+
+Daftar endpoint & fungsi
+1) POST /consultations
+   - Fitur: buat room konsultasi baru (pasien -> dokter)
+   - Body: pasien_id, doctor_id, booking_id (opsional), topik
+
+2) GET /consultations/pasien/:pasien_id
+   - Fitur: riwayat room konsultasi pasien
+   - Query: status, limit, offset
+
+3) GET /consultations/doctor/:doctor_id
+   - Fitur: list room konsultasi dokter
+   - Query: status, limit, offset
+
+4) GET /consultations/:id
+   - Fitur: detail room (info pasien & dokter)
+
+5) PATCH /consultations/:id/status
+   - Fitur: dokter buka/tutup sesi
+   - Body: status (aktif | selesai | dibatalkan)
+
+6) DELETE /consultations/:id
+   - Fitur: hapus room (soft delete)
+
+7) POST /consultations/:id/messages
+   - Fitur: kirim pesan dalam room
+   - Body: sender_id, message (wajib untuk text), file_url (opsional), type (text|file|image)
+
+8) GET /consultations/:id/messages
+   - Fitur: load riwayat pesan + pagination
+   - Query: limit, offset
+
+9) PATCH /consultations/:id/messages/read
+   - Fitur: tandai pesan dibaca
+   - Body: user_id (pesan milik lawan bicara akan di-set is_read=true)
+
+10) POST /consultations/:id/upload
+   - Fitur: upload file chat (Cloudinary), output `file_url`
+   - Body: multipart/form-data (key: file)
+
+Catatan perilaku penting
+- List konsultasi hanya menampilkan data `deleted_at IS NULL`.
+- Update status akan mengisi `ended_at` saat status menjadi `selesai`/`dibatalkan`, dan set NULL saat kembali `aktif`.
+- List messages diurutkan `created_at ASC` (lama -> baru).
+
+Real-time (Socket.IO)
+- Saat ini baru tersedia HTTP API.
+- Integrasi Socket.IO belum dipasang di project (belum ada wiring server Socket.IO).
+
+Catatan akses role
+- Project saat ini belum memasang auth middleware/role guard secara konsisten.
+  Jadi aturan role masih bersifat aturan bisnis (belum enforce teknis).
+
+FR20 (Real-time Consultation Chat)
+FR20 terpenuhi : 90% ✅
+Yang kurang    : Socket.IO belum terpasang
+                tapi core feature sudah jalan
+Saran          : Socket.IO bisa ditambahkan
+                belakangan setelah semua FR selesai

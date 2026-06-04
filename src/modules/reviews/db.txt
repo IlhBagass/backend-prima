@@ -1,0 +1,19 @@
+CREATE TABLE reviews (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  pasien_id     VARCHAR(50) NOT NULL REFERENCES users(id),
+  doctor_id     VARCHAR(50) NOT NULL REFERENCES users(id),
+  booking_id    UUID NULL,
+  rating        SMALLINT NOT NULL
+                CHECK (rating BETWEEN 1 AND 5),
+  ulasan        TEXT NOT NULL,
+  sentiment     VARCHAR(20) NULL
+                CHECK (sentiment IN (
+                  'positif',
+                  'netral',
+                  'negatif'
+                )),
+  sentiment_score   DECIMAL(4,3) NULL,
+  sentiment_detail  JSONB NULL,
+  created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+

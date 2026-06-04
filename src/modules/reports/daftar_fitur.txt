@@ -1,0 +1,58 @@
+DAFTAR FITUR - REPORT & EXPORT MODULE
+Base URL:
+  /reports
+
+Catatan umum:
+  - Akses Role: Admin only
+  - Tidak butuh tabel baru
+  - Data diambil dari tabel yang sudah ada
+  - Export tersedia dalam format PDF & CSV
+  - Generate PDF menggunakan Puppeteer + Handlebars
+  - Generate CSV menggunakan generator CSV sederhana (tanpa tabel)
+
+1) Laporan Pengguna
+   - Akses: GET /reports/users
+   - Query: role, status, date_from,
+            date_to, limit, offset
+
+2) Laporan Janji Temu
+   - Akses: GET /reports/appointments
+   - Query: status, doctor_id, date_from,
+            date_to, limit, offset
+
+3) Laporan Konsultasi
+   - Akses: GET /reports/consultations
+   - Query: status, date_from,
+            date_to, limit, offset
+
+4) Laporan Rekam Medis
+   - Akses: GET /reports/medical-records
+   - Query: type, doctor_id, date_from,
+            date_to, limit, offset
+
+5) Laporan Pendapatan Dokter
+   - Akses: GET /reports/revenue
+   - Query: doctor_id, date_from,
+            date_to, limit, offset
+
+6) Export PDF
+   - Akses: GET /reports/export/pdf
+   - Query: type (users/appointments/
+            consultations/medical-records),
+            date_from, date_to
+   - Output: file PDF (download)
+   - Content-Type: application/pdf
+
+7) Export CSV
+   - Akses: GET /reports/export/csv
+   - Query: type (users/appointments/
+            consultations/medical-records),
+            date_from, date_to
+   - Output: file CSV (download)
+   - Content-Type: text/csv
+
+Struktur module
+  - Route: `src/modules/reports/routes/report.route.js`
+  - Controller: `src/modules/reports/controllers/report.controller.js`
+  - Service: `src/modules/reports/service/report.service.js`
+

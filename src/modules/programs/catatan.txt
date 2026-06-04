@@ -1,0 +1,58 @@
+CATATAN - HEALTH PROGRAM MODULE
+
+Tujuan (untuk Front End)
+- Module ini dipakai untuk fitur program kesehatan (list program, detail, dan pendaftaran peserta).
+- FE bisa:
+  - tampilkan list program + filter,
+  - buka detail program (termasuk `participants_count`),
+  - pasien daftar/batal daftar,
+  - admin lihat peserta dan terima/tolak peserta.
+
+Base URL:
+  /programs
+
+Daftar endpoint & fungsi
+1) POST /programs
+   - Fitur: admin membuat program baru
+
+2) GET /programs
+   - Fitur: list program + filter
+   - Query: type, status, date_from, date_to, limit, offset
+
+3) GET /programs/:id
+   - Fitur: detail program + `participants_count`
+
+4) PATCH /programs/:id
+   - Fitur: admin edit program
+
+5) DELETE /programs/:id
+   - Fitur: soft delete program (mengisi `deleted_at`)
+
+6) POST /programs/:id/register
+   - Fitur: pasien daftar sebagai peserta (status awal `menunggu`)
+   - Body: pasien_id
+
+7) DELETE /programs/:id/register/:pasien_id
+   - Fitur: pasien batalkan pendaftaran (soft delete peserta)
+
+8) GET /programs/:id/participants
+   - Fitur: admin lihat list peserta
+   - Query: status, limit, offset
+
+9) PATCH /programs/:id/participants/:pasien_id
+   - Fitur: admin terima/tolak peserta
+   - Body: status (menunggu | diterima | ditolak)
+
+Catatan perilaku penting
+- Soft delete diterapkan pada:
+  - `health_programs.deleted_at`
+  - `health_program_participants.deleted_at`
+- Kuota:
+  - jika `kuota` > 0, register akan ditolak bila jumlah peserta `menunggu/diterima` sudah mencapai kuota.
+  - jika `kuota` = 0, dianggap tidak membatasi kuota.
+- `date_from/date_to` pada list program memakai konsep overlap (program yang rentangnya bertabrakan dengan window filter).
+
+Catatan akses role
+- Project saat ini belum memasang auth middleware/role guard secara konsisten.
+  Jadi aturan role masih bersifat aturan bisnis (belum enforce teknis).
+

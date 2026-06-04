@@ -1,0 +1,27 @@
+CATATAN - AI HEALTH ASSISTANT MODULE
+
+Tujuan (untuk Front End)
+- Module ini dipakai untuk fitur AI Health Assistant (analisis terstruktur).
+- Semua response WAJIB menyertakan `disclaimer`.
+
+Base URL:
+  /ai/health
+
+Daftar endpoint & fungsi
+1) POST /ai/health/symptoms
+   - Fitur: analisis gejala berdasarkan input + konteks pasien dari DB
+
+2) POST /ai/health/analyze
+   - Fitur: analisis data kesehatan numerik (BMI dihitung backend, lalu AI memberi insight)
+
+3) POST /ai/health/recommend-doctor
+   - Fitur: AI menentukan spesialisasi, lalu backend ambil list dokter dari DB (`users.role='doctor'`)
+
+Konfigurasi env (wajib untuk jalan)
+- `MAIA_URL`
+- `MAIA_API_KEY`
+- `MAIA_MODEL` (contoh: `openai/gpt-4o-mini`)
+
+Catatan akses role
+- Project saat ini belum memasang auth middleware/role guard secara konsisten.
+  Jadi aturan role masih bersifat aturan bisnis (belum enforce teknis).

@@ -1,0 +1,39 @@
+CATATAN - AI SENTIMENT & REVIEW MODULE
+
+Tujuan (untuk Front End)
+- Module ini dipakai untuk fitur ulasan dokter + analisis sentimen otomatis.
+- FE bisa:
+  - pasien membuat ulasan,
+  - list ulasan per dokter (dengan filter),
+  - detail ulasan,
+  - list ulasan milik pasien,
+  - doctor/admin melihat insight AI.
+
+Base URL:
+  /reviews
+
+Daftar endpoint & fungsi
+1) POST /reviews
+   - Fitur: pasien buat ulasan + backend analisis sentimen via AI (Maiarouter)
+
+2) GET /reviews/doctor/:doctor_id
+   - Fitur: list ulasan dokter + statistik (rata-rata rating & breakdown sentimen)
+   - Query: sentiment (positif|netral|negatif), rating_min, limit, offset
+
+3) GET /reviews/:id
+   - Fitur: detail 1 ulasan lengkap
+
+4) GET /reviews/doctor/:doctor_id/insight
+   - Fitur: insight AI untuk dokter (ringkasan, kelebihan, kekurangan, saran perbaikan)
+   - Output selalu menyertakan `disclaimer` AI
+
+5) GET /reviews/pasien/:pasien_id
+   - Fitur: list semua ulasan yang pernah ditulis pasien
+
+Konfigurasi env
+- Menggunakan Maiarouter: `MAIA_URL`, `MAIA_API_KEY`, `MAIA_MODEL`
+
+Catatan akses role
+- Project saat ini belum memasang auth middleware/role guard secara konsisten.
+  Jadi aturan role masih bersifat aturan bisnis (belum enforce teknis).
+

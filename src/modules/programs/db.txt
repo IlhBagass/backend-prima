@@ -1,0 +1,43 @@
+-- TABEL HEALTH PROGRAMS
+CREATE TABLE health_programs (
+  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  nama              VARCHAR(255) NOT NULL,
+  deskripsi         TEXT NULL,
+  type              VARCHAR(50) NOT NULL
+                    CHECK (type IN (
+                      'vaksinasi',
+                      'penyuluhan',
+                      'pemeriksaan',
+                      'olahraga'
+                    )),
+  tanggal_mulai     DATE NOT NULL,
+  tanggal_selesai   DATE NOT NULL,
+  lokasi            VARCHAR(255) NULL,
+  kuota             INT NOT NULL DEFAULT 0,
+  status            VARCHAR(20) DEFAULT 'aktif'
+                    CHECK (status IN (
+                      'aktif',
+                      'nonaktif',
+                      'selesai'
+                    )),
+  created_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  deleted_at        TIMESTAMP NULL
+);
+
+-- TABEL PESERTA HEALTH PROGRAMS
+CREATE TABLE health_program_participants (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  program_id  UUID NOT NULL
+              REFERENCES health_programs(id)
+              ON DELETE CASCADE,
+  pasien_id   VARCHAR NOT NULL
+              REFERENCES users(id)
+              ON DELETE CASCADE,
+  status      VARCHAR(20) NOT NULL DEFAULT 'menunggu'
+              CHECK (status IN ('menunggu', 'diterima', 'ditolak')),
+  created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  deleted_at  TIMESTAMP NULL,
+  UNIQUE (program_id, pasien_id)
+);

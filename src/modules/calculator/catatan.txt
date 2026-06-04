@@ -1,0 +1,41 @@
+CATATAN - HEALTH CALCULATOR MODULE
+
+Tujuan (untuk Front End)
+- Module ini menyediakan endpoint kalkulator kesehatan tanpa database.
+- Dipakai untuk fitur: BMI, risiko diabetes, risiko hipertensi, dan kebutuhan kalori harian (BMR).
+- Semua endpoint menerima JSON dan mengembalikan hasil kalkulasi.
+
+Base URL
+  /calculator
+
+Daftar endpoint & fungsi
+1) POST /calculator/bmi
+   - Fitur: hitung BMI + kategori + saran
+
+2) POST /calculator/risk/diabetes
+   - Fitur: estimasi level risiko diabetes tipe 2 + faktor risiko + saran
+
+3) POST /calculator/risk/hipertensi
+   - Fitur: estimasi level risiko hipertensi + status tekanan darah + saran
+
+4) POST /calculator/bmr
+   - Fitur: hitung BMR + estimasi kalori harian + pembagian per meal
+
+Lokasi file penting
+- Routes: `src/modules/calculator/routes/calculator.route.js`
+- Controller: `src/modules/calculator/controllers/calculator.controller.js`
+- Service: `src/modules/calculator/service/calculator.service.js`
+- Plugin prefix: `src/plugins/index.js` (register prefix `/calculator`)
+
+Catatan implementasi
+- BMI memakai rumus: berat(kg) / (tinggi(m)^2), output dibulatkan 1 desimal.
+- Risiko diabetes memakai skor heuristik 0-100 dari faktor:
+  usia, BMI, gula darah, riwayat keluarga, dan aktivitas fisik.
+  Level risiko: Rendah (<35), Sedang (35-69), Tinggi (>=70).
+- Risiko hipertensi memakai kategori tekanan darah + faktor usia/merokok/riwayat keluarga.
+  Ini bukan diagnosis medis, hanya estimasi risiko berbasis input.
+- BMR memakai formula Mifflin-St Jeor dan faktor aktivitas:
+  rendah=1.2, sedang=1.55, tinggi=1.725.
+
+Catatan akses role
+- Module ini tidak memakai autentikasi dan dapat diakses semua role.

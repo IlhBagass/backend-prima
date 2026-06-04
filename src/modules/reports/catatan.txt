@@ -1,0 +1,34 @@
+CATATAN - REPORT & EXPORT MODULE
+
+Tujuan (untuk Front End)
+- Module ini dipakai untuk fitur admin: melihat laporan ringkas + export PDF/CSV.
+
+Base URL:
+  /reports
+
+Daftar endpoint & fungsi
+1) GET /reports/users
+   - Fitur: laporan pengguna (total, breakdown role, list user)
+
+2) GET /reports/appointments
+   - Fitur: laporan janji temu (total, breakdown status, list appointment)
+
+3) GET /reports/consultations
+   - Fitur: laporan konsultasi (total, breakdown status, list konsultasi)
+
+4) GET /reports/medical-records
+   - Fitur: laporan rekam medis (total, breakdown type, list data)
+
+5) GET /reports/revenue
+   - Fitur: estimasi pendapatan dokter dari appointment status selesai
+
+6) GET /reports/export/pdf
+   - Fitur: export PDF untuk type tertentu
+
+7) GET /reports/export/csv
+   - Fitur: export CSV untuk type tertentu
+
+Catatan akses role
+- Project saat ini belum memasang auth middleware/role guard secara konsisten.
+  Jadi aturan "Admin only" masih bersifat aturan bisnis (belum enforce teknis).
+

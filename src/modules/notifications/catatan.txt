@@ -1,0 +1,47 @@
+CATATAN - NOTIFICATION MODULE
+
+Tujuan (untuk Front End)
+- Module ini dipakai untuk fitur notifikasi user (inbox notifikasi).
+- Notifikasi dibuat oleh sistem (FE tidak perlu create).
+- FE cukup melakukan:
+  - list notifikasi + badge unread,
+  - lihat detail,
+  - tandai dibaca (satu / semua),
+  - hapus notifikasi (hard delete) bila ada UI delete.
+
+Base URL:
+  /notifications
+
+Daftar endpoint & fungsi
+1) GET /notifications/:user_id
+   - Fitur: load list notifikasi user + `unread_count`
+   - Query:
+     - is_read (true|false) optional
+     - type (string) optional
+     - limit, offset
+   - Output:
+     - `unread_count` (jumlah notifikasi belum dibaca milik user)
+     - `notifications` (array notifikasi)
+
+2) GET /notifications/detail/:id
+   - Fitur: detail 1 notifikasi
+
+3) PATCH /notifications/:id/read
+   - Fitur: tandai 1 notifikasi dibaca (set `is_read=true`, isi `read_at`)
+
+4) PATCH /notifications/:user_id/read-all
+   - Fitur: tandai semua notifikasi user sebagai dibaca
+   - Output: `updated_count`
+
+5) DELETE /notifications/:id
+   - Fitur: hapus notifikasi (hard delete)
+
+Catatan perilaku penting
+- `read_at` hanya diisi ketika notifikasi ditandai dibaca.
+- `GET /notifications/:user_id` selalu menghitung `unread_count` dari semua notifikasi user
+  (tidak terpengaruh filter query).
+
+Catatan akses role
+- Project saat ini belum memasang auth middleware/role guard secara konsisten.
+  Jadi aturan role masih bersifat aturan bisnis (belum enforce teknis).
+

@@ -1,0 +1,55 @@
+DAFTAR FITUR - AI SENTIMENT & REVIEW MODULE
+Base URL:
+  /reviews
+
+Catatan umum:
+  - Pasien = bisa CREATE & READ ulasan
+  - Dokter = hanya READ ulasan miliknya
+  - Admin = READ semua ulasan
+  - AI analisis sentimen otomatis saat create
+  - Tidak bisa edit/hapus ulasan (menjaga integritas)
+
+1) Buat Ulasan + Analisis Sentimen
+   - Akses: POST /reviews
+   - Akses Role: Pasien
+   - Body: pasien_id, doctor_id,
+           booking_id (opsional),
+           rating (1-5), ulasan (text)
+   - Proses: simpan ulasan → kirim ke AI
+             → simpan hasil sentimen
+   - Output: ulasan + hasil sentimen AI
+
+2) Get List Ulasan (by Dokter)
+   - Akses: GET /reviews/doctor/:doctor_id
+   - Akses Role: Semua
+   - Query: sentiment, rating_min,
+            limit, offset
+   - Output: list ulasan +
+             rata-rata rating +
+             breakdown sentimen
+
+3) Get Detail Ulasan
+   - Akses: GET /reviews/:id
+   - Akses Role: Semua
+   - Output: detail 1 ulasan lengkap
+
+4) Get Insight Dokter (AI Summary)
+   - Akses: GET /reviews/doctor/:doctor_id/insight
+   - Akses Role: Dokter & Admin
+   - Proses: ambil semua ulasan dokter →
+             kirim ke AI → generate insight
+   - Output: ringkasan kualitas layanan,
+             kelebihan, kekurangan,
+             saran perbaikan
+
+5) Get List Ulasan (by Pasien)
+   - Akses: GET /reviews/pasien/:pasien_id
+   - Akses Role: Pasien
+   - Output: list ulasan yang pernah ditulis
+
+Struktur module
+  - Route: `src/modules/reviews/routes/review.route.js`
+  - Controller: `src/modules/reviews/controllers/review.controller.js`
+  - Service: `src/modules/reviews/service/review.service.js`
+  - Schema referensi: `src/modules/reviews/db.txt`
+

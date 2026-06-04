@@ -1,0 +1,50 @@
+DAFTAR FITUR - AI HEALTH ASSISTANT MODULE
+
+Base URL:
+  /ai/health
+
+Catatan umum:
+  - Tidak butuh tabel baru
+  - Menggunakan Maiarouter (MAIA_URL / MAIA_MODEL)
+  - Input terstruktur (bukan free text)
+  - Response personal berdasarkan data user dari DB
+  - Wajib ada disclaimer di setiap response
+
+1) Analisis Gejala
+   - Akses: POST /ai/health/symptoms
+   - Akses Role: Pasien
+   - Body: user_id, gejala (array),
+           durasi, suhu_tubuh (opsional),
+           keluhan_tambahan (opsional)
+   - Output: possible_conditions,
+             what_you_can_do_now,
+             when_to_see_doctor,
+             recommended_specialist,
+             health_insight, disclaimer
+
+2) Analisis Data Kesehatan
+   - Akses: POST /ai/health/analyze
+   - Akses Role: Pasien
+   - Body: user_id, tinggi_badan_cm,
+           berat_badan_kg, tekanan_darah (opsional),
+           gula_darah (opsional),
+           kolesterol (opsional)
+   - Output: bmi, status tiap indikator,
+             overall_status, recommendations,
+             recommended_specialist,
+             health_insight, disclaimer
+
+3) Rekomendasi Dokter by Gejala
+   - Akses: POST /ai/health/recommend-doctor
+   - Akses Role: Pasien
+   - Body: user_id, gejala (array),
+           durasi (opsional)
+   - Output: kemungkinan_kondisi,
+             recommended_specialist,
+             available_doctors (dari DB),
+             disclaimer
+
+Struktur module
+  - Route: `src/modules/ai_health/routes/ai_health.route.js`
+  - Controller: `src/modules/ai_health/controllers/ai_health.controller.js`
+  - Service: `src/modules/ai_health/service/ai_health.service.js`

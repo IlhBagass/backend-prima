@@ -1,0 +1,51 @@
+CATATAN - DIGITAL QUEUE MODULE
+
+Tujuan (untuk Front End)
+- Module ini dipakai untuk fitur antrian digital berdasarkan booking (tabel `public.appointments`).
+- FE bisa:
+  - pasien cek posisi antrian dari `booking_id`,
+  - dokter lihat antrian hari ini,
+  - dokter panggil pasien berikutnya,
+  - dokter update status antrian per booking.
+
+Base URL:
+  /queue
+
+Daftar endpoint & fungsi
+1) GET /queue/:booking_id
+   - Fitur: pasien lihat posisi antrian (nomor antrian, posisi sekarang, estimasi, status)
+
+2) GET /queue/doctor/:doctor_id/today
+   - Fitur: dokter lihat semua antrian hari ini untuk dirinya
+
+3) PATCH /queue/doctor/:doctor_id/next
+   - Fitur: dokter memanggil pasien berikutnya (ambil booking pertama dengan status `menunggu`)
+
+4) PATCH /queue/:booking_id/status
+   - Fitur: update status antrian untuk booking tertentu
+   - Body: status (menunggu | dipanggil | selesai | tidak_hadir)
+
+Catatan perilaku penting
+- Tidak ada tabel baru. Data diambil dari `public.appointments`.
+- Nomor antrian dihitung dari urutan `start_time` pada kombinasi (doctor_id, appointment_date).
+- Booking dengan `appointments.status = 'cancelled'` tidak dimasukkan dalam antrian.
+- Mapping status:
+  - `booked` (status default appointment) dianggap sebagai `menunggu`.
+  - status queue disimpan langsung di `appointments.status` saat endpoint dipakai.
+- Estimasi waktu tunggu:
+  - asumsi 10 menit per pasien: `estimasi = (sisa_antrian - 1) * 10 menit`.
+
+Real-time (Socket.IO)
+- Saat ini baru tersedia HTTP API.
+- Integrasi Socket.IO belum dipasang di project (belum ada wiring server Socket.IO).
+
+Catatan akses role
+- Project saat ini belum memasang auth middleware/role guard secara konsisten.
+  Jadi aturan role masih bersifat aturan bisnis (belum enforce teknis).
+
+FR20 (Real-time Queue)
+FR20 terpenuhi : 90% ✅
+Yang kurang    : Socket.IO belum terpasang
+                tapi core feature sudah jalan
+Saran          : Socket.IO bisa ditambahkan
+                belakangan setelah semua FR selesai

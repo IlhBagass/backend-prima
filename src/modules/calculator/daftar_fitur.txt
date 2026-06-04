@@ -1,0 +1,51 @@
+DAFTAR FITUR - HEALTH CALCULATOR MODULE
+
+Base URL:
+  /calculator
+
+Catatan umum:
+  - Tidak butuh tabel baru
+  - Kalkulasi dilakukan di backend
+  - Semua role bisa akses
+  - Tidak perlu autentikasi
+
+1) Kalkulator BMI
+   - Akses: POST /calculator/bmi
+   - Body: tinggi_cm, berat_kg
+   - Output: nilai BMI, status,
+             keterangan, kategori, saran
+
+2) Kalkulator Risiko Diabetes
+   - Akses: POST /calculator/risk/diabetes
+   - Body: umur, berat_kg, tinggi_cm,
+           gula_darah, riwayat_keluarga (boolean),
+           aktifitas_fisik (rendah/sedang/tinggi)
+   - Output: level risiko, skor,
+             keterangan, faktor_risiko, saran,
+             recommended_specialist
+
+3) Kalkulator Risiko Hipertensi
+   - Akses: POST /calculator/risk/hipertensi
+   - Body: umur, tekanan_sistolik,
+           tekanan_diastolik, merokok (boolean),
+           riwayat_keluarga (boolean)
+   - Output: level risiko, skor,
+             status tekanan darah,
+             keterangan, saran
+
+4) Kalkulator Kalori Harian (BMR)
+   - Akses: POST /calculator/bmr
+   - Body: umur, berat_kg, tinggi_cm,
+           jenis_kelamin, aktifitas_fisik
+   - Output: BMR, kalori harian,
+             anjuran kalori per meal
+
+Struktur module
+  - Route: `src/modules/calculator/routes/calculator.route.js`
+  - Controller: `src/modules/calculator/controllers/calculator.controller.js`
+  - Service: `src/modules/calculator/service/calculator.service.js`
+
+Catatan:
+  - Path di atas adalah route lokal module. Prefix akhir endpoint tergantung cara module
+    diregister di app utama.
+

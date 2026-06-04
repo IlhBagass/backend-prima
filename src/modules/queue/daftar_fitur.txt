@@ -1,0 +1,47 @@
+DAFTAR FITUR - DIGITAL QUEUE MODULE
+
+Base URL:
+  /queue
+
+Catatan umum:
+  - Tidak butuh tabel baru
+  - Data antrian diambil dari tabel bookings (`public.appointments`)
+  - Real-time menggunakan Socket.IO
+  - Antrian berdasarkan tanggal & dokter
+
+1) Get Posisi Antrian (by Booking)
+   - Akses: GET /queue/:booking_id
+   - Akses Role: Pasien
+   - Output: nomor antrian, posisi saat ini,
+             estimasi waktu tunggu,
+             status antrian
+
+2) Get List Antrian Hari Ini (by Dokter)
+   - Akses: GET /queue/doctor/:doctor_id/today
+   - Akses Role: Dokter
+   - Output: list semua pasien antri hari ini
+             beserta status masing-masing
+
+3) Panggil Pasien Berikutnya
+   - Akses: PATCH /queue/doctor/:doctor_id/next
+   - Akses Role: Dokter
+   - Output: data pasien yang dipanggil,
+             nomor antrian berikutnya
+
+4) Update Status Antrian
+   - Akses: PATCH /queue/:booking_id/status
+   - Akses Role: Dokter
+   - Body: status
+   - Status: menunggu, dipanggil,
+             selesai, tidak_hadir
+   - Output: status antrian terupdate
+
+Struktur module
+  - Route: `src/modules/queue/routes/queue.route.js`
+  - Controller: `src/modules/queue/controllers/queue.controller.js`
+  - Service: `src/modules/queue/service/queue.service.js`
+
+Catatan:
+  - Path di atas adalah route lokal module. Prefix akhir endpoint tergantung cara module
+    diregister di app utama.
+

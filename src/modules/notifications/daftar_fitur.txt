@@ -1,0 +1,48 @@
+DAFTAR FITUR - NOTIFICATION MODULE
+
+Base URL:
+  /notifications
+
+Catatan umum:
+  - Notifikasi dibuat otomatis oleh sistem
+  - User hanya bisa READ & tandai dibaca
+  - Hard delete untuk hapus notifikasi
+  - Semua role bisa terima notifikasi
+
+1) Get List Notifikasi (by User)
+   - Akses: GET /notifications/:user_id
+   - Akses Role: Semua
+   - Query: is_read, type, limit, offset
+   - Output: list notifikasi +
+             jumlah belum dibaca
+
+2) Get Detail Notifikasi
+   - Akses: GET /notifications/detail/:id
+   - Akses Role: Semua
+   - Output: detail 1 notifikasi
+
+3) Tandai 1 Notifikasi Dibaca
+   - Akses: PATCH /notifications/:id/read
+   - Akses Role: Semua
+   - Output: notifikasi terupdate
+
+4) Tandai Semua Dibaca
+   - Akses: PATCH /notifications/:user_id/read-all
+   - Akses Role: Semua
+   - Output: jumlah notifikasi terupdate
+
+5) Hapus Notifikasi
+   - Akses: DELETE /notifications/:id
+   - Akses Role: Semua
+   - Tujuan: hard delete notifikasi
+
+Struktur module
+  - Route: `src/modules/notifications/routes/notification.route.js`
+  - Controller: `src/modules/notifications/controllers/notification.controller.js`
+  - Service: `src/modules/notifications/service/notification.service.js`
+  - Schema referensi: `src/modules/notifications/db.txt`
+
+Catatan:
+  - Path di atas adalah route lokal module. Prefix akhir endpoint tergantung cara module
+    diregister di app utama.
+
