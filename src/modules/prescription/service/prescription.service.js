@@ -141,8 +141,9 @@ export async function createItemsPrescription(payload) {
 }
 
 export async function deleteItemsPrescription(payload) {
+    const id = typeof payload === "object" ? payload.id : payload;
     const result = await sql`
-        DELETE FROM prescription_items WHERE id = ${payload.id};
+        DELETE FROM prescription_items WHERE id = ${id};
     `;
     
     return result;

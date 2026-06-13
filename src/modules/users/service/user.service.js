@@ -125,6 +125,21 @@ export const getUserByIdService = async (id) => {
   return rows[0] || null;
 };
 
+export const findUserByEmailService = async (email) => {
+  const rows = await sql.query(
+    `
+      SELECT id, name, email, password, role, status
+      FROM users
+      WHERE email = $1
+        AND deleted_at IS NULL
+      LIMIT 1
+    `,
+    [email]
+  );
+
+  return rows[0] || null;
+};
+
 export const updateUserByIdService = async (id, payload = {}) => {
   const setClauses = [];
   const params = [id];

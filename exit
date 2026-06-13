@@ -1,0 +1,372 @@
+[33mcommit 9e4d6f2fbf6bb1d5cc0bf2ca6621a4113d914bd7[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: IlhBagasss <ibagas63@gmail.com>
+Date:   2026-06-04
+
+    sudah lengkap semua nya done
+
+27	0	src/modules/ai_health/catatan.txt
+92	0	src/modules/ai_health/controllers/ai_health.controller.js
+50	0	src/modules/ai_health/daftar_fitur.txt
+6	0	src/modules/ai_health/index.js
+17	0	src/modules/ai_health/routes/ai_health.route.js
+155	0	src/modules/ai_health/service/ai_health.service.js
+74	0	src/modules/ai_health/utils/maia.js
+41	0	src/modules/calculator/catatan.txt
+151	0	src/modules/calculator/controllers/calculator.controller.js
+51	0	src/modules/calculator/daftar_fitur.txt
+6	0	src/modules/calculator/index.js
+21	0	src/modules/calculator/routes/calculator.route.js
+232	0	src/modules/calculator/service/calculator.service.js
+68	0	src/modules/consultations/catatan.txt
+213	0	src/modules/consultations/controllers/consultation.controller.js
+84	0	src/modules/consultations/daftar_fitur.txt
+37	0	src/modules/consultations/db.txt
+6	0	src/modules/consultations/index.js
+45	0	src/modules/consultations/routes/consultation.route.js
+204	0	src/modules/consultations/service/consultation.service.js
+46	47	src/modules/document/catatan.txt
+31	61	src/modules/immunization/catatan.txt
+47	0	src/modules/notifications/catatan.txt
+85	0	src/modules/notifications/controllers/notification.controller.js
+48	0	src/modules/notifications/daftar_fitur.txt
+12	0	src/modules/notifications/db.txt
+6	0	src/modules/notifications/index.js
+25	0	src/modules/notifications/routes/notification.route.js
+108	0	src/modules/notifications/service/notification.service.js
+58	0	src/modules/programs/catatan.txt
+229	0	src/modules/programs/controllers/program.controller.js
+75	0	src/modules/programs/daftar_fitur.txt
+43	0	src/modules/programs/db.txt
+5	0	src/modules/programs/index.js
+40	0	src/modules/programs/routes/program.route.js
+287	0	src/modules/programs/service/program.service.js
+51	0	src/modules/queue/catatan.txt
+71	0	src/modules/queue/controllers/queue.controller.js
+47	0	src/modules/queue/daftar_fitur.txt
+6	0	src/modules/queue/index.js
+21	0	src/modules/queue/routes/queue.route.js
+233	0	src/modules/queue/service/queue.service.js
+34	0	src/modules/reports/catatan.txt
+81	0	src/modules/reports/controllers/report.controller.js
+58	0	src/modules/reports/daftar_fitur.txt
+6	0	src/modules/reports/index.js
+69	0	src/modules/reports/pdf/template_report.hbs
+33	0	src/modules/reports/routes/report.route.js
+481	0	src/modules/reports/service/report.service.js
+30	0	src/modules/reports/utils/csv.js
+50	0	src/modules/reports/utils/pdf.js
+39	0	src/modules/reviews/catatan.txt
+98	0	src/modules/reviews/controllers/review.controller.js
+55	0	src/modules/reviews/daftar_fitur.txt
+19	0	src/modules/reviews/db.txt
+6	0	src/modules/reviews/index.js
+25	0	src/modules/reviews/routes/review.route.js
+321	0	src/modules/reviews/service/review.service.js
+73	0	src/modules/reviews/utils/maia.js
+16	0	src/plugins/index.js
+0	112	test-ai.html
+0	4	test.html
+0	345	test_ai_management.html
+0	350	test_doctor_management.html
+0	363	test_prescription_management.html
+0	721	test_schedule_management.html
+0	747	test_user_management.html
+0	0	testing.html
+
+[33mcommit 1b6c3119f500f4769cfaca6525958cb6329b8c3e[m
+Author: IlhBagasss <ibagas63@gmail.com>
+Date:   2026-05-23
+
+    backend-journey 20
+
+0	0	src/modules/chat/index.js
+63	0	src/modules/immunization/catatan.txt
+16	15	src/modules/immunization/controller/immunization.controller.js
+46	0	src/modules/immunization/daftar_fitur.txt
+1	1	src/modules/immunization/index.js
+5	5	src/modules/immunization/routes/immunization.routes.js
+11	6	src/modules/immunization/services/immunization.service.js
+
+[33mcommit 53720b084353c29c4935121da26801cc0ee2ff89[m
+Author: IlhBagasss <ibagas63@gmail.com>
+Date:   2026-05-15
+
+    deployment 19
+
+887	1	node_modules/.package-lock.json
+890	2	package-lock.json
+3	1	package.json
+58	0	src/ai/TODO_healthAssistance.txt
+60	0	src/modules/document/TODO.txt
+49	0	src/modules/document/catatan.txt
+185	0	src/modules/document/controller/document.controller.js
+48	0	src/modules/document/daftar_fitur.txt
+26	0	src/modules/document/db.txt
+5	0	src/modules/document/index.js
+109	0	src/modules/document/pdf/pdfGenerator.js
+138	0	src/modules/document/pdf/template_SK.hbs
+133	0	src/modules/document/pdf/template_SR.hbs
+137	0	src/modules/document/pdf/template_SS.hbs
+26	0	src/modules/document/routes/document.routes.js
+82	0	src/modules/document/service/document.service.js
+41	0	src/modules/immunization/TODO.md
+88	0	src/modules/immunization/controller/immunization.controller.js
+15	0	src/modules/immunization/db.txt
+5	0	src/modules/immunization/index.js
+18	0	src/modules/immunization/routes/immunization.routes.js
+72	0	src/modules/immunization/services/immunization.service.js
+206	0	src/modules/prescription/catatan.txt
+171	0	src/modules/prescription/controller/prescription.controller.js
+68	0	src/modules/prescription/daftar_fitur.txt
+53	0	src/modules/prescription/dbb.txt
+5	0	src/modules/prescription/index.js
+39	0	src/modules/prescription/pdf/generatePDF.js
+257	0	src/modules/prescription/pdf/template.hbs
+31	0	src/modules/prescription/routes/presctiption.routes.js
+166	0	src/modules/prescription/service/prescription.service.js
+6	0	src/plugins/index.js
+363	0	test_prescription_management.html
+
+[33mcommit f164ef360ea84a5ddc95ed14db0f6bff021a095a[m
+Author: IlhBagasss <ibagas63@gmail.com>
+Date:   2026-05-11
+
+    docs: fill catatan.txt and add daftar_fitur_medical.txt for medical_records
+
+88	0	src/config/db.js
+60	0	src/modules/doctor/catatan.txt
+23	0	src/modules/doctor/controller/doctor.controller.js
+25	0	src/modules/doctor/daftar_fitur_doctor.txt
+6	0	src/modules/doctor/index.js
+7	0	src/modules/doctor/routes/doctor.route.js
+156	0	src/modules/doctor/service/doctor.service.js
+114	0	src/modules/medical_records/catatan.txt
+118	0	src/modules/medical_records/controllers/medical.controller.js
+46	0	src/modules/medical_records/daftar_fitur_medical.txt
+68	0	src/modules/medical_records/db.txt
+5	0	src/modules/medical_records/index.js
+34	0	src/modules/medical_records/routes/medical.routes.js
+151	0	src/modules/medical_records/service/medical.service.js
+167	0	src/modules/schedule/catatan.txt
+107	0	src/modules/schedule/controller/booking.controller.js
+149	0	src/modules/schedule/controller/schedule.controller.js
+55	0	src/modules/schedule/daftar_fitur_schedule.txt
+6	0	src/modules/schedule/index.js
+33	0	src/modules/schedule/routes/schedule.route.js
+273	0	src/modules/schedule/service/booking.service.js
+148	0	src/modules/schedule/service/schedule.service.js
+12	0	src/modules/schedule/sqlcode.txt
+51	5	src/modules/users/catatan.txt
+16	1	src/modules/users/controller/doctor.controller.js
+16	1	src/modules/users/controller/pasien.controller.js
+52	0	src/modules/users/daftar_fitur_user.txt
+4	2	src/modules/users/routes/user.route.js
+1	1	src/modules/users/service/admin.service.js
+57	0	src/modules/users/service/doctor.service.js
+56	0	src/modules/users/service/pasien.service.js
+39	1	src/modules/users/service/user.service.js
+10	4	src/plugins/index.js
+350	0	test_doctor_management.html
+721	0	test_schedule_management.html
+80	0	test_user_management.html
+
+[33mcommit 14cebe2b16d132b75c7e18aeec2ee51775b0e054[m
+Author: IlhBagasss <ibagas63@gmail.com>
+Date:   2026-05-09
+
+    backend-journey-deployment 17
+
+1	0	src/ai/rag/pipeline.js
+
+[33mcommit 84b890efd0a09278eb5444791255bd9c97d6e4b7[m
+Author: IlhBagasss <ibagas63@gmail.com>
+Date:   2026-05-09
+
+    backend-journey-deployment 16
+
+1	0	src/ai/rag/pipeline.js
+
+[33mcommit 6a0c60c3130fac59265bb04817907f4291ef940e[m
+Author: IlhBagasss <ibagas63@gmail.com>
+Date:   2026-05-09
+
+    backend-journey-deployment 14
+
+1	1	DEPLOY_VERCEL.md
+61	15	src/ai/provider/embeddings.js
+79	72	src/ai/routes/upload.routes.js
+38	105	src/config/db.js
+
+[33mcommit 2b04af9de0fa6b0ec52800eb8b2f97ae0cdf154b[m
+Author: IlhBagasss <ibagas63@gmail.com>
+Date:   2026-05-08
+
+    backend-journey-deployment 13
+
+48	21	src/ai/provider/embeddings.js
+20	1	src/ai/rag/embedding.js
+37	27	src/ai/rag/ingest.js
+
+[33mcommit 6fb153df8986dfecc979778aee8db897a73ed8f7[m
+Author: IlhBagasss <ibagas63@gmail.com>
+Date:   2026-05-08
+
+    backend-journey-deployment 12
+
+2	2	src/ai/routes/upload.routes.js
+2	2	src/config/db.js
+2	2	src/config/schema.sql
+
+[33mcommit 854a668b957c49f3c0dc24007efd7f3f78e20497[m
+Author: IlhBagasss <ibagas63@gmail.com>
+Date:   2026-05-08
+
+    backend-journey-deployment 11
+
+17	0	src/ai/routes/upload.routes.js
+
+[33mcommit af6b5cf77eaff2a76faa3958c58cdcc3e63da39a[m
+Author: IlhBagasss <ibagas63@gmail.com>
+Date:   2026-05-08
+
+    backend-journey-deployment 10
+
+12	4	src/ai/routes/upload.routes.js
+4	4	src/config/db.js
+
+[33mcommit b5a9d2a0a738f987d814ac643d7f0fd8e858d479[m
+Author: IlhBagasss <ibagas63@gmail.com>
+Date:   2026-05-08
+
+    backend-journey-deployment 10
+
+57	22	src/ai/routes/upload.routes.js
+
+[33mcommit ac2107856c418d7462612b3196f52878d91944a4[m
+Author: IlhBagasss <ibagas63@gmail.com>
+Date:   2026-05-08
+
+    backend-journey-deployment 10
+
+56	1	src/ai/routes/upload.routes.js
+
+[33mcommit fb342930f58c5bd3e933f184c65b3a4d67d7f5b5[m
+Author: IlhBagasss <ibagas63@gmail.com>
+Date:   2026-05-08
+
+    backend-journey-deployment 9
+
+1	0	DEPLOY_VERCEL.md
+17	1	src/config/db.js
+1	0	src/config/schema.sql
+
+[33mcommit f25860ea6abe8bdb0125fde06188ff9629f0e61e[m
+Author: IlhBagasss <ibagas63@gmail.com>
+Date:   2026-05-08
+
+    backend-journey-deployment 8
+
+4	0	DEPLOY_VERCEL.md
+39	0	src/ai/routes/upload.routes.js
+
+[33mcommit 1de639b6514cbe826be23656c607eb52a2728df5[m
+Author: IlhBagasss <ibagas63@gmail.com>
+Date:   2026-05-08
+
+    backend-journey-deployment 7
+
+1	2	.gitignore
+1	0	DEPLOY_VERCEL.md
+41	3	src/config/db.js
+1	1	src/config/schema.sql
+
+[33mcommit f3dbed08619ee999f9dd8be46a2f93ae9c34284c[m
+Author: IlhBagasss <ibagas63@gmail.com>
+Date:   2026-05-08
+
+    backend-journey-deployment 6
+
+0	1	.gitignore
+16	0	node_modules/.bin/node-gyp-build
+16	0	node_modules/.bin/node-gyp-build-optional
+17	0	node_modules/.bin/node-gyp-build-optional.cmd
+28	0	node_modules/.bin/node-gyp-build-optional.ps1
+16	0	node_modules/.bin/node-gyp-build-test
+17	0	node_modules/.bin/node-gyp-build-test.cmd
+28	0	node_modules/.bin/node-gyp-build-test.ps1
+17	0	node_modules/.bin/node-gyp-build.cmd
+28	0	node_modules/.bin/node-gyp-build.ps1
+16	0	node_modules/.bin/nodemon
+17	0	node_modules/.bin/nodemon.cmd
+28	0	node_modules/.bin/nodemon.ps1
+16	0	node_modules/.bin/nodetouch
+17	0	node_modules/.bin/nodetouch.cmd
+28	0	node_modules/.bin/nodetouch.ps1
+16	0	node_modules/.bin/pbjs
+17	0	node_modules/.bin/pbjs.cmd
+28	0	node_modules/.bin/pbjs.ps1
+16	0	node_modules/.bin/pbts
+17	0	node_modules/.bin/pbts.cmd
+28	0	node_modules/.bin/pbts.ps1
+16	0	node_modules/.bin/pdf2json
+17	0	node_modules/.bin/pdf2json.cmd
+28	0	node_modules/.bin/pdf2json.ps1
+16	0	node_modules/.bin/pino
+17	0	node_modules/.bin/pino.cmd
+28	0	node_modules/.bin/pino.ps1
+16	0	node_modules/.bin/prebuild-install
+17	0	node_modules/.bin/prebuild-install.cmd
+28	0	node_modules/.bin/prebuild-install.ps1
+16	0	node_modules/.bin/rc
+17	0	node_modules/.bin/rc.cmd
+28	0	node_modules/.bin/rc.ps1
+16	0	node_modules/.bin/safe-regex2
+17	0	node_modules/.bin/safe-regex2.cmd
+28	0	node_modules/.bin/safe-regex2.ps1
+16	0	node_modules/.bin/semver
+17	0	node_modules/.bin/semver.cmd
+28	0	node_modules/.bin/semver.ps1
+2392	0	node_modules/.package-lock.json
+2	0	node_modules/@fastify/ajv-compiler/.gitattributes
+21	0	node_modules/@fastify/ajv-compiler/.github/.stale.yml
+13	0	node_modules/@fastify/ajv-compiler/.github/dependabot.yml
+8	0	node_modules/@fastify/ajv-compiler/.github/tests_checker.yml
+33	0	node_modules/@fastify/ajv-compiler/.github/workflows/ci.yml
+23	0	node_modules/@fastify/ajv-compiler/LICENSE
+237	0	node_modules/@fastify/ajv-compiler/README.md
+37	0	node_modules/@fastify/ajv-compiler/benchmark/small-object.mjs
+6	0	node_modules/@fastify/ajv-compiler/eslint.config.js
+53	0	node_modules/@fastify/ajv-compiler/index.js
+14	0	node_modules/@fastify/ajv-compiler/lib/default-ajv-options.js
+27	0	node_modules/@fastify/ajv-compiler/lib/serializer-compiler.js
+58	0	node_modules/@fastify/ajv-compiler/lib/validator-compiler.js
+84	0	node_modules/@fastify/ajv-compiler/package.json
+44	0	node_modules/@fastify/ajv-compiler/standalone.js
+0	0	node_modules/@fastify/ajv-compiler/test/.gitkeep
+55	0	node_modules/@fastify/ajv-compiler/test/duplicated-id-compile.test.js
+307	0	node_modules/@fastify/ajv-compiler/test/index.test.js
+246	0	node_modules/@fastify/ajv-compiler/test/plugins.test.js
+279	0	node_modules/@fastify/ajv-compiler/test/serialization.test.js
+203	0	node_modules/@fastify/ajv-compiler/test/standalone.test.js
+87	0	node_modules/@fastify/ajv-compiler/types/index.d.ts
+302	0	node_modules/@fastify/ajv-compiler/types/index.test-d.ts
+24	0	node_modules/@fastify/busboy/LICENSE
+270	0	node_modules/@fastify/busboy/README.md
+19	0	node_modules/@fastify/busboy/deps/dicer/LICENSE
+213	0	node_modules/@fastify/busboy/deps/dicer/lib/Dicer.js
+100	0	node_modules/@fastify/busboy/deps/dicer/lib/HeaderParser.js
+13	0	node_modules/@fastify/busboy/deps/dicer/lib/PartStream.js
+164	0	node_modules/@fastify/busboy/deps/dicer/lib/dicer.d.ts
+230	0	node_modules/@fastify/busboy/deps/streamsearch/sbmh.js
+196	0	node_modules/@fastify/busboy/lib/main.d.ts
+85	0	node_modules/@fastify/busboy/lib/main.js
+306	0	node_modules/@fastify/busboy/lib/types/multipart.js
+190	0	node_modules/@fastify/busboy/lib/types/urlencoded.js
+54	0	node_modules/@fastify/busboy/lib/utils/Decoder.js
+14	0	node_modules/@fastify/busboy/lib/utils/basename.js
+114	0	node_modules/@fastify/busboy/lib/utils/decodeText.js
+16	0	node_modules/@fastify/busboy/lib/utils/getLimit.js
+201	0	node_modules/@fastify/busboy/lib/utils/parseParams.js
+81	0	node_modules/@fastify/busboy/package.json
+8	0	node_modules/@fastify/cors/.editorconfig
+5	0	node_modules/@fastify/cors/.gitattribut

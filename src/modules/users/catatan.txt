@@ -7,10 +7,11 @@ Headers:
 ============================================================
 
 DAFTAR ENDPOINT
-  A. AUTH (REGISTER)
-    1) POST /auth/register/admin
-    2) POST /auth/register/doctor
-    3) POST /auth/register/pasien
+  A. AUTH (REGISTER & LOGIN)
+    1) POST /auth/login
+    2) POST /auth/register/admin
+    3) POST /auth/register/doctor
+    4) POST /auth/register/pasien
 
   B. CRUD USERS
     4) GET    /auth/users
@@ -23,10 +24,28 @@ DAFTAR ENDPOINT
     11) DELETE /auth/users/:id/permanent   (hard delete)
 
 ------------------------------------------------------------
-A) AUTH (REGISTER)
+A) AUTH (REGISTER & LOGIN)
 ------------------------------------------------------------
 
-1) REGISTER ADMIN
+1) LOGIN
+Method/Path:
+  POST /auth/login
+Body (JSON):
+  - email (string)
+  - password (string)
+Response 200 (Sukses):
+  {
+    "status": "success",
+    "message": "Login berhasil",
+    "data": {
+      "token": "...",
+      "user": { "id", "name", "email", "role", "status" }
+    }
+  }
+Response 401 (Gagal):
+  { "status": "fail", "message": "Email atau password salah" }
+
+2) REGISTER ADMIN
 Method/Path:
   POST /auth/register/admin
 Body (JSON) - Required:

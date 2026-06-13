@@ -1,3 +1,4 @@
 {
-    "dart.devToolsTheme": "light"
+    "dart.devToolsTheme": "light",
+    "liveServer.settings.port": 5501
 }

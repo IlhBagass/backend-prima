@@ -1,0 +1,2690 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prima Backend — API Testing Dashboard</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --surface: #1a2332;
+      --surface2: #243044;
+      --border: #2d3a4f;
+      --text: #e7ecf3;
+      --muted: #8b9cb3;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --get: #22c55e;
+      --post: #3b82f6;
+      --put: #f59e0b;
+      --patch: #a855f7;
+      --delete: #ef4444;
+      --sidebar-w: 280px;
+      --radius: 10px;
+      --font: "Segoe UI", system-ui, -apple-system, sans-serif;
+      --mono: "Cascadia Code", "Fira Code", Consolas, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+    }
+
+    .sidebar {
+      width: var(--sidebar-w);
+      min-width: var(--sidebar-w);
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-header {
+      padding: 1.25rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-header h1 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .sidebar-header p {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 0.35rem;
+    }
+
+    .base-url-box {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .base-url-box label {
+      display: block;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-bottom: 0.35rem;
+    }
+
+    .base-url-box input {
+      width: 100%;
+      padding: 0.45rem 0.6rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 0.78rem;
+    }
+
+    .nav-list {
+      list-style: none;
+      padding: 0.5rem 0;
+      flex: 1;
+    }
+
+    .nav-list a {
+      display: block;
+      padding: 0.55rem 1rem;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.82rem;
+      border-left: 3px solid transparent;
+      transition: all 0.15s;
+    }
+
+    .nav-list a:hover,
+    .nav-list a.active {
+      color: var(--text);
+      background: var(--surface2);
+      border-left-color: var(--primary);
+    }
+
+    .nav-list .fr-code {
+      display: inline-block;
+      min-width: 2.5rem;
+      font-weight: 700;
+      color: var(--primary);
+      font-size: 0.72rem;
+    }
+
+    .main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    .topbar {
+      padding: 0.85rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .topbar h2 {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .status-pill {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: 999px;
+      background: var(--surface2);
+      color: var(--muted);
+    }
+
+    .status-pill.ok {
+      background: rgba(34, 197, 94, 0.15);
+      color: var(--success);
+    }
+
+    .status-pill.err {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--danger);
+    }
+
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.25rem 1.5rem 2rem;
+    }
+
+    .feature-section {
+      display: none;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .feature-section.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .feature-title {
+      margin-bottom: 0.35rem;
+      font-size: 1.35rem;
+    }
+
+    .feature-desc {
+      color: var(--muted);
+      font-size: 0.88rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .endpoint-grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .endpoint-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .endpoint-header {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.75rem 1rem;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .method {
+      font-size: 0.68rem;
+      font-weight: 800;
+      padding: 0.2rem 0.45rem;
+      border-radius: 4px;
+      letter-spacing: 0.04em;
+      font-family: var(--mono);
+    }
+
+    .method.GET {
+      background: rgba(34, 197, 94, 0.2);
+      color: var(--get);
+    }
+
+    .method.POST {
+      background: rgba(59, 130, 246, 0.2);
+      color: var(--post);
+    }
+
+    .method.PUT {
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--put);
+    }
+
+    .method.PATCH {
+      background: rgba(168, 85, 247, 0.2);
+      color: var(--patch);
+    }
+
+    .method.DELETE {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--delete);
+    }
+
+    .endpoint-path {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--text);
+      word-break: break-all;
+    }
+
+    .endpoint-body {
+      padding: 1rem;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.65rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .field label {
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      padding: 0.45rem 0.55rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 0.82rem;
+      font-family: inherit;
+    }
+
+    .field textarea {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .btn {
+      padding: 0.45rem 0.9rem;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: background 0.15s;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--border);
+    }
+
+    .response-panel {
+      margin-top: 1.25rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .response-header {
+      padding: 0.65rem 1rem;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+    }
+
+    .response-meta {
+      color: var(--muted);
+      font-size: 0.75rem;
+    }
+
+    .response-body {
+      padding: 1rem;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 420px;
+      overflow: auto;
+      line-height: 1.5;
+    }
+
+    .response-body.empty {
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    }
+
+    /* ==========================================
+       ADMIN DASHBOARD PREMIUM CSS STYLES
+       ========================================== */
+    .dashboard-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .dashboard-header-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, rgba(26, 35, 50, 0.7), rgba(36, 48, 68, 0.4));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      backdrop-filter: blur(10px);
+      transition: all 0.25s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--primary);
+      box-shadow: 0 6px 25px rgba(59, 130, 246, 0.15);
+    }
+
+    .stat-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--primary);
+    }
+
+    .stat-card.users::before {
+      background: var(--primary);
+    }
+
+    .stat-card.bookings::before {
+      background: var(--warning);
+    }
+
+    .stat-card.revenue::before {
+      background: var(--success);
+    }
+
+    .stat-card.records::before {
+      background: var(--patch);
+    }
+
+    .stat-card-title {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-card-value {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+      line-height: 1.2;
+    }
+
+    .stat-card-details {
+      font-size: 0.75rem;
+      color: var(--muted);
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .stat-card-details span {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .dashboard-tabs {
+      display: flex;
+      gap: 0.5rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.5rem;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    .db-tab-btn {
+      padding: 0.5rem 1rem;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.82rem;
+      border-radius: 6px;
+      transition: all 0.15s;
+    }
+
+    .db-tab-btn:hover {
+      color: var(--text);
+      background: var(--surface);
+    }
+
+    .db-tab-btn.active {
+      color: #fff;
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .db-tab-content {
+      display: none;
+      animation: fadeIn 0.2s ease;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+    }
+
+    .db-tab-content.active {
+      display: block;
+    }
+
+    .db-table-container {
+      overflow-x: auto;
+      margin-top: 1rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+
+    .db-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.8rem;
+    }
+
+    .db-table th {
+      background: var(--surface2);
+      color: var(--muted);
+      font-weight: 600;
+      padding: 0.65rem 0.85rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .db-table td {
+      padding: 0.65rem 0.85rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      vertical-align: middle;
+    }
+
+    .db-table tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .badge-admin {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--danger);
+    }
+
+    .badge-doctor {
+      background: rgba(59, 130, 246, 0.2);
+      color: var(--primary);
+    }
+
+    .badge-pasien {
+      background: rgba(34, 197, 94, 0.2);
+      color: var(--success);
+    }
+
+    .badge-active {
+      background: rgba(34, 197, 94, 0.15);
+      color: var(--success);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .badge-inactive {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--muted);
+    }
+
+    .badge-status-selesai {
+      background: rgba(34, 197, 94, 0.2);
+      color: var(--success);
+    }
+
+    .badge-status-menunggu {
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--warning);
+    }
+
+    .badge-status-dibatalkan {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--danger);
+    }
+
+    .badge-status-aktif {
+      background: rgba(59, 130, 246, 0.2);
+      color: var(--primary);
+    }
+
+    .db-form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.85rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .ai-insight-box {
+      background: linear-gradient(to right, rgba(168, 85, 247, 0.05), rgba(59, 130, 246, 0.05));
+      border: 1px dashed var(--patch);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      margin-top: 1rem;
+    }
+
+    .ai-insight-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--patch);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .vector-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.75rem;
+      background: var(--surface2);
+      padding: 0.25rem 0.6rem;
+      border-radius: 99px;
+      border: 1px solid var(--border);
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+      animation: pulse 1.6s infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+      }
+
+      70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 6px rgba(34, 197, 94, 0);
+      }
+
+      100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+      }
+    }
+
+    @media (max-width: 900px) {
+      body {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        min-width: 0;
+        height: auto;
+        position: relative;
+      }
+
+      .main {
+        height: auto;
+      }
+    }
+  </style>
+
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h1>Prima Backend API Tester</h1>
+      <p>Dashboard testing semua fitur FR01–FR21</p>
+    </div>
+    <div class="base-url-box">
+      <label for="baseUrl">Base URL</label>
+      <input id="baseUrl" type="url" value="https://backend-prima.vercel.app/" />
+    </div>
+    <ul class="nav-list" id="navList"></ul>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <h2 id="topTitle">Pilih fitur</h2>
+      <span class="status-pill" id="healthStatus">Belum dicek</span>
+    </div>
+    <div class="content" id="content"></div>
+  </div>
+
+
+  <script>
+    const BASE_DEFAULT = "http://backend-prima.vercel.app";
+
+    const FEATURES = [
+      {
+        id: "fr01",
+        code: "FR01",
+        title: "Manajemen Profil Pasien",
+        desc: "Registrasi, lihat, update profil pasien, dan upload foto.",
+        endpoints: [
+          {
+            method: "POST", path: "/auth/register/pasien", label: "Register Pasien",
+            body: {
+              name: "Budi Santoso", email: "budi@example.com", password: "password123",
+              nama_panggilan: "Budi", jenis_kelamin: "L", tanggal_lahir: "1995-05-15",
+              no_telepon: "081234567890", alamat: "Jl. Merdeka 1", kota: "Jakarta",
+              provinsi: "DKI Jakarta", kode_pos: "10110", nik: "3171234567890001",
+              golongan_darah: "O", rhesus: "+", tinggi_badan_cm: 170, berat_badan_kg: 65,
+              riwayat_alergi: "Tidak ada", riwayat_penyakit: "Tidak ada", no_bpjs: "0001234567890"
+            }
+          },
+          {
+            method: "GET", path: "/auth/users/{id}", label: "Get User by ID",
+            params: [{ key: "id", label: "User ID", placeholder: "uuid pasien" }]
+          },
+          {
+            method: "PATCH", path: "/auth/users/{id}/pasien", label: "Update Profil Pasien",
+            params: [{ key: "id", label: "User ID", placeholder: "uuid pasien" }],
+            body: { nama_panggilan: "Budi Updated", no_telepon: "08199999999", kota: "Bandung" }
+          },
+          {
+            method: "POST", path: "/auth/users/{id}/photo", label: "Upload Foto Profil",
+            params: [{ key: "id", label: "User ID", placeholder: "uuid pasien" }],
+            multipart: true, fileField: "file"
+          }
+        ]
+      },
+      {
+        id: "fr02",
+        code: "FR02",
+        title: "Manajemen Profil Dokter",
+        desc: "Registrasi dan update profil dokter.",
+        endpoints: [
+          {
+            method: "POST", path: "/auth/register/doctor", label: "Register Dokter",
+            body: {
+              name: "Dr. Andi Wijaya", email: "andi.dokter@example.com", password: "password123",
+              nomor_str: "STR-123456", nomor_sip: "SIP-654321", spesialisasi: "Dokter Umum",
+              sub_spesialisasi: "", pengalaman_tahun: 5, deskripsi_profil: "Dokter berpengalaman",
+              biaya_konsultasi: 150000, nama_klinik: "Klinik Prima", alamat_klinik: "Jl. Sehat 10",
+              jenis_kelamin: "L", no_telepon: "081111111111", kota: "Jakarta"
+            }
+          },
+          {
+            method: "PATCH", path: "/auth/users/{id}/doctor", label: "Update Profil Dokter",
+            params: [{ key: "id", label: "User ID", placeholder: "uuid dokter" }],
+            body: { spesialisasi: "Dokter Anak", biaya_konsultasi: 200000, deskripsi_profil: "Spesialis anak" }
+          }
+        ]
+      },
+      {
+        id: "fr03",
+        code: "FR03",
+        title: "Pencarian & Filter Dokter",
+        desc: "List dokter dengan filter dan detail dokter.",
+        endpoints: [
+          {
+            method: "GET", path: "/doctors", label: "List & Filter Dokter",
+            query: [
+              { key: "nama", placeholder: "nama dokter" },
+              { key: "spesialisasi", placeholder: "Dokter Umum" },
+              { key: "kota", placeholder: "Jakarta" },
+              { key: "rating_min", placeholder: "4" },
+              { key: "tersedia", placeholder: "true / false" },
+              { key: "limit", placeholder: "10" },
+              { key: "offset", placeholder: "0" }
+            ]
+          },
+          {
+            method: "GET", path: "/doctors/{id}", label: "Detail Dokter",
+            params: [{ key: "id", label: "Doctor ID", placeholder: "uuid dokter" }]
+          }
+        ]
+      },
+      {
+        id: "fr04",
+        code: "FR04",
+        title: "Manajemen Janji Temu",
+        desc: "CRUD booking / appointment pasien dengan dokter.",
+        endpoints: [
+          {
+            method: "POST", path: "/schedules/bookings", label: "Buat Booking",
+            body: {
+              doctor_id: "", pasien_id: "", appointment_date: "2026-06-15",
+              start_time: "09:00", end_time: "09:30", notes: "Kontrol rutin"
+            }
+          },
+          {
+            method: "GET", path: "/schedules/bookings/{id}", label: "Detail Booking",
+            params: [{ key: "id", label: "Booking ID", placeholder: "uuid booking" }]
+          },
+          {
+            method: "PATCH", path: "/schedules/bookings/{id}", label: "Update Booking",
+            params: [{ key: "id", label: "Booking ID", placeholder: "uuid booking" }],
+            body: { status: "dikonfirmasi", notes: "Diupdate via dashboard" }
+          },
+          {
+            method: "DELETE", path: "/schedules/bookings/{id}", label: "Hapus Booking",
+            params: [{ key: "id", label: "Booking ID", placeholder: "uuid booking" }]
+          },
+          {
+            method: "GET", path: "/schedules/doctor/{doctor_id}/bookings", label: "Booking per Dokter",
+            params: [{ key: "doctor_id", label: "Doctor ID", placeholder: "uuid dokter" }],
+            query: [{ key: "date", placeholder: "2026-06-15" }, { key: "status", placeholder: "menunggu" }]
+          },
+          {
+            method: "GET", path: "/schedules/user/{user_id}/bookings", label: "Booking per User",
+            params: [{ key: "user_id", label: "User ID", placeholder: "uuid pasien" }],
+            query: [{ key: "date", placeholder: "2026-06-15" }, { key: "status", placeholder: "menunggu" }]
+          }
+        ]
+      },
+      {
+        id: "fr05",
+        code: "FR05",
+        title: "Rekam Medis Digital",
+        desc: "CRUD rekam medis pasien.",
+        endpoints: [
+          {
+            method: "POST", path: "/medical", label: "Buat Rekam Medis",
+            body: {
+              pasien_id: "", doctor_id: "", booking_id: null,
+              type: "diagnosis", judul: "Pemeriksaan Rutin",
+              deskripsi: "Pasien datang untuk kontrol", catatan_dokter: "Kondisi stabil",
+              attachment_url: null
+            }
+          },
+          {
+            method: "GET", path: "/medical/pasien/{pasien_id}", label: "Rekam Medis per Pasien",
+            params: [{ key: "pasien_id", label: "Pasien ID", placeholder: "uuid pasien" }],
+            query: [
+              { key: "type", placeholder: "kunjungan" },
+              { key: "date_from", placeholder: "2026-01-01" },
+              { key: "date_to", placeholder: "2026-12-31" },
+              { key: "limit", placeholder: "10" },
+              { key: "offset", placeholder: "0" }
+            ]
+          },
+          {
+            method: "GET", path: "/medical/{id}", label: "Detail Rekam Medis",
+            params: [{ key: "id", label: "Record ID", placeholder: "uuid rekam medis" }]
+          },
+          {
+            method: "PATCH", path: "/medical/{id}", label: "Update Rekam Medis",
+            params: [{ key: "id", label: "Record ID", placeholder: "uuid rekam medis" }],
+            body: { judul: "Pemeriksaan Updated", catatan_dokter: "Perlu kontrol 1 minggu" }
+          },
+          {
+            method: "DELETE", path: "/medical/{id}", label: "Hapus Rekam Medis",
+            params: [{ key: "id", label: "Record ID", placeholder: "uuid rekam medis" }]
+          }
+        ]
+      },
+      {
+        id: "fr06",
+        code: "FR06",
+        title: "AI Health Assistant",
+        desc: "Analisis gejala, data kesehatan, dan rekomendasi dokter via AI.",
+        endpoints: [
+          {
+            method: "POST", path: "/ai/health/symptoms", label: "Analisis Gejala",
+            body: {
+              user_id: "", gejala: ["demam", "batuk", "sakit kepala"],
+              durasi: "3 hari", suhu_tubuh: 38.5, keluhan_tambahan: "Nafsu makan menurun"
+            }
+          },
+          {
+            method: "POST", path: "/ai/health/analyze", label: "Analisis Data Kesehatan",
+            body: {
+              user_id: "", tinggi_badan_cm: 170, berat_badan_kg: 70,
+              tekanan_darah: "120/80", gula_darah: 95, kolesterol: 180
+            }
+          },
+          {
+            method: "POST", path: "/ai/health/recommend-doctor", label: "Rekomendasi Dokter",
+            body: { user_id: "", gejala: ["demam", "batuk"], durasi: "2 hari" }
+          }
+        ]
+      },
+      {
+        id: "fr07",
+        code: "FR07",
+        title: "Konsultasi Chat",
+        desc: "Room konsultasi, pesan chat, dan upload file.",
+        endpoints: [
+          {
+            method: "POST", path: "/consultations", label: "Buat Room Konsultasi",
+            body: { pasien_id: "", doctor_id: "", subject: "Konsultasi online" }
+          },
+          {
+            method: "GET", path: "/consultations/pasien/{pasien_id}", label: "Konsultasi per Pasien",
+            params: [{ key: "pasien_id", label: "Pasien ID", placeholder: "uuid pasien" }],
+            query: [{ key: "status", placeholder: "aktif" }, { key: "limit", placeholder: "10" }, { key: "offset", placeholder: "0" }]
+          },
+          {
+            method: "GET", path: "/consultations/doctor/{doctor_id}", label: "Konsultasi per Dokter",
+            params: [{ key: "doctor_id", label: "Doctor ID", placeholder: "uuid dokter" }],
+            query: [{ key: "status", placeholder: "aktif" }, { key: "limit", placeholder: "10" }]
+          },
+          {
+            method: "GET", path: "/consultations/{id}", label: "Detail Konsultasi",
+            params: [{ key: "id", label: "Consultation ID", placeholder: "uuid konsultasi" }]
+          },
+          {
+            method: "PATCH", path: "/consultations/{id}/status", label: "Update Status",
+            params: [{ key: "id", label: "Consultation ID", placeholder: "uuid konsultasi" }],
+            body: { status: "selesai" }
+          },
+          {
+            method: "DELETE", path: "/consultations/{id}", label: "Hapus Konsultasi",
+            params: [{ key: "id", label: "Consultation ID", placeholder: "uuid konsultasi" }]
+          },
+          {
+            method: "POST", path: "/consultations/{id}/messages", label: "Kirim Pesan",
+            params: [{ key: "id", label: "Consultation ID", placeholder: "uuid konsultasi" }],
+            body: { sender_id: "", type: "text", message: "Halo dokter, saya ingin konsultasi" }
+          },
+          {
+            method: "GET", path: "/consultations/{id}/messages", label: "List Pesan",
+            params: [{ key: "id", label: "Consultation ID", placeholder: "uuid konsultasi" }],
+            query: [{ key: "limit", placeholder: "50" }, { key: "offset", placeholder: "0" }]
+          },
+          {
+            method: "PATCH", path: "/consultations/{id}/messages/read", label: "Tandai Dibaca",
+            params: [{ key: "id", label: "Consultation ID", placeholder: "uuid konsultasi" }],
+            body: { user_id: "" }
+          },
+          {
+            method: "POST", path: "/consultations/{id}/upload", label: "Upload File Chat",
+            params: [{ key: "id", label: "Consultation ID", placeholder: "uuid konsultasi" }],
+            multipart: true, fileField: "file"
+          }
+        ]
+      },
+      {
+        id: "fr08",
+        code: "FR08",
+        title: "Sistem Notifikasi",
+        desc: "List, detail, tandai dibaca, dan hapus notifikasi.",
+        endpoints: [
+          {
+            method: "GET", path: "/notifications/{user_id}", label: "Notifikasi per User",
+            params: [{ key: "user_id", label: "User ID", placeholder: "uuid user" }],
+            query: [
+              { key: "is_read", placeholder: "true / false" },
+              { key: "type", placeholder: "appointment" },
+              { key: "limit", placeholder: "20" },
+              { key: "offset", placeholder: "0" }
+            ]
+          },
+          {
+            method: "GET", path: "/notifications/detail/{id}", label: "Detail Notifikasi",
+            params: [{ key: "id", label: "Notification ID", placeholder: "uuid notifikasi" }]
+          },
+          {
+            method: "PATCH", path: "/notifications/{id}/read", label: "Tandai Satu Dibaca",
+            params: [{ key: "id", label: "Notification ID", placeholder: "uuid notifikasi" }]
+          },
+          {
+            method: "PATCH", path: "/notifications/{user_id}/read-all", label: "Tandai Semua Dibaca",
+            params: [{ key: "user_id", label: "User ID", placeholder: "uuid user" }]
+          },
+          {
+            method: "DELETE", path: "/notifications/{id}", label: "Hapus Notifikasi",
+            params: [{ key: "id", label: "Notification ID", placeholder: "uuid notifikasi" }]
+          }
+        ]
+      },
+      {
+        id: "fr10",
+        code: "FR10",
+        title: "AI Sentiment & Review",
+        desc: "Buat ulasan dengan analisis sentiment AI dan insight dokter.",
+        endpoints: [
+          {
+            method: "POST", path: "/reviews", label: "Buat Review",
+            body: {
+              pasien_id: "", doctor_id: "", booking_id: null,
+              rating: 5, ulasan: "Dokter sangat ramah dan profesional, pelayanan cepat."
+            }
+          },
+          {
+            method: "GET", path: "/reviews/doctor/{doctor_id}", label: "Review per Dokter",
+            params: [{ key: "doctor_id", label: "Doctor ID", placeholder: "uuid dokter" }],
+            query: [
+              { key: "sentiment", placeholder: "positif / negatif / netral" },
+              { key: "rating_min", placeholder: "4" },
+              { key: "limit", placeholder: "10" }
+            ]
+          },
+          {
+            method: "GET", path: "/reviews/doctor/{doctor_id}/insight", label: "AI Insight Dokter",
+            params: [{ key: "doctor_id", label: "Doctor ID", placeholder: "uuid dokter" }]
+          },
+          {
+            method: "GET", path: "/reviews/pasien/{pasien_id}", label: "Review per Pasien",
+            params: [{ key: "pasien_id", label: "Pasien ID", placeholder: "uuid pasien" }]
+          },
+          {
+            method: "GET", path: "/reviews/{id}", label: "Detail Review",
+            params: [{ key: "id", label: "Review ID", placeholder: "uuid review" }]
+          }
+        ]
+      },
+      {
+        id: "fr11",
+        code: "FR11",
+        title: "Resep Digital",
+        desc: "CRUD resep, item obat, dan download PDF.",
+        endpoints: [
+          {
+            method: "POST", path: "/prescription/create", label: "Buat Resep",
+            body: { patient_id: "", doctor_id: "", booking_id: "", notes: "Minum setelah makan" }
+          },
+          {
+            method: "POST", path: "/prescription/create/items", label: "Buat Item Resep",
+            body: {
+              prescription_id: "", medicine_name: "Paracetamol 500mg",
+              dosage: "500mg", frequency: "3x sehari", duration: "5 hari",
+              quantity: 15, instructions: "Setelah makan"
+            }
+          },
+          {
+            method: "GET", path: "/prescription/show/all", label: "Semua Resep"
+          },
+          {
+            method: "GET", path: "/prescription/show/{id}", label: "Detail Resep",
+            params: [{ key: "id", label: "Prescription ID", placeholder: "uuid resep" }]
+          },
+          {
+            method: "PUT", path: "/prescription/update/{id}", label: "Update Resep",
+            params: [{ key: "id", label: "Prescription ID", placeholder: "uuid resep" }],
+            body: { patient_id: "", doctor_id: "", booking_id: "", notes: "Updated notes" }
+          },
+          {
+            method: "PUT", path: "/prescription/update/items/{id}", label: "Update Item Resep",
+            params: [{ key: "id", label: "Item ID", placeholder: "uuid item" }],
+            body: {
+              prescription_id: "", medicine_name: "Amoxicillin 500mg",
+              dosage: "500mg", frequency: "2x sehari", duration: "7 hari",
+              quantity: 14, instructions: "Sebelum makan"
+            }
+          },
+          {
+            method: "DELETE", path: "/prescription/delete/{id}", label: "Hapus Resep",
+            params: [{ key: "id", label: "Prescription ID", placeholder: "uuid resep" }]
+          },
+          {
+            method: "DELETE", path: "/prescription/delete/items/{id}", label: "Hapus Item Resep",
+            params: [{ key: "id", label: "Item ID", placeholder: "uuid item" }]
+          },
+          {
+            method: "GET", path: "/prescription/download/{id}", label: "Download PDF Resep",
+            params: [{ key: "id", label: "Prescription ID", placeholder: "uuid resep" }],
+            isDownload: true
+          }
+        ]
+      },
+      {
+        id: "fr13",
+        code: "FR13",
+        title: "Manajemen Pengguna",
+        desc: "Registrasi admin, list users, update, soft & hard delete.",
+        endpoints: [
+          {
+            method: "POST", path: "/auth/register/admin", label: "Register Admin",
+            body: { name: "Admin Prima", email: "admin@prima.com", password: "admin123456" }
+          },
+          {
+            method: "GET", path: "/auth/users", label: "List Users",
+            query: [
+              { key: "role", placeholder: "pasien / dokter / admin" },
+              { key: "status", placeholder: "aktif" },
+              { key: "limit", placeholder: "20" },
+              { key: "offset", placeholder: "0" }
+            ]
+          },
+          {
+            method: "GET", path: "/auth/users/{id}", label: "Get User",
+            params: [{ key: "id", label: "User ID", placeholder: "uuid user" }]
+          },
+          {
+            method: "PATCH", path: "/auth/users/{id}", label: "Update User",
+            params: [{ key: "id", label: "User ID", placeholder: "uuid user" }],
+            body: { name: "Nama Updated", status: "aktif" }
+          },
+          {
+            method: "DELETE", path: "/auth/users/{id}", label: "Soft Delete User",
+            params: [{ key: "id", label: "User ID", placeholder: "uuid user" }]
+          },
+          {
+            method: "DELETE", path: "/auth/users/{id}/permanent", label: "Hard Delete User",
+            params: [{ key: "id", label: "User ID", placeholder: "uuid user" }]
+          }
+        ]
+      },
+      {
+        id: "fr14",
+        code: "FR14",
+        title: "Laporan & Ekspor Data",
+        desc: "Laporan users, appointments, konsultasi, rekam medis, revenue, export PDF/CSV.",
+        endpoints: [
+          {
+            method: "GET", path: "/reports/users", label: "Laporan Users",
+            query: [
+              { key: "role", placeholder: "pasien" }, { key: "status", placeholder: "aktif" },
+              { key: "date_from", placeholder: "2026-01-01" }, { key: "date_to", placeholder: "2026-12-31" },
+              { key: "limit", placeholder: "50" }
+            ]
+          },
+          {
+            method: "GET", path: "/reports/appointments", label: "Laporan Appointments",
+            query: [
+              { key: "status", placeholder: "dikonfirmasi" }, { key: "doctor_id", placeholder: "uuid" },
+              { key: "date_from", placeholder: "2026-01-01" }, { key: "date_to", placeholder: "2026-12-31" }
+            ]
+          },
+          {
+            method: "GET", path: "/reports/consultations", label: "Laporan Konsultasi",
+            query: [
+              { key: "status", placeholder: "selesai" },
+              { key: "date_from", placeholder: "2026-01-01" }, { key: "date_to", placeholder: "2026-12-31" }
+            ]
+          },
+          {
+            method: "GET", path: "/reports/medical-records", label: "Laporan Rekam Medis",
+            query: [
+              { key: "type", placeholder: "kunjungan" }, { key: "doctor_id", placeholder: "uuid" },
+              { key: "date_from", placeholder: "2026-01-01" }, { key: "date_to", placeholder: "2026-12-31" }
+            ]
+          },
+          {
+            method: "GET", path: "/reports/revenue", label: "Laporan Revenue",
+            query: [
+              { key: "doctor_id", placeholder: "uuid dokter" },
+              { key: "date_from", placeholder: "2026-01-01" }, { key: "date_to", placeholder: "2026-12-31" }
+            ]
+          },
+          {
+            method: "GET", path: "/reports/export/pdf", label: "Export PDF",
+            query: [
+              { key: "type", placeholder: "users / appointments / consultations / medical-records" },
+              { key: "date_from", placeholder: "2026-01-01" }, { key: "date_to", placeholder: "2026-12-31" }
+            ],
+            isDownload: true
+          },
+          {
+            method: "GET", path: "/reports/export/csv", label: "Export CSV",
+            query: [
+              { key: "type", placeholder: "users / appointments / consultations / medical-records" },
+              { key: "date_from", placeholder: "2026-01-01" }, { key: "date_to", placeholder: "2026-12-31" }
+            ],
+            isDownload: true
+          }
+        ]
+      },
+      {
+        id: "fr15",
+        code: "FR15",
+        title: "AI Chatbot Kesehatan",
+        desc: "RAG chatbot, upload PDF, dan utilitas database vector.",
+        endpoints: [
+          {
+            method: "POST", path: "/ai/ask", label: "Tanya AI (RAG)",
+            body: { question: "Apa gejala umum demam berdarah dan kapan harus ke dokter?" }
+          },
+          {
+            method: "POST", path: "/upload/pdf", label: "Upload PDF (RAG)",
+            multipart: true, fileField: "file",
+            hint: "Upload file PDF untuk knowledge base chatbot"
+          },
+          {
+            method: "POST", path: "/upload/pdf/rag", label: "Proses RAG PDF",
+            body: {
+              url: "https://res.cloudinary.com/.../document.pdf",
+              public_id: "documents/filename",
+              title: "Panduan Kesehatan"
+            }
+          },
+          { method: "GET", path: "/upload/db/status", label: "Status DB Vector" },
+          { method: "POST", path: "/upload/db/init", label: "Init DB Vector", body: {} }
+        ]
+      },
+      {
+        id: "fr16",
+        code: "FR16",
+        title: "Dokumen Kesehatan",
+        desc: "Surat keterangan/sehat/rujukan — CRUD dan download PDF.",
+        endpoints: [
+          {
+            method: "POST", path: "/document/create", label: "Buat Dokumen",
+            body: {
+              pasien_id: "", doctor_id: "", type: "surat_keterangan_sehat",
+              keperluan: "Melamar pekerjaan", catatan: "Pasien sehat",
+              catatan_dokter: "Layak bekerja", status: "draft",
+              berlaku_dari: "2026-06-01", berlaku_sampai: "2026-07-01"
+            }
+          },
+          { method: "GET", path: "/document/show", label: "Semua Dokumen" },
+          {
+            method: "GET", path: "/document/show/{id}", label: "Detail Dokumen",
+            params: [{ key: "id", label: "Document ID", placeholder: "uuid dokumen" }]
+          },
+          {
+            method: "PUT", path: "/document/update/{id}", label: "Update Dokumen",
+            params: [{ key: "id", label: "Document ID", placeholder: "uuid dokumen" }],
+            body: { status: "verified", keperluan: "Updated keperluan" }
+          },
+          {
+            method: "DELETE", path: "/document/delete/{id}", label: "Hapus Dokumen",
+            params: [{ key: "id", label: "Document ID", placeholder: "uuid dokumen" }]
+          },
+          {
+            method: "GET", path: "/document/download/sk/{id}", label: "Download PDF SK",
+            params: [{ key: "id", label: "Document ID", placeholder: "uuid dokumen" }],
+            isDownload: true
+          },
+          {
+            method: "GET", path: "/document/download/sr/{id}", label: "Download PDF SR",
+            params: [{ key: "id", label: "Document ID", placeholder: "uuid dokumen" }],
+            isDownload: true
+          },
+          {
+            method: "GET", path: "/document/download/ss/{id}", label: "Download PDF SS",
+            params: [{ key: "id", label: "Document ID", placeholder: "uuid dokumen" }],
+            isDownload: true
+          }
+        ]
+      },
+      {
+        id: "fr17",
+        code: "FR17",
+        title: "Jadwal Praktik",
+        desc: "CRUD jadwal praktik dokter dan cek ketersediaan.",
+        endpoints: [
+          {
+            method: "POST", path: "/schedules", label: "Buat Jadwal",
+            body: { doctor_id: "", day_of_week: 1, start_time: "08:00", end_time: "12:00" },
+            hint: "day_of_week: 0=Minggu, 1=Senin, ..., 6=Sabtu"
+          },
+          {
+            method: "GET", path: "/schedules/doctor/{doctor_id}", label: "Jadwal per Dokter",
+            params: [{ key: "doctor_id", label: "Doctor ID", placeholder: "uuid dokter" }]
+          },
+          {
+            method: "GET", path: "/schedules/doctor/{doctor_id}/available", label: "Jadwal Tersedia",
+            params: [{ key: "doctor_id", label: "Doctor ID", placeholder: "uuid dokter" }],
+            query: [{ key: "date", placeholder: "2026-06-15" }]
+          },
+          {
+            method: "PATCH", path: "/schedules/{id}", label: "Update Jadwal",
+            params: [{ key: "id", label: "Schedule ID", placeholder: "uuid jadwal" }],
+            body: { start_time: "09:00", end_time: "13:00" }
+          },
+          {
+            method: "DELETE", path: "/schedules/{id}", label: "Hapus Jadwal",
+            params: [{ key: "id", label: "Schedule ID", placeholder: "uuid jadwal" }]
+          }
+        ]
+      },
+      {
+        id: "fr18",
+        code: "FR18",
+        title: "Riwayat Imunisasi",
+        desc: "CRUD data imunisasi pasien.",
+        endpoints: [
+          { method: "GET", path: "/immunization/show", label: "Semua Imunisasi" },
+          {
+            method: "GET", path: "/immunization/show/{id}", label: "Detail Imunisasi",
+            params: [{ key: "id", label: "Immunization ID", placeholder: "uuid imunisasi" }]
+          },
+          {
+            method: "POST", path: "/immunization/create", label: "Buat Imunisasi",
+            body: {
+              pasien_id: "", doctor_id: "", nama_vaksin: "COVID-19",
+              jenis_vaksin: "mRNA", dosis_ke: 1, tanggal_vaksin: "2026-06-01",
+              lokasi: "Puskesmas Jakarta Pusat", catatan: "Tidak ada reaksi",
+              tanggal_berikutnya: "2026-12-01"
+            }
+          },
+          {
+            method: "PUT", path: "/immunization/update/{id}", label: "Update Imunisasi",
+            params: [{ key: "id", label: "Immunization ID", placeholder: "uuid imunisasi" }],
+            body: { dosis_ke: 2, catatan: "Dosis booster" }
+          },
+          {
+            method: "DELETE", path: "/immunization/delete/{id}", label: "Hapus Imunisasi",
+            params: [{ key: "id", label: "Immunization ID", placeholder: "uuid imunisasi" }]
+          }
+        ]
+      },
+      {
+        id: "fr19",
+        code: "FR19",
+        title: "Kalkulator Kesehatan",
+        desc: "BMI, BMR, risiko diabetes & hipertensi.",
+        endpoints: [
+          {
+            method: "POST", path: "/calculator/bmi", label: "Kalkulator BMI",
+            body: { tinggi_cm: 170, berat_kg: 70 }
+          },
+          {
+            method: "POST", path: "/calculator/risk/diabetes", label: "Risiko Diabetes",
+            body: {
+              umur: 35, berat_kg: 80, tinggi_cm: 170, gula_darah: 110,
+              riwayat_keluarga: true, aktifitas_fisik: "rendah"
+            },
+            hint: "aktifitas_fisik: rendah | sedang | tinggi"
+          },
+          {
+            method: "POST", path: "/calculator/risk/hipertensi", label: "Risiko Hipertensi",
+            body: {
+              umur: 45, tekanan_sistolik: 140, tekanan_diastolik: 90,
+              merokok: false, riwayat_keluarga: true
+            }
+          },
+          {
+            method: "POST", path: "/calculator/bmr", label: "Kalkulator BMR",
+            body: {
+              umur: 30, berat_kg: 65, tinggi_cm: 165,
+              jenis_kelamin: "pria", aktifitas_fisik: "sedang"
+            }
+          }
+        ]
+      },
+      {
+        id: "fr20",
+        code: "FR20",
+        title: "Antrian Digital",
+        desc: "Posisi antrian, antrian hari ini, panggil berikutnya, update status.",
+        endpoints: [
+          {
+            method: "GET", path: "/queue/{booking_id}", label: "Posisi Antrian",
+            params: [{ key: "booking_id", label: "Booking ID", placeholder: "uuid booking" }]
+          },
+          {
+            method: "GET", path: "/queue/doctor/{doctor_id}/today", label: "Antrian Hari Ini",
+            params: [{ key: "doctor_id", label: "Doctor ID", placeholder: "uuid dokter" }]
+          },
+          {
+            method: "PATCH", path: "/queue/doctor/{doctor_id}/next", label: "Panggil Pasien Berikutnya",
+            params: [{ key: "doctor_id", label: "Doctor ID", placeholder: "uuid dokter" }]
+          },
+          {
+            method: "PATCH", path: "/queue/{booking_id}/status", label: "Update Status Antrian",
+            params: [{ key: "booking_id", label: "Booking ID", placeholder: "uuid booking" }],
+            body: { status: "dipanggil" },
+            hint: "status: menunggu | dipanggil | selesai | tidak_hadir"
+          }
+        ]
+      },
+      {
+        id: "fr21",
+        code: "FR21",
+        title: "Program Kesehatan",
+        desc: "CRUD program kesehatan dan manajemen peserta.",
+        endpoints: [
+          {
+            method: "POST", path: "/programs", label: "Buat Program",
+            body: {
+              nama: "Program Vaksinasi Flu", type: "vaksinasi",
+              deskripsi: "Vaksinasi influenza gratis", lokasi: "Klinik Prima",
+              tanggal_mulai: "2026-07-01", tanggal_selesai: "2026-07-31",
+              kuota: 100, status: "aktif"
+            },
+            hint: "type: vaksinasi | penyuluhan | pemeriksaan | olahraga"
+          },
+          {
+            method: "GET", path: "/programs", label: "List Program",
+            query: [
+              { key: "type", placeholder: "vaksinasi" },
+              { key: "status", placeholder: "aktif" },
+              { key: "limit", placeholder: "10" }
+            ]
+          },
+          {
+            method: "GET", path: "/programs/{id}", label: "Detail Program",
+            params: [{ key: "id", label: "Program ID", placeholder: "uuid program" }]
+          },
+          {
+            method: "PATCH", path: "/programs/{id}", label: "Update Program",
+            params: [{ key: "id", label: "Program ID", placeholder: "uuid program" }],
+            body: { kuota: 150, status: "aktif" }
+          },
+          {
+            method: "DELETE", path: "/programs/{id}", label: "Hapus Program",
+            params: [{ key: "id", label: "Program ID", placeholder: "uuid program" }]
+          },
+          {
+            method: "POST", path: "/programs/{id}/register", label: "Daftar Peserta",
+            params: [{ key: "id", label: "Program ID", placeholder: "uuid program" }],
+            body: { pasien_id: "" }
+          },
+          {
+            method: "DELETE", path: "/programs/{id}/register/{pasien_id}", label: "Batalkan Pendaftaran",
+            params: [
+              { key: "id", label: "Program ID", placeholder: "uuid program" },
+              { key: "pasien_id", label: "Pasien ID", placeholder: "uuid pasien" }
+            ]
+          },
+          {
+            method: "GET", path: "/programs/{id}/participants", label: "List Peserta",
+            params: [{ key: "id", label: "Program ID", placeholder: "uuid program" }],
+            query: [{ key: "status", placeholder: "menunggu" }]
+          },
+          {
+            method: "PATCH", path: "/programs/{id}/participants/{pasien_id}", label: "Update Status Peserta",
+            params: [
+              { key: "id", label: "Program ID", placeholder: "uuid program" },
+              { key: "pasien_id", label: "Pasien ID", placeholder: "uuid pasien" }
+            ],
+            body: { status: "diterima" },
+            hint: "status: menunggu | diterima | ditolak"
+          }
+        ]
+      }
+    ];
+
+    function getBaseUrl() {
+      const val = document.getElementById("baseUrl").value.trim();
+      return (val || BASE_DEFAULT).replace(/\/+$/, "");
+    }
+
+    function buildPath(template, paramValues) {
+      let path = template;
+      for (const [key, val] of Object.entries(paramValues)) {
+        path = path.replace(`{${key}}`, encodeURIComponent(val || ""));
+      }
+      return path;
+    }
+
+    function buildQuery(queryFields) {
+      const params = new URLSearchParams();
+      for (const q of queryFields || []) {
+        const el = document.getElementById(q.inputId);
+        if (el && el.value.trim()) params.set(q.key, el.value.trim());
+      }
+      const str = params.toString();
+      return str ? `?${str}` : "";
+    }
+
+    async function sendRequest(cardEl) {
+      const method = cardEl.dataset.method;
+      const pathTemplate = cardEl.dataset.path;
+      const isMultipart = cardEl.dataset.multipart === "true";
+      const isDownload = cardEl.dataset.download === "true";
+      const fileInputId = cardEl.dataset.fileInput;
+
+      const paramValues = {};
+      cardEl.querySelectorAll("[data-param]").forEach((input) => {
+        paramValues[input.dataset.param] = input.value.trim();
+      });
+
+      let path = buildPath(pathTemplate, paramValues);
+      const queryStr = buildQuery(JSON.parse(cardEl.dataset.query || "[]"));
+      const url = getBaseUrl() + path + queryStr;
+
+      const responseEl = document.getElementById("globalResponse");
+      const metaEl = document.getElementById("responseMeta");
+      responseEl.textContent = "Loading...";
+      responseEl.classList.remove("empty");
+      metaEl.textContent = `${method} ${url}`;
+
+      const start = performance.now();
+      const opts = { method, headers: {} };
+
+      try {
+        if (isMultipart) {
+          const fd = new FormData();
+          const fileEl = document.getElementById(fileInputId);
+          if (fileEl && fileEl.files[0]) fd.append("file", fileEl.files[0]);
+          opts.body = fd;
+        } else if (["POST", "PUT", "PATCH"].includes(method)) {
+          const bodyEl = cardEl.querySelector("[data-body]");
+          if (bodyEl) {
+            opts.headers["Content-Type"] = "application/json";
+            const raw = bodyEl.value.trim();
+            opts.body = raw || "{}";
+          }
+        }
+
+        const res = await fetch(url, opts);
+        const elapsed = Math.round(performance.now() - start);
+        const contentType = res.headers.get("content-type") || "";
+
+        metaEl.textContent = `${method} ${url} — ${res.status} ${res.statusText} (${elapsed}ms)`;
+
+        if (isDownload || contentType.includes("application/pdf") || contentType.includes("text/csv")) {
+          const blob = await res.blob();
+          const a = document.createElement("a");
+          a.href = URL.createObjectURL(blob);
+          const disp = res.headers.get("content-disposition") || "";
+          const match = disp.match(/filename="?([^";\n]+)"?/);
+          a.download = match ? match[1] : "download";
+          a.click();
+          URL.revokeObjectURL(a.href);
+          responseEl.textContent = `[File downloaded: ${a.download}] Status: ${res.status}`;
+          updateHealthPill(res.ok);
+          return;
+        }
+
+        const text = await res.text();
+        try {
+          responseEl.textContent = JSON.stringify(JSON.parse(text), null, 2);
+        } catch {
+          responseEl.textContent = text || "(empty response)";
+        }
+        updateHealthPill(res.ok);
+      } catch (err) {
+        metaEl.textContent = `${method} ${url} — ERROR`;
+        responseEl.textContent = `Request failed: ${err.message}\n\nPastikan CORS aktif dan base URL benar.`;
+        updateHealthPill(false);
+      }
+    }
+
+    function updateHealthPill(ok) {
+      const pill = document.getElementById("healthStatus");
+      pill.textContent = ok ? "API OK" : "Request gagal";
+      pill.className = "status-pill " + (ok ? "ok" : "err");
+    }
+
+    function renderEndpoint(ep, featureId, idx) {
+      const cardId = `${featureId}-ep-${idx}`;
+      const queryFields = (ep.query || []).map((q, qi) => ({
+        ...q,
+        inputId: `${cardId}-q-${qi}`
+      }));
+
+      let fieldsHtml = "";
+
+      if (ep.params) {
+        fieldsHtml += `<div class="field-grid">`;
+        for (const p of ep.params) {
+          fieldsHtml += `
+            <div class="field">
+              <label>${p.label || p.key}</label>
+              <input type="text" data-param="${p.key}" placeholder="${p.placeholder || ""}" />
+            </div>`;
+        }
+        fieldsHtml += `</div>`;
+      }
+
+      if (queryFields.length) {
+        fieldsHtml += `<div class="field-grid">`;
+        for (const q of queryFields) {
+          fieldsHtml += `
+            <div class="field">
+              <label>Query: ${q.key}</label>
+              <input type="text" id="${q.inputId}" placeholder="${q.placeholder || ""}" />
+            </div>`;
+        }
+        fieldsHtml += `</div>`;
+      }
+
+      if (ep.multipart) {
+        const fileId = `${cardId}-file`;
+        fieldsHtml += `
+          <div class="field full">
+            <label>File Upload</label>
+            <input type="file" id="${fileId}" />
+          </div>`;
+      } else if (ep.body !== undefined && ["POST", "PUT", "PATCH"].includes(ep.method)) {
+        fieldsHtml += `
+          <div class="field full">
+            <label>Request Body (JSON)</label>
+            <textarea data-body>${JSON.stringify(ep.body, null, 2)}</textarea>
+          </div>`;
+      }
+
+      const hint = ep.hint ? `<p class="hint">${ep.hint}</p>` : "";
+
+      return `
+        <div class="endpoint-card" id="${cardId}"
+          data-method="${ep.method}"
+          data-path="${ep.path}"
+          data-multipart="${!!ep.multipart}"
+          data-download="${!!ep.isDownload}"
+          data-file-input="${cardId}-file"
+          data-query='${JSON.stringify(queryFields)}'>
+          <div class="endpoint-header">
+            <span class="method ${ep.method}">${ep.method}</span>
+            <span class="endpoint-path">${ep.path}</span>
+          </div>
+          <div class="endpoint-body">
+            <strong style="font-size:0.88rem;display:block;margin-bottom:0.65rem">${ep.label}</strong>
+            ${fieldsHtml}
+            ${hint}
+            <div class="actions">
+              <button class="btn btn-primary" onclick="sendRequest(document.getElementById('${cardId}'))">Kirim Request</button>
+              ${ep.body !== undefined && !ep.multipart ? `<button class="btn btn-secondary" onclick="formatJson(document.querySelector('#${cardId} [data-body]'))">Format JSON</button>` : ""}
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function formatJson(textarea) {
+      try {
+        textarea.value = JSON.stringify(JSON.parse(textarea.value), null, 2);
+      } catch {
+        alert("JSON tidak valid");
+      }
+    }
+
+    function renderFeature(feature) {
+      return `
+        <section class="feature-section" id="section-${feature.id}" data-feature="${feature.id}">
+          <h3 class="feature-title">${feature.code} — ${feature.title}</h3>
+          <p class="feature-desc">${feature.desc}</p>
+          <div class="endpoint-grid">
+            ${feature.endpoints.map((ep, i) => renderEndpoint(ep, feature.id, i)).join("")}
+          </div>
+        </section>`;
+    }
+
+    function showFeature(id) {
+      document.querySelectorAll(".feature-section").forEach((s) => s.classList.remove("active"));
+      document.querySelectorAll(".nav-list a").forEach((a) => a.classList.remove("active"));
+
+      const section = document.getElementById(`section-${id}`);
+      const link = document.querySelector(`.nav-list a[data-nav="${id}"]`);
+      if (section) section.classList.add("active");
+      if (link) link.classList.add("active");
+
+      const feature = FEATURES.find((f) => f.id === id);
+      if (feature) {
+        document.getElementById("topTitle").textContent = `${feature.code} — ${feature.title}`;
+      } else if (id === "admin-dashboard") {
+        document.getElementById("topTitle").textContent = "📊 Dashboard Kontrol Admin";
+        loadDashboardStats();
+        fetchUserList();
+        fetchProgramsList();
+        populateDoctorsList();
+      }
+    }
+
+    /* ==========================================
+       ADMIN DASHBOARD JAVASCRIPT LOGIC
+       ========================================== */
+    function switchDbTab(tabId) {
+      document.querySelectorAll(".db-tab-content").forEach((c) => c.classList.remove("active"));
+      document.querySelectorAll(".db-tab-btn").forEach((b) => b.classList.remove("active"));
+
+      const tabEl = document.getElementById(tabId);
+      if (tabEl) tabEl.classList.add("active");
+
+      const clickedBtn = Array.from(document.querySelectorAll(".db-tab-btn")).find(
+        (b) => b.getAttribute("onclick").includes(tabId)
+      );
+      if (clickedBtn) clickedBtn.classList.add("active");
+    }
+
+    async function loadDashboardStats() {
+      const baseUrl = getBaseUrl();
+      try {
+        const resUsers = await fetch(`${baseUrl}/reports/users`);
+        if (resUsers.ok) {
+          const r = await resUsers.json();
+          const data = r.data || r;
+          document.getElementById("stats-users-total").textContent = data.summary?.total_users ?? 0;
+          document.getElementById("stats-users-pasien").textContent = data.summary?.breakdown?.pasien ?? 0;
+          document.getElementById("stats-users-doctor").textContent = data.summary?.breakdown?.doctor ?? 0;
+          document.getElementById("stats-users-admin").textContent = data.summary?.breakdown?.admin ?? 0;
+        }
+
+        const resBookings = await fetch(`${baseUrl}/reports/appointments`);
+        if (resBookings.ok) {
+          const r = await resBookings.json();
+          const data = r.data || r;
+          document.getElementById("stats-bookings-total").textContent = data.summary?.total ?? 0;
+          document.getElementById("stats-bookings-completed").textContent = data.summary?.breakdown?.selesai ?? 0;
+          document.getElementById("stats-bookings-pending").textContent = data.summary?.breakdown?.menunggu ?? 0;
+          document.getElementById("stats-bookings-cancelled").textContent = data.summary?.breakdown?.dibatalkan ?? 0;
+        }
+
+        const resRevenue = await fetch(`${baseUrl}/reports/revenue`);
+        if (resRevenue.ok) {
+          const r = await resRevenue.json();
+          const data = r.data || r;
+          const totalVal = data.summary?.total_estimasi_pendapatan ?? 0;
+          document.getElementById("stats-revenue-total").textContent = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(totalVal);
+          document.getElementById("stats-revenue-count").textContent = data.summary?.total_konsultasi_selesai ?? 0;
+          const count = data.summary?.total_konsultasi_selesai ?? 0;
+          const avg = count > 0 ? Math.round(totalVal / count) : 0;
+          document.getElementById("stats-revenue-avg").textContent = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(avg);
+        }
+
+        const resConsults = await fetch(`${baseUrl}/reports/consultations`);
+        let consultCount = 0;
+        if (resConsults.ok) {
+          const r = await resConsults.json();
+          const data = r.data || r;
+          consultCount = data.summary?.total ?? 0;
+          document.getElementById("stats-consults-total").textContent = consultCount;
+        }
+
+        const resProg = await fetch(`${baseUrl}/programs`);
+        let programCount = 0;
+        if (resProg.ok) {
+          const r = await resProg.json();
+          const data = Array.isArray(r) ? r : r.data || [];
+          programCount = data.length;
+          document.getElementById("stats-programs-count").textContent = programCount;
+        }
+
+        document.getElementById("stats-records-total").textContent = consultCount + programCount;
+      } catch (err) {
+        console.error("Gagal memuat statistik dashboard:", err);
+      }
+    }
+
+    async function fetchUserList() {
+      const baseUrl = getBaseUrl();
+      const role = document.getElementById("user-filter-role").value;
+      const tbody = document.getElementById("db-user-list-body");
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--muted);">Memuat daftar pengguna...</td></tr>`;
+
+      try {
+        let url = `${baseUrl}/auth/users?limit=100`;
+        if (role) url += `&role=${role}`;
+
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("Gagal fetch data");
+        const json = await res.json();
+        const users = Array.isArray(json) ? json : json.users || json.data?.users || json.data || [];
+
+        if (users.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--muted);">Tidak ada pengguna ditemukan.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = users.map((u) => {
+          const statusBadge = u.status === "aktif" ? `<span class="badge badge-active">Aktif</span>` : `<span class="badge badge-inactive">${u.status || "nonaktif"}</span>`;
+          const roleBadge = u.role === "admin" ? `<span class="badge badge-admin">Admin</span>` : u.role === "doctor" ? `<span class="badge badge-doctor">Dokter</span>` : `<span class="badge badge-pasien">Pasien</span>`;
+          return `
+            <tr>
+              <td style="font-family:var(--mono); font-size:0.72rem;">${u.id}</td>
+              <td style="font-weight:600;">${u.nama || u.name}</td>
+              <td>${u.email}</td>
+              <td>${roleBadge}</td>
+              <td>${statusBadge}</td>
+              <td style="text-align:right;">
+                <button class="btn btn-secondary" onclick="toggleUserStatus('${u.id}', '${u.status === 'aktif' ? 'nonaktif' : 'aktif'}')" style="font-size:0.7rem; padding:0.2rem 0.45rem;">Toggle Status</button>
+                <button class="btn btn-secondary" onclick="deleteUser('${u.id}', false)" style="font-size:0.7rem; padding:0.2rem 0.45rem; border-color:rgba(239,68,68,0.2); color:var(--danger);">Soft Del</button>
+                <button class="btn btn-secondary" onclick="deleteUser('${u.id}', true)" style="font-size:0.7rem; padding:0.2rem 0.45rem; background:rgba(239,68,68,0.1); border-color:var(--danger); color:var(--danger);">Hard Del</button>
+              </td>
+            </tr>
+          `;
+        }).join("");
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--danger);">Error: ${err.message}</td></tr>`;
+      }
+    }
+
+    async function toggleUserStatus(id, newStatus) {
+      const baseUrl = getBaseUrl();
+      try {
+        const res = await fetch(`${baseUrl}/auth/users/${id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: newStatus }),
+        });
+        if (res.ok) {
+          fetchUserList();
+          loadDashboardStats();
+        } else {
+          alert("Gagal mengubah status pengguna");
+        }
+      } catch (err) {
+        alert("Error: " + err.message);
+      }
+    }
+
+    async function deleteUser(id, permanent) {
+      if (!confirm(`Apakah Anda yakin ingin menghapus user ${id} secara ${permanent ? 'PERMANEN' : 'SOFT DELETE'}?`)) return;
+      const baseUrl = getBaseUrl();
+      try {
+        const url = permanent ? `${baseUrl}/auth/users/${id}/permanent` : `${baseUrl}/auth/users/${id}`;
+        const res = await fetch(url, { method: "DELETE" });
+        if (res.ok) {
+          alert("User berhasil dihapus");
+          fetchUserList();
+          loadDashboardStats();
+        } else {
+          alert("Gagal menghapus user");
+        }
+      } catch (err) {
+        alert("Error: " + err.message);
+      }
+    }
+
+    function openRegisterAdminModal() {
+      const panel = document.getElementById("register-admin-panel");
+      panel.style.display = panel.style.display === "none" ? "block" : "none";
+    }
+
+    async function submitRegisterAdmin() {
+      const baseUrl = getBaseUrl();
+      const name = document.getElementById("reg-admin-name").value.trim();
+      const email = document.getElementById("reg-admin-email").value.trim();
+      const password = document.getElementById("reg-admin-password").value.trim();
+
+      if (!name || !email || !password) {
+        alert("Semua field wajib diisi!");
+        return;
+      }
+
+      try {
+        const res = await fetch(`${baseUrl}/auth/register/admin`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, password }),
+        });
+        if (res.ok) {
+          alert("Admin baru berhasil didaftarkan!");
+          document.getElementById("reg-admin-name").value = "";
+          document.getElementById("reg-admin-email").value = "";
+          document.getElementById("reg-admin-password").value = "";
+          document.getElementById("register-admin-panel").style.display = "none";
+          fetchUserList();
+          loadDashboardStats();
+        } else {
+          const json = await res.json();
+          alert("Gagal registrasi admin: " + (json.message || "Unknown error"));
+        }
+      } catch (err) {
+        alert("Error: " + err.message);
+      }
+    }
+
+    function toggleCreateProgramForm() {
+      const p = document.getElementById("create-program-panel");
+      p.style.display = p.style.display === "none" ? "block" : "none";
+    }
+
+    async function submitCreateProgram() {
+      const baseUrl = getBaseUrl();
+      const nama = document.getElementById("prog-nama").value.trim();
+      const type = document.getElementById("prog-type").value;
+      const kuota = parseInt(document.getElementById("prog-kuota").value);
+      const tanggal_mulai = document.getElementById("prog-tgl-mulai").value;
+      const tanggal_selesai = document.getElementById("prog-tgl-selesai").value;
+      const lokasi = document.getElementById("prog-lokasi").value.trim();
+      const deskripsi = document.getElementById("prog-deskripsi").value.trim();
+
+      if (!nama || !tanggal_mulai || !tanggal_selesai || isNaN(kuota)) {
+        alert("Nama, Tanggal Mulai, Tanggal Selesai, dan Kuota wajib diisi!");
+        return;
+      }
+
+      try {
+        const res = await fetch(`${baseUrl}/programs`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nama, type, kuota, tanggal_mulai, tanggal_selesai, lokasi, deskripsi, status: "aktif" }),
+        });
+        if (res.ok) {
+          alert("Program berhasil dibuat!");
+          document.getElementById("prog-nama").value = "";
+          document.getElementById("prog-kuota").value = "50";
+          document.getElementById("prog-tgl-mulai").value = "";
+          document.getElementById("prog-tgl-selesai").value = "";
+          document.getElementById("prog-lokasi").value = "";
+          document.getElementById("prog-deskripsi").value = "";
+          document.getElementById("create-program-panel").style.display = "none";
+          fetchProgramsList();
+          loadDashboardStats();
+        } else {
+          alert("Gagal membuat program");
+        }
+      } catch (err) {
+        alert("Error: " + err.message);
+      }
+    }
+
+    async function fetchProgramsList() {
+      const baseUrl = getBaseUrl();
+      const tbody = document.getElementById("db-programs-list-body");
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--muted);">Memuat daftar program...</td></tr>`;
+
+      try {
+        const res = await fetch(`${baseUrl}/programs?limit=100`);
+        if (!res.ok) throw new Error("Gagal mengambil program");
+        const json = await res.json();
+        const programs = Array.isArray(json) ? json : json.data || [];
+
+        if (programs.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--muted);">Belum ada program kesehatan.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = programs.map((p) => {
+          const statusBadge = `<span class="badge badge-status-aktif">${p.status}</span>`;
+          return `
+            <tr style="cursor:pointer;" onclick="selectProgram('${p.id}', '${p.nama.replace(/'/g, "\\'")}')">
+              <td style="font-weight:600; color:var(--primary);">${p.nama}</td>
+              <td style="text-transform:capitalize;">${p.type}</td>
+              <td>${p.tanggal_mulai} s/d ${p.tanggal_selesai}</td>
+              <td>${p.kuota} orang</td>
+              <td>${statusBadge}</td>
+              <td style="text-align:right;" onclick="event.stopPropagation()">
+                <button class="btn btn-secondary" onclick="deleteProgram('${p.id}')" style="font-size:0.7rem; padding:0.2rem 0.45rem; border-color:var(--danger); color:var(--danger);">Hapus</button>
+              </td>
+            </tr>
+          `;
+        }).join("");
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--danger);">Error: ${err.message}</td></tr>`;
+      }
+    }
+
+    async function deleteProgram(id) {
+      if (!confirm("Hapus program ini?")) return;
+      const baseUrl = getBaseUrl();
+      try {
+        const res = await fetch(`${baseUrl}/programs/${id}`, { method: "DELETE" });
+        if (res.ok) {
+          alert("Program berhasil dihapus");
+          fetchProgramsList();
+          loadDashboardStats();
+        } else {
+          alert("Gagal menghapus program");
+        }
+      } catch (err) {
+        alert("Error: " + err.message);
+      }
+    }
+
+    async function selectProgram(id, title) {
+      document.getElementById("program-participants-section").style.display = "block";
+      document.getElementById("participant-section-title").textContent = `Peserta Program: ${title}`;
+      fetchParticipantsList(id);
+    }
+
+    async function fetchParticipantsList(programId) {
+      const baseUrl = getBaseUrl();
+      const tbody = document.getElementById("db-participants-list-body");
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--muted);">Memuat daftar peserta...</td></tr>`;
+
+      try {
+        const res = await fetch(`${baseUrl}/programs/${programId}/participants`);
+        if (!res.ok) throw new Error("Gagal ambil peserta");
+        const json = await res.json();
+        const participants = Array.isArray(json) ? json : json.data || [];
+
+        if (participants.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--muted);">Belum ada peserta yang mendaftar.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = participants.map((p) => {
+          let badgeClass = "badge-inactive";
+          if (p.status === "diterima") badgeClass = "badge-status-selesai";
+          if (p.status === "menunggu") badgeClass = "badge-status-menunggu";
+          if (p.status === "ditolak") badgeClass = "badge-status-dibatalkan";
+
+          return `
+            <tr>
+              <td style="font-weight:600;">${p.pasien_name || p.pasien_id}</td>
+              <td>${p.pasien_email || '-'}</td>
+              <td>${p.created_at ? new Date(p.created_at).toLocaleDateString("id-ID") : '-'}</td>
+              <td><span class="badge ${badgeClass}">${p.status}</span></td>
+              <td style="text-align:right;">
+                <button class="btn btn-secondary" onclick="updateParticipantStatus('${programId}', '${p.pasien_id}', 'diterima')" style="font-size:0.7rem; padding:0.2rem 0.45rem; border-color:var(--success); color:var(--success);">Terima</button>
+                <button class="btn btn-secondary" onclick="updateParticipantStatus('${programId}', '${p.pasien_id}', 'ditolak')" style="font-size:0.7rem; padding:0.2rem 0.45rem; border-color:var(--danger); color:var(--danger);">Tolak</button>
+              </td>
+            </tr>
+          `;
+        }).join("");
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--danger);">Error: ${err.message}</td></tr>`;
+      }
+    }
+
+    async function updateParticipantStatus(programId, pasienId, status) {
+      const baseUrl = getBaseUrl();
+      try {
+        const res = await fetch(`${baseUrl}/programs/${programId}/participants/${pasienId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status }),
+        });
+        if (res.ok) {
+          fetchParticipantsList(programId);
+        } else {
+          alert("Gagal mengupdate status peserta");
+        }
+      } catch (err) {
+        alert("Error: " + err.message);
+      }
+    }
+
+    async function populateDoctorsList() {
+      const baseUrl = getBaseUrl();
+      const select = document.getElementById("review-doctor-select");
+      try {
+        const res = await fetch(`${baseUrl}/auth/users?role=doctor&limit=100`);
+        if (!res.ok) return;
+        const json = await res.json();
+        const doctors = Array.isArray(json) ? json : json.users || json.data?.users || json.data || [];
+
+        select.innerHTML = `<option value="">Pilih Dokter...</option>` + doctors.map(
+          (d) => `<option value="${d.id}">${d.nama || d.name} (${d.spesialisasi || 'Umum'})</option>`
+        ).join("");
+      } catch (err) {
+        console.error("Gagal populate dokter:", err);
+      }
+    }
+
+    async function fetchDoctorReviews() {
+      const baseUrl = getBaseUrl();
+      const doctorId = document.getElementById("review-doctor-select").value;
+      const btnInsight = document.getElementById("btn-get-ai-insight");
+      const summaryDiv = document.getElementById("reviews-sentiment-summary");
+      const insightBox = document.getElementById("doctor-ai-insight-box");
+      const tbody = document.getElementById("db-reviews-list-body");
+
+      if (!doctorId) {
+        btnInsight.style.display = "none";
+        summaryDiv.style.display = "none";
+        insightBox.style.display = "none";
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--muted);">Silakan pilih dokter untuk memuat ulasan.</td></tr>`;
+        return;
+      }
+
+      btnInsight.style.display = "inline-block";
+      insightBox.style.display = "none";
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--muted);">Memuat ulasan...</td></tr>`;
+
+      try {
+        const res = await fetch(`${baseUrl}/reviews/doctor/${doctorId}`);
+        if (!res.ok) throw new Error("Gagal mengambil ulasan");
+        const data = await res.json();
+
+        summaryDiv.style.display = "flex";
+        document.getElementById("doctor-rating-avg").textContent = data.doctor?.rata_rata_rating ?? "0";
+        document.getElementById("count-sentiment-positive").textContent = data.sentiment_breakdown?.positif ?? "0";
+        document.getElementById("count-sentiment-neutral").textContent = data.sentiment_breakdown?.netral ?? "0";
+        document.getElementById("count-sentiment-negative").textContent = data.sentiment_breakdown?.negatif ?? "0";
+
+        const reviews = data.reviews || [];
+        if (reviews.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--muted);">Belum ada ulasan untuk dokter ini.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = reviews.map((r) => {
+          let sBadge = "";
+          if (r.sentiment === "positif") sBadge = `<span class="badge badge-status-selesai">Positif</span>`;
+          else if (r.sentiment === "negatif") sBadge = `<span class="badge badge-status-dibatalkan">Negatif</span>`;
+          else sBadge = `<span class="badge badge-status-menunggu">Netral</span>`;
+
+          return `
+            <tr>
+              <td style="font-weight:600;">${r.pasien_name || r.pasien_id}</td>
+              <td style="color:var(--warning); font-weight:700;">★ ${r.rating}</td>
+              <td>"${r.ulasan}"</td>
+              <td>${sBadge}</td>
+              <td>${new Date(r.created_at).toLocaleDateString("id-ID")}</td>
+            </tr>
+          `;
+        }).join("");
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--danger);">Error: ${err.message}</td></tr>`;
+      }
+    }
+
+    async function fetchDoctorAiInsight() {
+      const baseUrl = getBaseUrl();
+      const doctorId = document.getElementById("review-doctor-select").value;
+      const insightBox = document.getElementById("doctor-ai-insight-box");
+      const insightContent = document.getElementById("ai-insight-content");
+
+      if (!doctorId) return;
+
+      insightBox.style.display = "block";
+      insightContent.innerHTML = `
+        <div style="display:flex; align-items:center; gap:0.5rem; color:var(--muted);">
+          <div class="pulse-dot"></div> Menganalisis ulasan dengan AI... Mohon tunggu.
+        </div>`;
+
+      try {
+        const res = await fetch(`${baseUrl}/reviews/doctor/${doctorId}/insight`);
+        if (!res.ok) throw new Error("Gagal mengambil insight AI");
+        const json = await res.json();
+        const insight = json.insight || {};
+
+        let kelebihanHtml = (insight.kelebihan || []).map((k) => `<li>🟢 ${k}</li>`).join("");
+        let kekuranganHtml = (insight.kekurangan || []).map((k) => `<li>🔴 ${k}</li>`).join("");
+        let saranHtml = (insight.saran_perbaikan || []).map((s) => `<li>💡 ${s}</li>`).join("");
+
+        insightContent.innerHTML = `
+          <p style="margin-bottom:0.75rem; font-style:italic;">"${insight.ringkasan || 'Tidak ada ringkasan.'}"</p>
+          <div style="display:grid; grid-template-columns:1fr; gap:0.75rem; margin-top:0.75rem;">
+            ${kelebihanHtml ? `<div><strong>Kelebihan Dokter:</strong><ul style="list-style:none; padding-left:0; margin-top:0.25rem;">${kelebihanHtml}</ul></div>` : ""}
+            ${kekuranganHtml ? `<div><strong>Kekurangan / Keluhan:</strong><ul style="list-style:none; padding-left:0; margin-top:0.25rem;">${kekuranganHtml}</ul></div>` : ""}
+            ${saranHtml ? `<div><strong>Saran Perbaikan AI:</strong><ul style="list-style:none; padding-left:0; margin-top:0.25rem;">${saranHtml}</ul></div>` : ""}
+          </div>
+          <p style="font-size:0.68rem; color:var(--muted); margin-top:0.75rem; border-top:1px dashed var(--border); padding-top:0.5rem;">${json.disclaimer || 'Dihasilkan oleh AI.'}</p>
+        `;
+      } catch (err) {
+        insightContent.innerHTML = `<span style="color:var(--danger);">Gagal menganalisis insight AI: ${err.message}</span>`;
+      }
+    }
+
+    async function loadReportPreview() {
+      const baseUrl = getBaseUrl();
+      const from = document.getElementById("report-date-from").value;
+      const to = document.getElementById("report-date-to").value;
+      const previewEl = document.getElementById("reports-preview-output");
+
+      previewEl.textContent = "Mengambil data laporan...";
+      try {
+        let url = `${baseUrl}/reports/users?limit=5`;
+        if (from) url += `&date_from=${from}`;
+        if (to) url += `&date_to=${to}`;
+
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("Gagal mengambil data laporan");
+        const json = await res.json();
+        previewEl.textContent = JSON.stringify(json.data || json, null, 2);
+      } catch (err) {
+        previewEl.textContent = "Error: " + err.message;
+      }
+    }
+
+    async function exportData(type, format) {
+      const baseUrl = getBaseUrl();
+      const from = document.getElementById("report-date-from").value;
+      const to = document.getElementById("report-date-to").value;
+
+      let url = `${baseUrl}/reports/export/${format}?type=${type}`;
+      if (from) url += `&date_from=${from}`;
+      if (to) url += `&date_to=${to}`;
+
+      window.open(url, "_blank");
+    }
+
+    async function checkVectorDbStatus() {
+      const baseUrl = getBaseUrl();
+      const out = document.getElementById("rag-status-output");
+      out.style.display = "block";
+      out.textContent = "Mengecek status...";
+
+      try {
+        const res = await fetch(`${baseUrl}/upload/db/status`);
+        if (!res.ok) throw new Error("HTTP Error " + res.status);
+        const json = await res.json();
+        out.textContent = JSON.stringify(json, null, 2);
+      } catch (err) {
+        out.textContent = "Gagal cek status vector DB:\n" + err.message;
+      }
+    }
+
+    async function initVectorDb() {
+      if (!confirm("Inisialisasi database vector? Tindakan ini akan membuat ekstensi vector dan tabel jika belum ada.")) return;
+      const baseUrl = getBaseUrl();
+      const out = document.getElementById("rag-status-output");
+      out.style.display = "block";
+      out.textContent = "Menginisialisasi vector DB...";
+
+      try {
+        const res = await fetch(`${baseUrl}/upload/db/init`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({}),
+        });
+        if (!res.ok) throw new Error("HTTP Error " + res.status);
+        const json = await res.json();
+        out.textContent = JSON.stringify(json, null, 2);
+        alert("Inisialisasi Vector DB berhasil!");
+      } catch (err) {
+        out.textContent = "Gagal inisialisasi vector DB:\n" + err.message;
+      }
+    }
+
+    async function uploadRagPdf() {
+      const baseUrl = getBaseUrl();
+      const fileInput = document.getElementById("rag-pdf-file-input");
+      if (!fileInput.files[0]) {
+        alert("Silakan pilih berkas PDF terlebih dahulu!");
+        return;
+      }
+
+      const fd = new FormData();
+      fd.append("file", fileInput.files[0]);
+
+      alert("Mengunggah PDF ke Cloudinary & memproses embedding. Mohon tunggu beberapa detik...");
+
+      try {
+        const res = await fetch(`${baseUrl}/upload/pdf`, {
+          method: "POST",
+          body: fd,
+        });
+        const json = await res.json();
+        alert("Hasil Upload RAG PDF:\n" + JSON.stringify(json, null, 2));
+      } catch (err) {
+        alert("Gagal upload: " + err.message);
+      }
+    }
+
+    async function processRagPdfUrl() {
+      const baseUrl = getBaseUrl();
+      const url = document.getElementById("rag-pdf-url").value.trim();
+      const title = document.getElementById("rag-pdf-title").value.trim();
+      const public_id = document.getElementById("rag-pdf-pubid").value.trim();
+
+      if (!url || !title || !public_id) {
+        alert("Semua field url, judul, dan public_id wajib diisi!");
+        return;
+      }
+
+      try {
+        const res = await fetch(`${baseUrl}/upload/pdf/rag`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url, title, public_id }),
+        });
+        const json = await res.json();
+        alert("Hasil Proses RAG:\n" + JSON.stringify(json, null, 2));
+      } catch (err) {
+        alert("Error: " + err.message);
+      }
+    }
+
+    function init() {
+      const nav = document.getElementById("navList");
+      const content = document.getElementById("content");
+
+      // Prepend Admin Dashboard link to Sidebar
+      const dbLi = document.createElement("li");
+      dbLi.innerHTML = `<a href="#" data-nav="admin-dashboard" class="active"><span class="fr-code">DB</span> 📊 Admin Dashboard</a>`;
+      nav.appendChild(dbLi);
+
+      FEATURES.forEach((f) => {
+        const li = document.createElement("li");
+        li.innerHTML = `<a href="#" data-nav="${f.id}"><span class="fr-code">${f.code}</span> ${f.title.replace(/^[^:]+:\s*/, "")}</a>`;
+        nav.appendChild(li);
+      });
+
+      content.innerHTML = `
+        <section class="feature-section" id="section-admin-dashboard" data-feature="admin-dashboard">
+          <div class="dashboard-container">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:0.5rem;">
+              <div>
+                <h3 class="feature-title" style="margin-bottom:0.25rem;">📊 Pusat Kontrol & Manajemen Prima</h3>
+                <p class="feature-desc" style="margin-bottom:0;">Analisis statistik real-time, manajemen data pengguna, program kesehatan, dan kontrol kecerdasan buatan.</p>
+              </div>
+              <div style="display:flex; gap:0.5rem; align-items:center;">
+                <button class="btn btn-primary" onclick="loadDashboardStats()" style="display:inline-flex; align-items:center; gap:0.35rem;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                  Segarkan Data
+                </button>
+              </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="dashboard-header-stats">
+              <div class="stat-card users">
+                <div class="stat-card-title">Total Pengguna</div>
+                <div class="stat-card-value" id="stats-users-total">-</div>
+                <div class="stat-card-details">
+                  <span><span>Pasien:</span><strong id="stats-users-pasien">-</strong></span>
+                  <span><span>Dokter:</span><strong id="stats-users-doctor">-</strong></span>
+                  <span><span>Admin:</span><strong id="stats-users-admin">-</strong></span>
+                </div>
+              </div>
+              <div class="stat-card bookings">
+                <div class="stat-card-title">Janji Temu</div>
+                <div class="stat-card-value" id="stats-bookings-total">-</div>
+                <div class="stat-card-details">
+                  <span><span>Selesai:</span><strong id="stats-bookings-completed">-</strong></span>
+                  <span><span>Menunggu:</span><strong id="stats-bookings-pending">-</strong></span>
+                  <span><span>Batal:</span><strong id="stats-bookings-cancelled">-</strong></span>
+                </div>
+              </div>
+              <div class="stat-card revenue">
+                <div class="stat-card-title">Estimasi Pendapatan</div>
+                <div class="stat-card-value" id="stats-revenue-total">Rp -</div>
+                <div class="stat-card-details">
+                  <span><span>Konsultasi Selesai:</span><strong id="stats-revenue-count">-</strong></span>
+                  <span><span>Rata-rata Biaya:</span><strong id="stats-revenue-avg">-</strong></span>
+                </div>
+              </div>
+              <div class="stat-card records">
+                <div class="stat-card-title">Rekam Medis & Program</div>
+                <div class="stat-card-value" id="stats-records-total">-</div>
+                <div class="stat-card-details">
+                  <span><span>Konsultasi Chat:</span><strong id="stats-consults-total">-</strong></span>
+                  <span><span>Program Aktif:</span><strong id="stats-programs-count">-</strong></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dashboard Tabs -->
+            <div class="dashboard-tabs">
+              <button class="db-tab-btn active" onclick="switchDbTab('db-tab-users')">👥 Manajemen Pengguna</button>
+              <button class="db-tab-btn" onclick="switchDbTab('db-tab-programs')">🗓️ Program Kesehatan</button>
+              <button class="db-tab-btn" onclick="switchDbTab('db-tab-reviews')">⭐ Ulasan & AI Insights</button>
+              <button class="db-tab-btn" onclick="switchDbTab('db-tab-reports')">📈 Laporan & Ekspor</button>
+              <button class="db-tab-btn" onclick="switchDbTab('db-tab-rag')">🤖 Vector DB & RAG</button>
+            </div>
+
+            <!-- Tab Content: Users -->
+            <div class="db-tab-content active" id="db-tab-users">
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
+                <h4 style="font-size:1rem; font-weight:600;">👥 Daftar Pengguna Terdaftar</h4>
+                <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                  <select id="user-filter-role" onchange="fetchUserList()" style="padding:0.35rem 0.55rem; background:var(--bg); border:1px solid var(--border); color:var(--text); border-radius:6px; font-size:0.8rem;">
+                    <option value="">Semua Role</option>
+                    <option value="pasien">Pasien</option>
+                    <option value="doctor">Dokter</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                  <button class="btn btn-secondary" onclick="openRegisterAdminModal()" style="font-size:0.8rem; padding:0.35rem 0.75rem;">+ Registrasi Admin</button>
+                </div>
+              </div>
+
+              <!-- Register Admin Panel Inline -->
+              <div id="register-admin-panel" style="display:none; background:var(--surface2); border:1px solid var(--border); border-radius:6px; padding:1rem; margin-bottom:1rem;">
+                <h5 style="margin-bottom:0.75rem; font-size:0.85rem; color:var(--text);">Registrasi Akun Admin Baru</h5>
+                <div class="db-form-row">
+                  <div class="field">
+                    <label>Nama Lengkap</label>
+                    <input type="text" id="reg-admin-name" placeholder="Contoh: Admin Dua" />
+                  </div>
+                  <div class="field">
+                    <label>Email</label>
+                    <input type="email" id="reg-admin-email" placeholder="email@admin.com" />
+                  </div>
+                  <div class="field">
+                    <label>Password</label>
+                    <input type="password" id="reg-admin-password" placeholder="Min 6 karakter" />
+                  </div>
+                </div>
+                <div style="display:flex; gap:0.5rem; justify-content:flex-end; margin-top:0.5rem;">
+                  <button class="btn btn-secondary" onclick="document.getElementById('register-admin-panel').style.display='none'">Batal</button>
+                  <button class="btn btn-primary" onclick="submitRegisterAdmin()">Daftarkan Admin</button>
+                </div>
+              </div>
+
+              <div class="db-table-container">
+                <table class="db-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Nama</th>
+                      <th>Email</th>
+                      <th>Role</th>
+                      <th>Status</th>
+                      <th style="text-align:right;">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="db-user-list-body">
+                    <tr><td colspan="6" style="text-align:center; color:var(--muted);">Memuat daftar pengguna...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Tab Content: Programs -->
+            <div class="db-tab-content" id="db-tab-programs">
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
+                <h4 style="font-size:1rem; font-weight:600;">🗓️ Manajemen Program Kesehatan & Peserta</h4>
+                <button class="btn btn-primary" onclick="toggleCreateProgramForm()" style="font-size:0.8rem; padding:0.35rem 0.75rem;">+ Program Baru</button>
+              </div>
+
+              <!-- Create Program Panel -->
+              <div id="create-program-panel" style="display:none; background:var(--surface2); border:1px solid var(--border); border-radius:6px; padding:1rem; margin-bottom:1rem;">
+                <h5 style="margin-bottom:0.75rem; font-size:0.85rem;">Buat Program Kesehatan Baru</h5>
+                <div class="db-form-row">
+                  <div class="field">
+                    <label>Nama Program</label>
+                    <input type="text" id="prog-nama" placeholder="Contoh: Senam Diabetes Bersama" />
+                  </div>
+                  <div class="field">
+                    <label>Tipe</label>
+                    <select id="prog-type">
+                      <option value="penyuluhan">Penyuluhan</option>
+                      <option value="vaksinasi">Vaksinasi</option>
+                      <option value="pemeriksaan">Pemeriksaan</option>
+                      <option value="olahraga">Olahraga</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label>Kuota</label>
+                    <input type="number" id="prog-kuota" value="50" />
+                  </div>
+                </div>
+                <div class="db-form-row">
+                  <div class="field">
+                    <label>Tanggal Mulai</label>
+                    <input type="date" id="prog-tgl-mulai" />
+                  </div>
+                  <div class="field">
+                    <label>Tanggal Selesai</label>
+                    <input type="date" id="prog-tgl-selesai" />
+                  </div>
+                  <div class="field">
+                    <label>Lokasi</label>
+                    <input type="text" id="prog-lokasi" placeholder="Lokasi kegiatan" />
+                  </div>
+                </div>
+                <div class="field full" style="margin-bottom:0.75rem;">
+                  <label>Deskripsi</label>
+                  <textarea id="prog-deskripsi" style="min-height:60px;" placeholder="Deskripsi program kesehatan..."></textarea>
+                </div>
+                <div style="display:flex; gap:0.5rem; justify-content:flex-end;">
+                  <button class="btn btn-secondary" onclick="toggleCreateProgramForm()">Batal</button>
+                  <button class="btn btn-primary" onclick="submitCreateProgram()">Simpan Program</button>
+                </div>
+              </div>
+
+              <!-- Main Programs Splitted -->
+              <div style="display:grid; grid-template-columns:1fr; gap:1.25rem;">
+                <div>
+                  <h5 style="font-size:0.85rem; margin-bottom:0.5rem; color:var(--muted);">Daftar Program</h5>
+                  <div class="db-table-container">
+                    <table class="db-table">
+                      <thead>
+                        <tr>
+                          <th>Nama Program</th>
+                          <th>Tipe</th>
+                          <th>Tanggal</th>
+                          <th>Kuota / Pendaftar</th>
+                          <th>Status</th>
+                          <th style="text-align:right;">Aksi</th>
+                        </tr>
+                      </thead>
+                      <tbody id="db-programs-list-body">
+                        <tr><td colspan="6" style="text-align:center; color:var(--muted);">Memuat daftar program...</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div id="program-participants-section" style="display:none; border-top:1px solid var(--border); padding-top:1.25rem;">
+                  <h5 style="font-size:0.9rem; font-weight:600; margin-bottom:0.5rem;" id="participant-section-title">Peserta Program: -</h5>
+                  <div class="db-table-container">
+                    <table class="db-table">
+                      <thead>
+                        <tr>
+                          <th>Nama Pasien</th>
+                          <th>Email</th>
+                          <th>Tanggal Daftar</th>
+                          <th>Status</th>
+                          <th style="text-align:right;">Persetujuan</th>
+                        </tr>
+                      </thead>
+                      <tbody id="db-participants-list-body">
+                        <tr><td colspan="5" style="text-align:center; color:var(--muted);">Pilih salah satu program untuk melihat daftar peserta.</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tab Content: Reviews -->
+            <div class="db-tab-content" id="db-tab-reviews">
+              <h4 style="font-size:1rem; font-weight:600; margin-bottom:1rem;">⭐ Ulasan & Analisis Sentimen AI</h4>
+              <div style="display:flex; gap:0.85rem; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap;">
+                <div class="field" style="min-width:250px;">
+                  <label>Pilih Dokter untuk Ulasan & AI Insight</label>
+                  <select id="review-doctor-select" onchange="fetchDoctorReviews()" style="width:100%;">
+                    <option value="">Pilih Dokter...</option>
+                  </select>
+                </div>
+                <button class="btn btn-primary" id="btn-get-ai-insight" onclick="fetchDoctorAiInsight()" style="margin-top:1.1rem; display:none;">
+                  ✨ Dapatkan AI Insight
+                </button>
+              </div>
+
+              <!-- AI Insight Box -->
+              <div id="doctor-ai-insight-box" class="ai-insight-box" style="display:none;">
+                <div class="ai-insight-title">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+                  AI Insight Analisis Kinerja Dokter
+                </div>
+                <div id="ai-insight-content" style="font-size:0.82rem; line-height:1.5;">
+                  Memproses insight AI...
+                </div>
+              </div>
+
+              <div style="display:grid; grid-template-columns: 1fr; gap:1.25rem;">
+                <div id="reviews-sentiment-summary" style="display:none; background:var(--surface2); border:1px solid var(--border); border-radius:6px; padding:0.85rem; display:flex; gap:1.5rem; align-items:center; flex-wrap:wrap;">
+                  <div>Rating Rata-rata: <strong id="doctor-rating-avg" style="font-size:1.1rem; color:var(--warning);">-</strong></div>
+                  <div style="display:flex; gap:0.75rem;">
+                    <span class="badge badge-status-selesai">Positif: <span id="count-sentiment-positive">0</span></span>
+                    <span class="badge badge-status-menunggu">Netral: <span id="count-sentiment-neutral">0</span></span>
+                    <span class="badge badge-status-dibatalkan">Negatif: <span id="count-sentiment-negative">0</span></span>
+                  </div>
+                </div>
+
+                <div>
+                  <h5 style="font-size:0.85rem; margin-bottom:0.5rem; color:var(--muted);">Daftar Ulasan Pasien</h5>
+                  <div class="db-table-container">
+                    <table class="db-table">
+                      <thead>
+                        <tr>
+                          <th>Nama Pasien</th>
+                          <th>Rating</th>
+                          <th>Ulasan</th>
+                          <th>Sentimen AI</th>
+                          <th>Tanggal</th>
+                        </tr>
+                      </thead>
+                      <tbody id="db-reviews-list-body">
+                        <tr><td colspan="5" style="text-align:center; color:var(--muted);">Silakan pilih dokter untuk memuat ulasan.</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tab Content: Reports -->
+            <div class="db-tab-content" id="db-tab-reports">
+              <h4 style="font-size:1rem; font-weight:600; margin-bottom:1rem;">📈 Laporan Ringkasan & Ekspor PDF / CSV</h4>
+              
+              <div style="background:var(--surface2); border:1px solid var(--border); border-radius:6px; padding:1rem; margin-bottom:1.25rem;">
+                <h5 style="font-size:0.85rem; margin-bottom:0.75rem; color:var(--text);">Filter Parameter Laporan</h5>
+                <div class="db-form-row">
+                  <div class="field">
+                    <label>Mulai Tanggal</label>
+                    <input type="date" id="report-date-from" value="2026-01-01" />
+                  </div>
+                  <div class="field">
+                    <label>Sampai Tanggal</label>
+                    <input type="date" id="report-date-to" value="2026-12-31" />
+                  </div>
+                  <div class="field" style="display:flex; align-items:flex-end;">
+                    <button class="btn btn-primary" onclick="loadReportPreview()" style="width:100%;">Tampilkan Preview</button>
+                  </div>
+                </div>
+              </div>
+
+              <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
+                <div style="background:var(--surface2); border:1px solid var(--border); border-radius:6px; padding:1rem;">
+                  <strong style="display:block; font-size:0.85rem; margin-bottom:0.5rem;">Laporan Pengguna</strong>
+                  <p style="font-size:0.75rem; color:var(--muted); margin-bottom:0.75rem;">Total pengguna, breakdown role, dan status aktif.</p>
+                  <div style="display:flex; gap:0.5rem;">
+                    <button class="btn btn-secondary" onclick="exportData('users', 'pdf')" style="font-size:0.75rem; padding:0.3rem 0.6rem;">Export PDF</button>
+                    <button class="btn btn-secondary" onclick="exportData('users', 'csv')" style="font-size:0.75rem; padding:0.3rem 0.6rem;">Export CSV</button>
+                  </div>
+                </div>
+
+                <div style="background:var(--surface2); border:1px solid var(--border); border-radius:6px; padding:1rem;">
+                  <strong style="display:block; font-size:0.85rem; margin-bottom:0.5rem;">Laporan Janji Temu</strong>
+                  <p style="font-size:0.75rem; color:var(--muted); margin-bottom:0.75rem;">Total janji temu, status pemeriksaan, dan list tanggal.</p>
+                  <div style="display:flex; gap:0.5rem;">
+                    <button class="btn btn-secondary" onclick="exportData('appointments', 'pdf')" style="font-size:0.75rem; padding:0.3rem 0.6rem;">Export PDF</button>
+                    <button class="btn btn-secondary" onclick="exportData('appointments', 'csv')" style="font-size:0.75rem; padding:0.3rem 0.6rem;">Export CSV</button>
+                  </div>
+                </div>
+
+                <div style="background:var(--surface2); border:1px solid var(--border); border-radius:6px; padding:1rem;">
+                  <strong style="display:block; font-size:0.85rem; margin-bottom:0.5rem;">Laporan Konsultasi Chat</strong>
+                  <p style="font-size:0.75rem; color:var(--muted); margin-bottom:0.75rem;">Sesi chat konsultasi aktif, topik medis, dan list konsultasi.</p>
+                  <div style="display:flex; gap:0.5rem;">
+                    <button class="btn btn-secondary" onclick="exportData('consultations', 'pdf')" style="font-size:0.75rem; padding:0.3rem 0.6rem;">Export PDF</button>
+                    <button class="btn btn-secondary" onclick="exportData('consultations', 'csv')" style="font-size:0.75rem; padding:0.3rem 0.6rem;">Export CSV</button>
+                  </div>
+                </div>
+
+                <div style="background:var(--surface2); border:1px solid var(--border); border-radius:6px; padding:1rem;">
+                  <strong style="display:block; font-size:0.85rem; margin-bottom:0.5rem;">Laporan Rekam Medis</strong>
+                  <p style="font-size:0.75rem; color:var(--muted); margin-bottom:0.75rem;">Breakdown tipe diagnosis, resep obat, vaksinasi, dan lab.</p>
+                  <div style="display:flex; gap:0.5rem;">
+                    <button class="btn btn-secondary" onclick="exportData('medical-records', 'pdf')" style="font-size:0.75rem; padding:0.3rem 0.6rem;">Export PDF</button>
+                    <button class="btn btn-secondary" onclick="exportData('medical-records', 'csv')" style="font-size:0.75rem; padding:0.3rem 0.6rem;">Export CSV</button>
+                  </div>
+                </div>
+              </div>
+
+              <div style="border-top:1px solid var(--border); padding-top:1rem;">
+                <h5 style="font-size:0.9rem; font-weight:600; margin-bottom:0.75rem;">Preview Laporan Real-time</h5>
+                <pre id="reports-preview-output" style="font-family:var(--mono); font-size:0.75rem; background:var(--bg); border:1px solid var(--border); padding:1rem; border-radius:6px; max-height:300px; overflow:auto; color:var(--muted);">Klik "Tampilkan Preview" untuk melihat cuplikan data JSON laporan.</pre>
+              </div>
+            </div>
+
+            <!-- Tab Content: Vector DB / RAG -->
+            <div class="db-tab-content" id="db-tab-rag">
+              <h4 style="font-size:1rem; font-weight:600; margin-bottom:1rem;">🤖 Vector Database & AI RAG Knowledge Base</h4>
+              
+              <div style="display:grid; grid-template-columns:1fr; gap:1.25rem;">
+                <div style="background:var(--surface2); border:1px solid var(--border); border-radius:6px; padding:1.25rem;">
+                  <h5 style="font-size:0.85rem; margin-bottom:0.75rem; display:flex; justify-content:space-between; align-items:center;">
+                    Status Vector DB pgvector
+                    <span class="vector-status-pill"><span class="pulse-dot"></span> Aktif</span>
+                  </h5>
+                  <div style="font-size:0.8rem; color:var(--muted); line-height:1.5; margin-bottom:1rem;">
+                    Vector DB menyimpan data potongan berkas (chunks) dengan representasi embedding AI 1536-dimensi untuk menjawab pertanyaan RAG secara opsional.
+                  </div>
+                  <div style="display:flex; gap:0.5rem;">
+                    <button class="btn btn-secondary" onclick="checkVectorDbStatus()">Cek Status Koneksi</button>
+                    <button class="btn btn-primary" onclick="initVectorDb()">Inisialisasi DB Vector</button>
+                  </div>
+                  <pre id="rag-status-output" style="font-family:var(--mono); font-size:0.72rem; margin-top:0.75rem; background:var(--bg); padding:0.5rem; border-radius:4px; max-height:100px; overflow:auto; display:none;"></pre>
+                </div>
+
+                <div style="background:var(--surface2); border:1px solid var(--border); border-radius:6px; padding:1.25rem;">
+                  <h5 style="font-size:0.85rem; margin-bottom:0.75rem;">Simulasi Tambah Pengetahuan RAG (PDF)</h5>
+                  <div class="field" style="margin-bottom:0.75rem;">
+                    <label>Upload File PDF</label>
+                    <input type="file" id="rag-pdf-file-input" style="background:var(--bg); border:1px solid var(--border); width:100%;" />
+                  </div>
+                  <button class="btn btn-primary" onclick="uploadRagPdf()" style="margin-bottom:1rem;">Upload File & Index Embedding</button>
+
+                  <div style="border-top:1px solid var(--border); padding-top:0.75rem;">
+                    <label style="font-size:0.72rem; color:var(--muted); display:block; margin-bottom:0.35rem;">Atau Proses RAG PDF via URL Cloudinary</label>
+                    <div class="db-form-row">
+                      <div class="field">
+                        <input type="text" id="rag-pdf-url" placeholder="https://res.cloudinary.com/.../document.pdf" />
+                      </div>
+                      <div class="field">
+                        <input type="text" id="rag-pdf-title" placeholder="Judul Dokumen" />
+                      </div>
+                      <div class="field">
+                        <input type="text" id="rag-pdf-pubid" placeholder="public_id (e.g. documents/123)" />
+                      </div>
+                    </div>
+                    <button class="btn btn-secondary" onclick="processRagPdfUrl()">Proses Embedding URL</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+      ` + FEATURES.map(renderFeature).join("") + `
+        <div class="response-panel">
+          <div class="response-header">
+            <strong>Response</strong>
+            <span class="response-meta" id="responseMeta">—</span>
+          </div>
+          <pre class="response-body empty" id="globalResponse">Kirim request untuk melihat response di sini.</pre>
+        </div>`;
+
+      nav.addEventListener("click", (e) => {
+        const a = e.target.closest("a[data-nav]");
+        if (!a) return;
+        e.preventDefault();
+        showFeature(a.dataset.nav);
+        history.replaceState(null, "", `#${a.dataset.nav}`);
+      });
+
+      const hash = location.hash.replace("#", "");
+      showFeature(hash && (FEATURES.some((f) => f.id === hash) || hash === "admin-dashboard") ? hash : "admin-dashboard");
+
+      fetch(getBaseUrl() + "/")
+        .then((r) => r.json())
+        .then(() => updateHealthPill(true))
+        .catch(() => {
+          document.getElementById("healthStatus").textContent = "API offline?";
+          document.getElementById("healthStatus").className = "status-pill err";
+        });
+    }
+
+    init();
+  </script>
+</body>
+
+</html>
