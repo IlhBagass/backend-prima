@@ -12,45 +12,49 @@ Catatan umum:
   - Akses: POST /auth/login
   - Tujuan: Login untuk semua role (Admin, Dokter, Pasien) dan mendapatkan token JWT.
 
-2) Registrasi User (Admin)
+2) Logout User
+  - Akses: POST /auth/logout
+  - Tujuan: Logout user dan menghapus sesi (jika ada).
+
+3) Registrasi User (Admin)
   - Akses: POST /auth/register/admin
   - Tujuan: membuat akun admin
 
-3) Registrasi User (Dokter)
+4) Registrasi User (Dokter)
   - Akses: POST /auth/register/doctor
   - Tujuan: membuat akun dokter
 
-4) Registrasi User (Pasien)
+5) Registrasi User (Pasien)
   - Akses: POST /auth/register/pasien
   - Tujuan: membuat akun pasien
 
-5) List Users (filter & pagination)
+6) List Users (filter & pagination)
   - Akses: GET /auth/users
   - Query: limit, offset, role, status
 
-6) Get Profil User (by ID)
+7) Get Profil User (by ID)
   - Akses: GET /auth/users/:id
   - Catatan: response tidak mengembalikan kolom `password`
 
-7) Update User (umum)
+8) Update User (umum)
   - Akses: PATCH /auth/users/:id
   - Tujuan: update field user (jika kirim `password` akan di-hash ulang)
 
-8) Update Profil Pasien (whitelist, role=pasien)
+9) Update Profil Pasien (whitelist, role=pasien)
   - Akses: PATCH /auth/users/:id/pasien
   - Tujuan: update profil pasien (field profil pasien saja)
 
-9) Update Profil Dokter (whitelist, role=doctor)
+10) Update Profil Dokter (whitelist, role=doctor)
   - Akses: PATCH /auth/users/:id/doctor
   - Tujuan: update profil dokter (field profil dokter saja)
 
-10) Upload Foto Profil
+11) Upload Foto Profil
   - Akses: POST /auth/users/:id/photo
   - Body: multipart/form-data (key: file)
   - Hasil: update `foto_profil_url` user
 
-11) Hapus Akun (Soft Delete)
+12) Hapus Akun (Soft Delete)
   - Akses: DELETE /auth/users/:id
 
-12) Hapus Akun (Hard Delete / Permanent)
+13) Hapus Akun (Hard Delete / Permanent)
   - Akses: DELETE /auth/users/:id/permanent

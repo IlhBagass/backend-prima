@@ -1,7 +1,7 @@
 import { registerAdmin } from "../controller/admin.controller.js";
 import { registerDoctor, updateDoctorProfileById } from "../controller/doctor.controller.js";
 import { registerPasien, updatePasienProfileById } from "../controller/pasien.controller.js";
-import { login } from "../controller/auth.controller.js";
+import { login, logout } from "../controller/auth.controller.js";
 import {
   deleteUserById,
   hardDeleteUserById,
@@ -13,6 +13,7 @@ import {
 
 export default async function userRoutes(app) {
   app.post("/login", login);
+  app.post("/logout", logout);
   app.post("/register/admin", registerAdmin);
   app.post("/register/doctor", registerDoctor);
   app.post("/register/pasien", registerPasien);

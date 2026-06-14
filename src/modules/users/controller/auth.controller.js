@@ -63,3 +63,18 @@ export const login = async (req, reply) => {
     });
   }
 };
+
+export const logout = async (req, reply) => {
+  try {
+    return reply.send({
+      success: true,
+      message: "Logout berhasil",
+    });
+  } catch (error) {
+    console.error("Logout Error:", error);
+    return reply.code(500).send({
+      success: false,
+      message: "Terjadi kesalahan internal pada server",
+    });
+  }
+};
