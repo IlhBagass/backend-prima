@@ -1,5 +1,5 @@
 import { sql } from "../../../config/db.js";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { generateHexId } from "../../../utils/id.js";
 
 export const registerAdminService = async ({
