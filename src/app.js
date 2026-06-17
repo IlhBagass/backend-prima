@@ -14,12 +14,14 @@ app.get("/",async () => {
 
 app.get("/db-check", async (req, reply) => {
     try {
-        const { sql } = await import("./config/db.js");
-        await sql.unsafe(`ALTER TABLE public.messages ADD COLUMN IF NOT EXISTS consultation_id UUID;`);
+        const { sql, initDatabase } = await import("./config/db.js");
+        // Drop old messages table because it's completely wrong schema
+        await sql`DROP TABLE IF EXISTS public.messages CASCADE;`;
+        await initDatabase();
         const columns = await sql`SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'messages'`;
         return reply.send({ success: true, columns });
     } catch (err) {
-        return reply.code(500).send({ error: err.message });
+        return reply.code(500).send({ error: err.message, stack: err.stack });
     }
 });
 
