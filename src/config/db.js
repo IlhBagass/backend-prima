@@ -214,4 +214,22 @@ export async function initDatabase() {
       deleted_at TIMESTAMPTZ NULL
     );
   `;
+  // Health Documents
+  await sql`
+    CREATE TABLE IF NOT EXISTS public.health_documents (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      pasien_id VARCHAR NOT NULL,
+      doctor_id VARCHAR NOT NULL,
+      type VARCHAR NOT NULL,
+      keperluan TEXT NULL,
+      catatan TEXT NULL,
+      catatan_dokter TEXT NULL,
+      status VARCHAR NOT NULL DEFAULT 'draft',
+      berlaku_dari DATE NULL,
+      berlaku_sampai DATE NULL,
+      verified_at TIMESTAMPTZ NULL,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      updated_at TIMESTAMPTZ DEFAULT NOW()
+    );
+  `;
 }

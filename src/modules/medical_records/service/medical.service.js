@@ -78,9 +78,8 @@ export async function getMedicalRecordsByPasien({
   values.push(limit);
   values.push(offset);
 
-  const result = await sql(query, values);
-
-  return result;
+  const result = await sql.query(query, values);
+  return result.rows || result;
 }
 
 export async function getMedicalRecordDetail(id) {
@@ -136,8 +135,8 @@ export async function updateMedicalRecord(id, payload) {
     RETURNING *
   `;
 
-  const result = await sql(query, values);
-  return result[0] || null;
+  const result = await sql.query(query, values);
+  return (result.rows ? result.rows[0] : result[0]) || null;
 }
 
 export async function deleteMedicalRecord(id) {
