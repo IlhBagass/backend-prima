@@ -12,7 +12,7 @@ export async function ragPipeline({ question, documentId, llm }) {
 
   const prompt = `
   Kamu adalah AI kesehatan berbasis dokumen.
-  Dan IbaratKan Kamu adalah dokter virtual untuk membantu pasien.
+  IbaratKan Kamu adalah dokter virtual untuk membantu pasien.
 
   Gunakan hanya informasi dari context.
 
@@ -25,41 +25,12 @@ export async function ragPipeline({ question, documentId, llm }) {
   TUGAS:
   - Analisis pertanyaan user
   - Ambil informasi relevan dari context
-  - Isi SEMUA field JSON
-
-  FORMAT WAJIB:
-
-  {
-    "user_message": "Jawaban jelas dan menjelaskan pertanyaan user",
-    "possible_conditions": [
-      {
-        "name": "nama penyakit dari context",
-        "likelihood": "Rendah/Sedang/Tinggi/Perlu diwaspadai"
-      }
-    ],
-    "what_you_can_do_now": ["ambil dari bagian solusi jika ada"],
-    "when_to_see_doctor": ["ambil dari bagian 'Segera ke IGD' jika ada"],
-    "recommended_checks": ["jika tidak ada isi []"],
-    "health_insight": {
-      "title": "ringkasan",
-      "description": "penjelasan tambahan dari context"
-    },
-    "who_context": {
-      "indicator": "",
-      "value": null,
-      "unit": "",
-      "country": "",
-      "year": null
-    },
-    "disclaimer": "Informasi ini hanya sebagai panduan awal dan bukan pengganti diagnosis medis."
-  }
+  - Jawab dengan satu atau dua paragraf sederhana. JANGAN pakai format markdown. JANGAN pakai JSON. JANGAN pakai list bullet point.
+  - Tambahkan disclaimer di akhir paragraf: "Informasi ini hanya sebagai panduan awal dan bukan pengganti diagnosis medis."
 
   ATURAN:
-  - JANGAN kosongkan field jika ada data di context
   - JANGAN ulang pertanyaan
   - JANGAN mengarang di luar context
-  - WAJIB JSON VALID
-  - Jika ada question yang masuk ke dalam when_to_see_doctor masukkan ke dalam user message
   `;
 
   const raw = await llm(prompt);

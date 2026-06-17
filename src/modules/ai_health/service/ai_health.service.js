@@ -62,10 +62,7 @@ export const symptomsAnalysisService = async ({ user_id, gejala, durasi, suhu_tu
 
   return {
     patient_context,
-    analysis: {
-      ...analysis,
-      disclaimer: DISCLAIMER,
-    },
+    analysis: analysis.response_text,
     disclaimer: DISCLAIMER,
   };
 };
@@ -102,12 +99,9 @@ export const analyzeHealthDataService = async ({
     disclaimer: DISCLAIMER,
   });
 
-  // pastikan BMI sesuai hasil kalkulasi backend
-  analysis.bmi = { value: bmiCalc.bmi, status: bmiCalc.status };
-  analysis.disclaimer = DISCLAIMER;
-
   return {
-    analysis,
+    bmi: { value: bmiCalc.bmi, status: bmiCalc.status },
+    analysis: analysis.response_text,
     disclaimer: DISCLAIMER,
   };
 };
