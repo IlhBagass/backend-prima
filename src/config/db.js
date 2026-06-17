@@ -155,4 +155,45 @@ export async function initDatabase() {
   } catch (err) {
     console.warn("[initDatabase] Gagal migrasi appointments doctor/pasien id:", err.message);
   }
+
+  // Consultations
+  await sql`
+    CREATE TABLE IF NOT EXISTS public.consultations (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      pasien_id VARCHAR NOT NULL,
+      doctor_id VARCHAR NOT NULL,
+      booking_id UUID NULL,
+      status VARCHAR NOT NULL DEFAULT 'aktif',
+      topik TEXT NULL,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      updated_at TIMESTAMPTZ DEFAULT NOW(),
+      ended_at TIMESTAMPTZ NULL,
+      deleted_at TIMESTAMPTZ NULL
+    );
+  `;
+
+  // Messages
+  await sql`
+    CREATE TABLE IF NOT EXISTS public.messages (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      consultation_id UUID NOT NULL,
+      sender_id VARCHAR NOT NULL,
+      message TEXT NULL,
+      file_url TEXT NULL,
+      type VARCHAR NOT NULL DEFAULT 'text',
+      is_read BOOLEAN NOT NULL DEFAULT false,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      updated_at TIMESTAMPTZ DEFAULT NOW(),
+      deleted_at TIMESTAMPTZ NULL
+    );
+  `;
+
+  // Migration safety: ensure consultation_id exists in messages
+  try {
+    await sql.unsafe(`
+      ALTER TABLE public.messages ADD COLUMN IF NOT EXISTS consultation_id UUID;
+    `);
+  } catch (err) {
+    console.warn("[initDatabase] Gagal alter messages:", err.message);
+  }
 }
