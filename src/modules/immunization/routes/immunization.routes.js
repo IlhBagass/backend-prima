@@ -1,5 +1,6 @@
 import {
     getImmunizationsController,
+    getImmunizationsByDoctorController,
     createImmunizationController,
     getImmunizationByIdController,
     updateImmunizationController,
@@ -8,6 +9,7 @@ import {
 
 export async function immunizationRoutes(app) {
     app.get("/show", getImmunizationsController)
+    app.get("/doctor/:doctor_id", getImmunizationsByDoctorController)
     app.get("/show/:id", getImmunizationByIdController)
 
     app.post("/create", createImmunizationController)

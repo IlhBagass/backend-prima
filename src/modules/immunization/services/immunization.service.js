@@ -42,6 +42,13 @@ export async function getImmunizations() {
     return immunizations
 }
 
+export async function getImmunizationsByDoctor(doctorId) {
+    const immunizations = await sql`
+        SELECT * FROM immunizations WHERE doctor_id = ${doctorId} ORDER BY tanggal_vaksin DESC
+    `
+    return immunizations
+}
+
 export async function getImmunizationById(id) {
     const immunization = await sql`
         SELECT * FROM immunizations WHERE id = ${id}
