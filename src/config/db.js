@@ -214,6 +214,13 @@ export async function initDatabase() {
       deleted_at TIMESTAMPTZ NULL
     );
   `;
+
+  // Drop the constraint that causes issues with dynamic types like "Upload User" or "Tindakan Medis"
+  try {
+    await sql.unsafe(`ALTER TABLE public.medical_records DROP CONSTRAINT IF EXISTS medical_records_type_check;`);
+  } catch (err) {
+    console.warn("[initDatabase] Gagal drop constraint medical_records_type_check:", err.message);
+  }
   // Health Documents
   await sql`
     CREATE TABLE IF NOT EXISTS public.health_documents (
