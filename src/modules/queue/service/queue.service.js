@@ -88,54 +88,29 @@ export const getQueuePositionByBookingService = async (bookingId) => {
     queue_status: mapQueueStatus(r.status),
   }));
 
-  const self = withNumber.find((r) => String(r.id) === String(bookingId));
-  if (!self) {
-    // booking ada tapi mungkin cancelled dan tidak masuk queue list
-    return {
-      booking_id: bookingId,
-      pasien: { nama: booking.pasien_name ?? null, no_telepon: booking.pasien_phone ?? null },
-      dokter: { nama: booking.doctor_name ?? null, spesialisasi: booking.doctor_spesialisasi ?? null },
-      antrian: {
-        nomor_antrian: null,
-        posisi_sekarang: null,
-        sisa_antrian: null,
-        estimasi_waktu: null,
-        status: mapQueueStatus(booking.status),
-      },
-      jadwal: { tanggal: String(date), jam: formatJamWib(booking.start_time) },
-    };
-  }
-
-  const currentCalled = withNumber
-    .filter((r) => r.queue_status === "dipanggil")
-    .sort((a, b) => a.nomor_antrian - b.nomor_antrian)[0];
-
-  const lastDoneNumber =
-    withNumber
-      .filter((r) => ["selesai", "tidak_hadir"].includes(r.queue_status))
-      .map((r) => r.nomor_antrian)
-      .reduce((acc, v) => Math.max(acc, v), 0) || 0;
-
   // DUMMY REALTIME LOGIC
   // Mengurangi 1 antrian setiap 5 detik agar terlihat realtime di frontend
   const seconds = new Date().getSeconds();
   const dummySisa = Math.max(0, 10 - Math.floor(seconds / 5)); // Sisa antrian berkurang dari 10 ke 0
   const dummyEstimasi = `± ${dummySisa * 10} menit`;
-  const dummyPosisiSekarang = Math.max(1, self.nomor_antrian - dummySisa);
+  
+  // Karena diminta dummy, kita paksa nomor antrian menjadi 12
+  const dummyNomorAntrian = 12;
+  const dummyPosisiSekarang = Math.max(1, dummyNomorAntrian - dummySisa);
   const dummyStatus = dummySisa === 0 ? "dipanggil" : "menunggu";
 
   return {
     booking_id: bookingId,
     pasien: {
-      nama: self.pasien_name ?? null,
-      no_telepon: self.pasien_phone ?? null,
+      nama: booking.pasien_name ?? null,
+      no_telepon: booking.pasien_phone ?? null,
     },
     dokter: {
-      nama: self.doctor_name ?? null,
-      spesialisasi: self.doctor_spesialisasi ?? null,
+      nama: booking.doctor_name ?? null,
+      spesialisasi: booking.doctor_spesialisasi ?? null,
     },
     antrian: {
-      nomor_antrian: self.nomor_antrian,
+      nomor_antrian: dummyNomorAntrian,
       posisi_sekarang: dummyPosisiSekarang,
       sisa_antrian: dummySisa,
       estimasi_waktu: dummyEstimasi,
@@ -143,7 +118,7 @@ export const getQueuePositionByBookingService = async (bookingId) => {
     },
     jadwal: {
       tanggal: String(date),
-      jam: formatJamWib(self.start_time),
+      jam: formatJamWib(booking.start_time),
     },
   };
 };
