@@ -196,4 +196,22 @@ export async function initDatabase() {
   } catch (err) {
     console.warn("[initDatabase] Gagal alter messages:", err.message);
   }
+
+  // Medical Records
+  await sql`
+    CREATE TABLE IF NOT EXISTS public.medical_records (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      pasien_id VARCHAR NOT NULL,
+      doctor_id VARCHAR NULL,
+      booking_id UUID NULL,
+      type VARCHAR NOT NULL,
+      judul VARCHAR NOT NULL,
+      deskripsi TEXT NULL,
+      catatan_dokter TEXT NULL,
+      attachment_url TEXT NULL,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      updated_at TIMESTAMPTZ DEFAULT NOW(),
+      deleted_at TIMESTAMPTZ NULL
+    );
+  `;
 }

@@ -19,7 +19,7 @@ export async function createMedicalRecord(payload) {
     VALUES (
       ${id},
       ${payload.pasien_id},
-      ${payload.doctor_id},
+      ${payload.doctor_id || null},
       ${payload.booking_id || null},
       ${payload.type},
       ${payload.judul},
