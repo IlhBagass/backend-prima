@@ -5,13 +5,12 @@ const databaseUrl = getEnv("DATABASE_URL");
 
 export const neonSql = databaseUrl
   ? neon(databaseUrl)
-  : () => {
-      throw new Error("DATABASE_URL belum diset.");
-    };
+  : Object.assign(
+      () => { throw new Error("DATABASE_URL belum diset."); },
+      { query: () => { throw new Error("DATABASE_URL belum diset."); } }
+    );
 
-export const sql = Object.assign(neonSql, {
-  query: async (text, params) => neonSql(text, params)
-});
+export const sql = neonSql;
 
 export async function initPgvector() {
   if (!databaseUrl) {
