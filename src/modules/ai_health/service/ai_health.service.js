@@ -54,7 +54,7 @@ export const symptomsAnalysisService = async ({ user_id, gejala, durasi, suhu_tu
   const analysis = await callMaiaJson({
     task: "Analisis Gejala (FOKUS HANYA PADA PENYAKIT SAJA. Berikan penjelasan diagnosis dan tindakan.)",
     schema_hint: {
-      response_text: "string (Format teks markdown rapi. Sebutkan kemungkinan penyakit, tindakan, dan saran ke dokter jika perlu.)"
+      response_text: "string (Format satu paragraf sederhana saja, tanpa markdown, tanpa list. Sebutkan kemungkinan penyakit, tindakan, dan saran ke dokter jika perlu.)"
     },
     user_payload: aiInput,
     disclaimer: DISCLAIMER,
@@ -96,7 +96,7 @@ export const analyzeHealthDataService = async ({
   const analysis = await callMaiaJson({
     task: "Analisis Data Kesehatan (FOKUS HANYA PADA RESIKO PENYAKIT SAJA)",
     schema_hint: {
-      response_text: "string (Format teks markdown rapi. Berikan analisis resiko penyakit berdasarkan data yang ada.)"
+      response_text: "string (Format satu paragraf sederhana saja, tanpa markdown, tanpa list. Berikan analisis resiko penyakit berdasarkan data yang ada.)"
     },
     user_payload: aiInput,
     disclaimer: DISCLAIMER,
@@ -120,7 +120,7 @@ export const recommendDoctorBySymptomsService = async ({ user_id, gejala, durasi
   const ai = await callMaiaJson({
     task: "Rekomendasi Dokter by Gejala (Fokus ke Penyakit)",
     schema_hint: {
-      response_text: "string (Format markdown rapi tentang kemungkinan penyakit dan alasan rekomendasi)",
+      response_text: "string (Format satu paragraf sederhana saja, tanpa markdown, tanpa list tentang kemungkinan penyakit dan alasan rekomendasi)",
       recommended_specialist: { spesialisasi: "string", alasan: "string" }
     },
     user_payload: aiInput,
