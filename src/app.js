@@ -25,4 +25,14 @@ app.get("/db-check", async (req, reply) => {
     }
 });
 
+app.get("/db-query", async (req, reply) => {
+    try {
+        const { sql } = await import("./config/db.js");
+        const result = await sql`SELECT * FROM messages LIMIT 1`;
+        return reply.send({ success: true, result });
+    } catch (err) {
+        return reply.code(500).send({ error: err.message, stack: err.stack });
+    }
+});
+
 export default app;
