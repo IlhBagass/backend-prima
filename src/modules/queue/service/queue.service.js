@@ -53,41 +53,6 @@ const getQueueRowsByDoctorDate = async ({ doctorId, date }) => {
 };
 
 export const getQueuePositionByBookingService = async (bookingId) => {
-  const rows = await sql.query(
-    `
-      SELECT
-        a.id,
-        a.doctor_id,
-        a.pasien_id,
-        a.appointment_date,
-        a.start_time,
-        a.status,
-        u_pasien.name AS pasien_name,
-        u_pasien.no_telepon AS pasien_phone,
-        u_doctor.name AS doctor_name,
-        u_doctor.spesialisasi AS doctor_spesialisasi
-      FROM public.appointments a
-      LEFT JOIN users u_pasien ON u_pasien.id = a.pasien_id
-      LEFT JOIN users u_doctor ON u_doctor.id = a.doctor_id
-      WHERE a.id = $1
-      LIMIT 1
-    `,
-    [bookingId]
-  );
-
-  const booking = rows[0];
-  if (!booking) return null;
-
-  const doctorId = booking.doctor_id;
-  const date = booking.appointment_date;
-
-  const queueRows = await getQueueRowsByDoctorDate({ doctorId, date });
-  const withNumber = queueRows.map((r, idx) => ({
-    ...r,
-    nomor_antrian: idx + 1,
-    queue_status: mapQueueStatus(r.status),
-  }));
-
   // DUMMY REALTIME LOGIC
   // Mengurangi 1 antrian setiap 5 detik agar terlihat realtime di frontend
   const seconds = new Date().getSeconds();
@@ -102,12 +67,12 @@ export const getQueuePositionByBookingService = async (bookingId) => {
   return {
     booking_id: bookingId,
     pasien: {
-      nama: booking.pasien_name ?? null,
-      no_telepon: booking.pasien_phone ?? null,
+      nama: "Pasien Dummy",
+      no_telepon: "08123456789",
     },
     dokter: {
-      nama: booking.doctor_name ?? null,
-      spesialisasi: booking.doctor_spesialisasi ?? null,
+      nama: "Dr. Dummy Spesialis",
+      spesialisasi: "Poli Dummy",
     },
     antrian: {
       nomor_antrian: dummyNomorAntrian,
@@ -117,8 +82,8 @@ export const getQueuePositionByBookingService = async (bookingId) => {
       status: dummyStatus,
     },
     jadwal: {
-      tanggal: String(date),
-      jam: formatJamWib(booking.start_time),
+      tanggal: "2026-06-17",
+      jam: "10.00 WIB",
     },
   };
 };
