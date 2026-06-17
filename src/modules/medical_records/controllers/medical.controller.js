@@ -2,6 +2,7 @@ import {
   createMedicalRecord,
   getMedicalRecordsByPasien,
   getMedicalRecordDetail,
+  getMedicalRecordsByDoctor,
   updateMedicalRecord,
   deleteMedicalRecord,
 } from "../service/medical.service.js";
@@ -29,6 +30,27 @@ export async function getMedicalRecordsByPasienController(req, reply) {
 
     const data = await getMedicalRecordsByPasien({
       pasien_id,
+      ...req.query,
+    });
+
+    return reply.send({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    return reply.code(500).send({
+      success: false,
+      message: error.message,
+    });
+  }
+}
+
+export async function getMedicalRecordsByDoctorController(req, reply) {
+  try {
+    const { doctor_id } = req.params;
+
+    const data = await getMedicalRecordsByDoctor({
+      doctor_id,
       ...req.query,
     });
 

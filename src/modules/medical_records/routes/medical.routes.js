@@ -2,6 +2,7 @@ import {
   createMedicalRecordController,
   getMedicalRecordsByPasienController,
   getMedicalRecordDetailController,
+  getMedicalRecordsByDoctorController,
   updateMedicalRecordController,
   deleteMedicalRecordController,
 } from "../controllers/medical.controller.js";
@@ -15,6 +16,11 @@ export default async function medicalRecordsRoutes(app) {
   app.get(
     "/pasien/:pasien_id",
     getMedicalRecordsByPasienController
+  );
+
+  app.get(
+    "/doctor/:doctor_id",
+    getMedicalRecordsByDoctorController
   );
 
   app.get(
