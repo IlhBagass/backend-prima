@@ -6,10 +6,10 @@ export const registerAdminService = async ({
   name,
   email,
   password,
-  jenis_kelamin,
-  no_telepon,
-  kota,
-  provinsi,
+  jenis_kelamin = null,
+  no_telepon = null,
+  kota = null,
+  provinsi = null,
 }) => {
 
   const emailCheck = await sql`
