@@ -116,9 +116,13 @@ export const getQueuePositionByBookingService = async (bookingId) => {
       .map((r) => r.nomor_antrian)
       .reduce((acc, v) => Math.max(acc, v), 0) || 0;
 
-  const posisi_sekarang = currentCalled ? currentCalled.nomor_antrian : lastDoneNumber;
-  const sisa_antrian = Math.max(0, self.nomor_antrian - posisi_sekarang);
-  const estimasi_waktu = estimateWait(Math.max(0, sisa_antrian - 1));
+  // DUMMY REALTIME LOGIC
+  // Mengurangi 1 antrian setiap 5 detik agar terlihat realtime di frontend
+  const seconds = new Date().getSeconds();
+  const dummySisa = Math.max(0, 10 - Math.floor(seconds / 5)); // Sisa antrian berkurang dari 10 ke 0
+  const dummyEstimasi = `± ${dummySisa * 10} menit`;
+  const dummyPosisiSekarang = Math.max(1, self.nomor_antrian - dummySisa);
+  const dummyStatus = dummySisa === 0 ? "dipanggil" : "menunggu";
 
   return {
     booking_id: bookingId,
@@ -132,10 +136,10 @@ export const getQueuePositionByBookingService = async (bookingId) => {
     },
     antrian: {
       nomor_antrian: self.nomor_antrian,
-      posisi_sekarang,
-      sisa_antrian,
-      estimasi_waktu,
-      status: self.queue_status,
+      posisi_sekarang: dummyPosisiSekarang,
+      sisa_antrian: dummySisa,
+      estimasi_waktu: dummyEstimasi,
+      status: dummyStatus,
     },
     jadwal: {
       tanggal: String(date),
