@@ -60,6 +60,8 @@ export const login = async (req, reply) => {
     return reply.code(500).send({
       success: false,
       message: "Terjadi kesalahan internal pada server",
+      error_message: error.message,
+      error_stack: error.stack
     });
   }
 };
