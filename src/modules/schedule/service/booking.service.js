@@ -125,10 +125,11 @@ export const listBookingsByDoctorService = async ({ doctorId, date, status } = {
 
   return sql.query(
     `
-      SELECT id, doctor_id, pasien_id, schedule_id, appointment_date, start_time, end_time, status, notes, created_at, updated_at, cancelled_at
-      FROM public.appointments
-      WHERE ${where.join(" AND ")}
-      ORDER BY appointment_date DESC, start_time ASC
+      SELECT a.id, a.doctor_id, a.pasien_id, a.schedule_id, a.appointment_date, a.start_time, a.end_time, a.status, a.notes, a.created_at, a.updated_at, a.cancelled_at, u.name AS pasien_name
+      FROM public.appointments a
+      LEFT JOIN public.users u ON u.id = a.pasien_id
+      WHERE ${where.map(w => w.replace(/([a-z_]+)\s*=/i, 'a.$1 =')).join(" AND ")}
+      ORDER BY a.appointment_date DESC, a.start_time ASC
     `,
     params
   );
